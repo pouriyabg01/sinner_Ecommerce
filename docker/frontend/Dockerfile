@@ -4,7 +4,8 @@
 FROM node:22-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+# کش npm بین ساخت‌ها می‌ماند؛ اگر فهرست بسته‌ها عوض شود، فقط تفاوتش دانلود می‌شود.
+RUN --mount=type=cache,target=/root/.npm npm ci
 
 # ---------- ساخت ----------
 FROM node:22-alpine AS builder
@@ -22,7 +23,9 @@ ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
     NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL \
     NEXT_TELEMETRY_DISABLED=1
 
-RUN npm run build
+# کش ساخت Next بین دفعه‌ها نگه داشته می‌شود. بدون این، هر بار کل صفحه‌ها از
+# صفر ترجمه می‌شدند و روی سرور دوهسته‌ای نیم ساعت طول می‌کشید.
+RUN --mount=type=cache,target=/app/.next/cache npm run build
 
 # ---------- اجرا ----------
 # خروجی standalone فقط همان چند مگابایتی را دارد که واقعاً لازم است؛
