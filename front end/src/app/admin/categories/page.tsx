@@ -17,6 +17,7 @@ import {
 } from '@/lib/api/queries'
 import { PermissionGate } from '@/components/admin/admin-shell'
 import { AdminCard, Table } from '@/components/admin/data-table'
+import { BulkBar, SelectCell, runBulk, useSelection } from '@/components/admin/selection'
 import { BrandDrawer, CategoryDrawer } from '@/components/admin/taxonomy-forms'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -42,8 +43,32 @@ export default function AdminTaxonomyPage() {
   const [categoryEdit, setCategoryEdit] = useState<Category | null | undefined>(undefined)
   const [brandEdit, setBrandEdit] = useState<Brand | null | undefined>(undefined)
   const [removing, setRemoving] = useState<CategoryWithCount | null>(null)
+  const [bulkCategories, setBulkCategories] = useState<CategoryWithCount[] | null>(null)
+  const [brandBulkBusy, setBrandBulkBusy] = useState(false)
+
+  const categoryRows = categories.data ?? []
+  const categoryIds = categoryRows.map((category) => category.id)
+  const categorySelection = useSelection(categoryIds, categoryIds)
+
+  // برندِ دارای کالا اصلاً حذف نمی‌شود؛ پس نه تکش انتخاب می‌شود نه در «انتخاب همه» می‌آید
+  const brandRows = brands.data ?? []
+  const deletableBrandIds = brandRows.filter((brand) => brand.productCount === 0).map((brand) => brand.id)
+  const brandSelection = useSelection(deletableBrandIds, deletableBrandIds)
 
   const fail = (error: unknown) => toast.error(error instanceof Error ? error.message : 'عملیات ناموفق بود')
+
+  const removeSelectedBrands = async () => {
+    const ids = brandSelection.selected
+    if (!ids.length) return
+    if (!confirm(`آیا ${toFaDigits(ids.length)} برند حذف شوند؟ این کار برگشت‌پذیر نیست.`)) return
+
+    setBrandBulkBusy(true)
+    const { done, failed, firstError } = await runBulk(ids, (id) => deleteBrand.mutateAsync(id))
+    setBrandBulkBusy(false)
+    brandSelection.clear()
+    if (done) toast.success(`${toFaDigits(done)} برند حذف شد`)
+    if (failed) toast.error(firstError ?? `${toFaDigits(failed)} برند حذف نشد`)
+  }
 
   return (
     <PermissionGate permission="category.manage">
@@ -73,11 +98,24 @@ export default function AdminTaxonomyPage() {
           ) : !categories.data?.length ? (
             <EmptyState icon={Layers} title="دسته‌بندی‌ای ثبت نشده" description="اولین دسته را بسازید تا کالاها جایی برای نشستن داشته باشند." />
           ) : (
-            <Table head={['دسته', 'اسلاگ', 'کلیدهای مشخصات', 'تعداد کالا', '']}>
+            <>
+            <BulkBar selection={categorySelection} unit="دسته‌بندی">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-red-600 hover:text-red-700"
+                onClick={() => setBulkCategories(categoryRows.filter((category) => categorySelection.has(category.id)))}
+              >
+                <Trash2 className="size-3.5" />
+                حذف انتخاب‌شده‌ها
+              </Button>
+            </BulkBar>
+            <Table selection={categorySelection} head={['دسته', 'اسلاگ', 'کلیدهای مشخصات', 'تعداد کالا', '']}>
               {categories.data.map((category) => {
                 const Icon = getIcon(category.icon)
                 return (
                   <tr key={category.id} className="transition-colors hover:bg-surface-2/40">
+                    <SelectCell selection={categorySelection} id={category.id} label={category.title} />
                     <td className="p-3.5">
                       <div className="flex items-center gap-3">
                         <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400">
@@ -127,6 +165,7 @@ export default function AdminTaxonomyPage() {
                 )
               })}
             </Table>
+            </>
           )}
         </AdminCard>
 
@@ -148,9 +187,29 @@ export default function AdminTaxonomyPage() {
           ) : !brands.data?.length ? (
             <EmptyState icon={Tag} title="برندی ثبت نشده" description="برندها در فیلتر محصولات و نوار برندهای صفحه‌ی اصلی استفاده می‌شوند." />
           ) : (
-            <Table head={['برند', 'اسلاگ', 'تعداد کالا', '']}>
+            <>
+            <BulkBar selection={brandSelection} unit="برند">
+              <Button
+                variant="ghost"
+                size="sm"
+                loading={brandBulkBusy}
+                className="text-red-600 hover:text-red-700"
+                onClick={() => void removeSelectedBrands()}
+              >
+                <Trash2 className="size-3.5" />
+                حذف انتخاب‌شده‌ها
+              </Button>
+            </BulkBar>
+            <Table selection={brandSelection} head={['برند', 'اسلاگ', 'تعداد کالا', '']}>
               {brands.data.map((brand) => (
                 <tr key={brand.id} className="transition-colors hover:bg-surface-2/40">
+                  <SelectCell
+                    selection={brandSelection}
+                    id={brand.id}
+                    label={brand.title}
+                    disabled={brand.productCount > 0}
+                    reason="ابتدا برند کالاهای این برند را عوض کنید"
+                  />
                   <td className="p-3.5">
                     <div className="flex items-center gap-3">
                       <span className="grid h-9 w-16 shrink-0 place-items-center rounded-xl bg-surface-2 text-foreground">
@@ -193,6 +252,7 @@ export default function AdminTaxonomyPage() {
                 </tr>
               ))}
             </Table>
+            </>
           )}
         </AdminCard>
 
@@ -219,6 +279,16 @@ export default function AdminTaxonomyPage() {
 
         {/* کلید تازه یعنی هر بار با گزینه‌ی امن‌تر («بی‌دسته بمانند») باز شود */}
         <DeleteCategoryDrawer key={removing?.id ?? 'closed'} category={removing} onClose={() => setRemoving(null)} />
+
+        <BulkDeleteCategoriesDrawer
+          key={bulkCategories?.map((category) => category.id).join(',') ?? 'bulk-closed'}
+          categories={bulkCategories}
+          onClose={() => setBulkCategories(null)}
+          onDone={() => {
+            categorySelection.clear()
+            setBulkCategories(null)
+          }}
+        />
 
         <BrandDrawer
           open={brandEdit !== undefined}
@@ -353,6 +423,120 @@ function DeleteCategoryDrawer({ category, onClose }: { category: CategoryWithCou
         <p className="rounded-xl bg-surface-2 px-3.5 py-2.5 text-xs text-muted">
           لینک این دسته از بخش دسته‌بندی‌های صفحه‌ی اصلی و ستون دسته‌بندی‌های فوتر هم خودکار برداشته می‌شود.
         </p>
+      </div>
+    </Drawer>
+  )
+}
+
+/**
+ * حذف گروهی دسته‌ها.
+ *
+ * تصمیم درباره‌ی کالاها یک بار برای همه گرفته می‌شود، نه دسته‌به‌دسته: ادمینی که
+ * ده دسته را انتخاب کرده، ده بار همین سؤال را نمی‌خواهد. اگر هیچ‌کدام کالا
+ * نداشته باشند، سؤال اصلاً نمایش داده نمی‌شود.
+ */
+function BulkDeleteCategoriesDrawer({
+  categories,
+  onClose,
+  onDone,
+}: {
+  categories: CategoryWithCount[] | null
+  onClose: () => void
+  onDone: () => void
+}) {
+  const deleteCategory = useDeleteCategory()
+  const [mode, setMode] = useState<CategoryDeleteMode>('detach_products')
+  const [busy, setBusy] = useState(false)
+
+  const rows = categories ?? []
+  const products = rows.reduce((sum, category) => sum + category.productCount, 0)
+  const countLabel = toFaDigits(rows.length)
+  const productLabel = toFaDigits(products)
+
+  const submit = async () => {
+    if (!rows.length) return
+    setBusy(true)
+    const { done, failed, firstError } = await runBulk(
+      rows.map((category) => category.id),
+      (id) => {
+        const row = rows.find((category) => category.id === id)
+        return deleteCategory.mutateAsync({ id, mode: row?.productCount ? mode : undefined })
+      },
+    )
+    setBusy(false)
+    if (done) toast.success(`${toFaDigits(done)} دسته‌بندی حذف شد`)
+    if (failed) toast.error(firstError ?? `${toFaDigits(failed)} دسته‌بندی حذف نشد`)
+    onDone()
+  }
+
+  return (
+    <Drawer
+      open={rows.length > 0}
+      onClose={onClose}
+      title={`حذف ${countLabel} دسته‌بندی`}
+      footer={
+        <div className="flex gap-2">
+          <Button variant="ghost" block onClick={onClose}>
+            انصراف
+          </Button>
+          <Button variant="danger" block loading={busy} onClick={() => void submit()}>
+            <Trash2 className="size-4" />
+            {products && mode === 'delete_products' ? `حذف ${countLabel} دسته و ${productLabel} کالا` : `حذف ${countLabel} دسته‌بندی`}
+          </Button>
+        </div>
+      }
+    >
+      <div className="space-y-4 text-[13px] leading-7">
+        <ul className="space-y-1.5 rounded-xl bg-surface-2 px-3.5 py-3">
+          {rows.map((category) => (
+            <li key={category.id} className="flex items-center justify-between gap-3">
+              <span className="truncate font-medium">{category.title}</span>
+              <span className="num shrink-0 text-xs text-muted">{toFaDigits(category.productCount)} کالا</span>
+            </li>
+          ))}
+        </ul>
+
+        {products ? (
+          <>
+            <p>
+              روی‌هم <span className="num font-bold">{productLabel}</span> کالا در این دسته‌ها هست. با آن‌ها چه کنیم؟
+            </p>
+            <div role="radiogroup" aria-label="سرنوشت کالاها" className="space-y-2.5">
+              {DELETE_OPTIONS.map((option) => {
+                const active = mode === option.mode
+                return (
+                  <label
+                    key={option.mode}
+                    className={cn(
+                      'flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition-colors',
+                      active
+                        ? option.danger
+                          ? 'border-red-500/60 bg-red-500/6'
+                          : 'border-brand-500 bg-brand-500/6'
+                        : 'border-border hover:border-brand-400',
+                    )}
+                  >
+                    <input
+                      type="radio"
+                      name="bulk-category-delete-mode"
+                      checked={active}
+                      onChange={() => setMode(option.mode)}
+                      className={cn('mt-1.5 size-4', option.danger ? 'accent-red-500' : 'accent-brand-500')}
+                    />
+                    <span className="min-w-0 flex-1">
+                      <span className={cn('block font-bold', option.danger && active && 'text-red-600 dark:text-red-400')}>
+                        {option.title}
+                      </span>
+                      <span className="block pt-1 text-xs leading-6 text-muted">{option.text(productLabel)}</span>
+                    </span>
+                  </label>
+                )
+              })}
+            </div>
+          </>
+        ) : (
+          <p>هیچ‌کدام از این دسته‌ها کالایی ندارند و حذفشان روی کالاها اثری نمی‌گذارد.</p>
+        )}
       </div>
     </Drawer>
   )
