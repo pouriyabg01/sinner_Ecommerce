@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.sinner.serverroute</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/admin/PhpstormProjects/SInner/scripts/server-route.sh</string>
+    </array>
+    <!-- یک بار موقع بالا آمدن، و بعد هر بار که شبکه عوض شود -->
+    <key>RunAtLoad</key>
+    <true/>
+    <key>WatchPaths</key>
+    <array>
+        <string>/etc/resolv.conf</string>
+        <string>/Library/Preferences/SystemConfiguration</string>
+    </array>
+    <key>StandardOutPath</key>
+    <string>/tmp/sinner-serverroute.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/sinner-serverroute.log</string>
+</dict>
+</plist>

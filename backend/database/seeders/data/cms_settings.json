@@ -1,0 +1,165 @@
+{
+  "siteName": "سینر",
+  "tagline": "فروشگاه و تعمیرگاه تخصصی دیجیتال",
+  "brand": {
+    "mark": "",
+    "favicon": "",
+    "wordmark": "SINNER",
+    "caption": "فروشگاه و تعمیرگاه"
+  },
+  "phone": "021-91008080",
+  "email": "hello@sinner.shop",
+  "address": "تهران، خیابان ولیعصر، بالاتر از میدان ونک، برج آوا، طبقه ۶",
+  "socials": [
+    {
+      "id": "ig",
+      "label": "اینستاگرام",
+      "href": "https://instagram.com"
+    },
+    {
+      "id": "tg",
+      "label": "تلگرام",
+      "href": "https://telegram.org"
+    },
+    {
+      "id": "wa",
+      "label": "واتساپ",
+      "href": "https://wa.me/"
+    }
+  ],
+  "announcement": {
+    "enabled": true,
+    "text": "ارسال رایگان برای سفارش‌های بالای ۵ میلیون تومان — به‌همراه پیک رایگان تحویل دستگاه تعمیری",
+    "href": "/repair"
+  },
+  "shipping": {
+    "freeThreshold": 5000000,
+    "cost": 350000
+  },
+  "payment": {
+    "methods": [
+      {
+        "id": "online",
+        "enabled": true,
+        "label": "پرداخت اینترنتی",
+        "hint": "انتقال به درگاه بانکی",
+        "minTotal": 0,
+        "maxTotal": 0
+      },
+      {
+        "id": "cod",
+        "enabled": true,
+        "label": "پرداخت در محل",
+        "hint": "هنگام تحویل به پیک",
+        "minTotal": 0,
+        "maxTotal": 50000000
+      },
+      {
+        "id": "installment",
+        "enabled": true,
+        "label": "خرید اقساطی",
+        "hint": "با بررسی اعتبارسنجی",
+        "minTotal": 20000000,
+        "maxTotal": 0
+      }
+    ],
+    "gateway": {
+      "provider": "zarinpal",
+      "merchantId": "",
+      "callbackUrl": "/checkout/callback"
+    },
+    "demo": {
+      "enabled": true,
+      "outcome": "ask",
+      "delayMs": 1200
+    }
+  },
+  "footer": {
+    "description": "سینر فقط یک فروشگاه نیست؛ از لحظه‌ی خرید تا زمانی که دستگاه شما به تعمیر نیاز پیدا کند، کنار شما هستیم.",
+    "badges": {
+      "enabled": true,
+      "items": [
+        {
+          "id": "tb_authentic",
+          "icon": "shield-check",
+          "title": "ضمانت اصالت",
+          "text": "کالای اورجینال یا بازگشت وجه"
+        },
+        {
+          "id": "tb_shipping",
+          "icon": "truck",
+          "title": "ارسال سریع",
+          "text": "تهران زیر ۴ ساعت"
+        },
+        {
+          "id": "tb_return",
+          "icon": "undo-2",
+          "title": "۷ روز مهلت تعویض",
+          "text": "بدون قید و شرط"
+        },
+        {
+          "id": "tb_service",
+          "icon": "wrench",
+          "title": "خدمات پس از فروش",
+          "text": "تعمیرگاه تخصصی خودمان"
+        }
+      ]
+    },
+    "columns": [
+      {
+        "id": "fc_categories",
+        "title": "دسته‌بندی‌ها",
+        "links": [],
+        "source": "categories"
+      },
+      {
+        "id": "fc_services",
+        "title": "خدمات",
+        "links": [],
+        "source": "services"
+      },
+      {
+        "id": "fc_company",
+        "title": "سینر",
+        "links": [
+          {
+            "id": "fl_about",
+            "label": "درباره ما",
+            "href": "/about"
+          },
+          {
+            "id": "fl_contact",
+            "label": "تماس با ما",
+            "href": "/about#contact"
+          },
+          {
+            "id": "fl_terms",
+            "label": "قوانین و مقررات",
+            "href": "/about#terms"
+          },
+          {
+            "id": "fl_compare",
+            "label": "مقایسه محصولات",
+            "href": "/compare"
+          },
+          {
+            "id": "fl_orders",
+            "label": "سفارش‌های من",
+            "href": "/profile/orders"
+          }
+        ],
+        "source": "manual"
+      }
+    ]
+  },
+  "theme": {
+    "brandHue": "#00b392",
+    "emberHue": "#ff5c3e",
+    "radius": "soft",
+    "darkMode": "system"
+  },
+  "auth": {
+    "otp": true,
+    "password": true
+  }
+}

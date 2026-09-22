@@ -1,0 +1,48 @@
+[
+ {
+  "id": "dsc_001",
+  "code": "WELCOME10",
+  "type": "percent",
+  "value": 10,
+  "productIds": [],
+  "categoryIds": [],
+  "userIds": [],
+  "startsAt": "2026-08-11T21:26:13.386Z",
+  "endsAt": "2026-11-09T21:26:13.386Z",
+  "usageLimit": 1000,
+  "usedCount": 342,
+  "active": true
+ },
+ {
+  "id": "dsc_002",
+  "code": "GAMER500",
+  "type": "amount",
+  "value": 500000,
+  "productIds": [
+   "prd_008",
+   "prd_009",
+   "prd_010"
+  ],
+  "categoryIds": [],
+  "userIds": [],
+  "startsAt": "2026-08-31T21:26:13.386Z",
+  "endsAt": "2026-09-16T21:26:13.386Z",
+  "usageLimit": 200,
+  "usedCount": 118,
+  "active": true
+ },
+ {
+  "id": "dsc_003",
+  "code": "NOWRUZ1404",
+  "type": "percent",
+  "value": 15,
+  "productIds": [],
+  "categoryIds": [],
+  "userIds": [],
+  "startsAt": "2026-03-14T21:26:13.386Z",
+  "endsAt": "2026-04-13T21:26:13.386Z",
+  "usageLimit": 500,
+  "usedCount": 500,
+  "active": false
+ }
+]

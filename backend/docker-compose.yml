@@ -1,0 +1,41 @@
+# پایگاه‌داده و کش مخصوص همین پروژه.
+#
+# پورت‌ها عمداً غیرپیش‌فرض‌اند: روی همین دستگاه پستگرس و ردیسِ پروژه‌ی دیگری
+# (vgc) روی ۵۴۳۲ و ۶۳۸۰ در حال اجراست و نباید با آن‌ها تداخل کند.
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: sinner-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sinner
+      POSTGRES_USER: sinner
+      POSTGRES_PASSWORD: sinner
+    ports:
+      - '5433:5432'
+    volumes:
+      # پستگرس ۱۸ به بالا کل /var/lib/postgresql را می‌خواهد، نه زیرشاخه‌ی data
+      - sinner-pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U sinner -d sinner']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:8-alpine
+    container_name: sinner-redis
+    restart: unless-stopped
+    ports:
+      - '6381:6379'
+    volumes:
+      - sinner-redisdata:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  sinner-pgdata:
+  sinner-redisdata:

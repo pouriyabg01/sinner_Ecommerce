@@ -1,0 +1,168 @@
+[
+ {
+  "id": "iss_screen",
+  "deviceKinds": [
+   "mobile",
+   "tablet",
+   "laptop"
+  ],
+  "title": "شکستگی یا خط افتادن صفحه",
+  "hint": "ترک خوردن گلس، لکه سیاه، خطوط عمودی یا لمس نکردن بخشی از صفحه",
+  "icon": "monitor-x",
+  "estimatedMin": 1800000,
+  "estimatedMax": 9500000,
+  "estimatedDays": 2
+ },
+ {
+  "id": "iss_battery",
+  "deviceKinds": [
+   "mobile",
+   "tablet",
+   "laptop"
+  ],
+  "title": "باتری زود خالی می‌شود / باد کرده",
+  "hint": "کاهش محسوس شارژدهی، خاموش شدن ناگهانی یا بالا آمدن درب دستگاه",
+  "icon": "battery-warning",
+  "estimatedMin": 900000,
+  "estimatedMax": 4200000,
+  "estimatedDays": 1
+ },
+ {
+  "id": "iss_charge",
+  "deviceKinds": [
+   "mobile",
+   "tablet",
+   "laptop",
+   "console"
+  ],
+  "title": "شارژ نمی‌شود / پورت خراب است",
+  "hint": "کابل باید در زاویه خاصی باشد، یا اصلاً شارژ را تشخیص نمی‌دهد",
+  "icon": "plug-zap",
+  "estimatedMin": 600000,
+  "estimatedMax": 2800000,
+  "estimatedDays": 1
+ },
+ {
+  "id": "iss_water",
+  "deviceKinds": [
+   "mobile",
+   "tablet",
+   "laptop"
+  ],
+  "title": "آب‌خوردگی",
+  "hint": "دستگاه در آب افتاده یا مایعات روی آن ریخته — هرچه زودتر بهتر",
+  "icon": "droplets",
+  "estimatedMin": 1500000,
+  "estimatedMax": 12000000,
+  "estimatedDays": 4
+ },
+ {
+  "id": "iss_no_power",
+  "deviceKinds": [
+   "mobile",
+   "laptop",
+   "console",
+   "desktop"
+  ],
+  "title": "اصلاً روشن نمی‌شود",
+  "hint": "هیچ واکنشی ندارد، یا فقط چراغ روشن می‌شود اما بالا نمی‌آید",
+  "icon": "power-off",
+  "estimatedMin": 1200000,
+  "estimatedMax": 15000000,
+  "estimatedDays": 3
+ },
+ {
+  "id": "iss_overheat",
+  "deviceKinds": [
+   "laptop",
+   "console",
+   "desktop"
+  ],
+  "title": "داغ می‌کند و فن پرصداست",
+  "hint": "نیاز به تعویض خمیر سیلیکون و سرویس سیستم خنک‌کننده",
+  "icon": "thermometer-sun",
+  "estimatedMin": 700000,
+  "estimatedMax": 2200000,
+  "estimatedDays": 1
+ },
+ {
+  "id": "iss_hdmi",
+  "deviceKinds": [
+   "console"
+  ],
+  "title": "تصویر ندارد / پورت HDMI خراب",
+  "hint": "کنسول روشن می‌شود اما تصویری روی تلویزیون نمایش داده نمی‌شود",
+  "icon": "cable",
+  "estimatedMin": 1400000,
+  "estimatedMax": 3600000,
+  "estimatedDays": 2
+ },
+ {
+  "id": "iss_disc",
+  "deviceKinds": [
+   "console"
+  ],
+  "title": "دیسک نمی‌خواند یا بیرون می‌اندازد",
+  "hint": "صدای تکرارشونده هنگام قرار دادن دیسک، یا خروج خودکار آن",
+  "icon": "disc-3",
+  "estimatedMin": 1100000,
+  "estimatedMax": 3200000,
+  "estimatedDays": 2
+ },
+ {
+  "id": "iss_keyboard",
+  "deviceKinds": [
+   "laptop"
+  ],
+  "title": "کیبورد یا تاچ‌پد کار نمی‌کند",
+  "hint": "چند کلید خراب، تکرار حروف، یا بی‌واکنش بودن کامل",
+  "icon": "keyboard-off",
+  "estimatedMin": 800000,
+  "estimatedMax": 3900000,
+  "estimatedDays": 2
+ },
+ {
+  "id": "iss_software",
+  "deviceKinds": [
+   "mobile",
+   "tablet",
+   "laptop",
+   "desktop",
+   "console"
+  ],
+  "title": "مشکل نرم‌افزاری / کندی شدید",
+  "hint": "ریست فکتوری، نصب مجدد سیستم‌عامل، حذف بدافزار و ریکاوری اطلاعات",
+  "icon": "refresh-ccw-dot",
+  "estimatedMin": 400000,
+  "estimatedMax": 1500000,
+  "estimatedDays": 1
+ },
+ {
+  "id": "iss_camera",
+  "deviceKinds": [
+   "mobile",
+   "tablet"
+  ],
+  "title": "دوربین تار یا خراب است",
+  "hint": "لرزش، تاری دائمی، لکه روی تصویر یا باز نشدن اپلیکیشن دوربین",
+  "icon": "camera-off",
+  "estimatedMin": 900000,
+  "estimatedMax": 5400000,
+  "estimatedDays": 2
+ },
+ {
+  "id": "iss_sound",
+  "deviceKinds": [
+   "mobile",
+   "laptop",
+   "console",
+   "tablet"
+  ],
+  "title": "مشکل صدا یا میکروفون",
+  "hint": "صدای خفه، خش‌دار، یا نشنیدن صدای شما توسط مخاطب",
+  "icon": "volume-off",
+  "estimatedMin": 500000,
+  "estimatedMax": 2600000,
+  "estimatedDays": 1
+ }
+]

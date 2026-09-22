@@ -1,0 +1,175 @@
+[
+  {
+    "id": "rep_001",
+    "code": "RP-1404-1024",
+    "userId": "usr_001",
+    "deviceKind": "mobile",
+    "deviceBrand": "اپل",
+    "deviceModel": "iPhone 13 Pro",
+    "issueIds": [
+      "iss_screen",
+      "iss_battery"
+    ],
+    "issueDescription": "گوشی از دستم افتاد، گوشه‌ی بالا سمت راست ترک خورده و لمس همان ناحیه کار نمی‌کند.",
+    "photos": [],
+    "pickupMethod": "courier",
+    "addressSummary": "تهران، سعادت‌آباد، خیابان سرو غربی، پلاک ۲۴",
+    "preferredDate": "2026-09-11T21:26:13.386Z",
+    "status": "repairing",
+    "estimatedCost": {
+      "min": 2700000,
+      "max": 13700000
+    },
+    "finalCost": 8400000,
+    "technicianNote": "ال‌سی‌دی اورجینال تعویض شد، باتری هم در حال تست است.",
+    "warrantyDays": 180,
+    "createdAt": "2026-09-06T21:26:13.386Z",
+    "timeline": [
+      {
+        "status": "submitted",
+        "at": "2026-09-06T21:26:13.386Z"
+      },
+      {
+        "status": "pickup_scheduled",
+        "at": "2026-09-06T21:26:13.386Z",
+        "note": "پیک برای فردا ساعت ۱۰ تا ۱۳ هماهنگ شد"
+      },
+      {
+        "status": "received",
+        "at": "2026-09-07T21:26:13.386Z"
+      },
+      {
+        "status": "diagnosing",
+        "at": "2026-09-07T21:26:13.386Z"
+      },
+      {
+        "status": "quoted",
+        "at": "2026-09-08T21:26:13.386Z",
+        "note": "هزینه نهایی ۸,۴۰۰,۰۰۰ تومان"
+      },
+      {
+        "status": "repairing",
+        "at": "2026-09-09T21:26:13.386Z"
+      }
+    ],
+    "customer": {
+      "id": "usr_001",
+      "fullName": "سارا محمدی",
+      "phone": "09121234567"
+    }
+  },
+  {
+    "id": "rep_002",
+    "code": "RP-1404-1025",
+    "userId": "usr_001",
+    "deviceKind": "console",
+    "deviceBrand": "سونی",
+    "deviceModel": "PlayStation 5",
+    "issueIds": [
+      "iss_overheat",
+      "iss_disc"
+    ],
+    "issueDescription": "موقع بازی صدای فن خیلی بلند می‌شود و بعضی وقت‌ها دیسک را بیرون می‌اندازد.",
+    "photos": [],
+    "pickupMethod": "post",
+    "addressSummary": "اصفهان، خیابان توحید، کوچه ۱۲، پلاک ۷",
+    "preferredDate": null,
+    "status": "awaiting_approval",
+    "estimatedCost": {
+      "min": 1800000,
+      "max": 5400000
+    },
+    "finalCost": 3150000,
+    "technicianNote": "خمیر سیلیکون خشک شده و درایو دیسک نیاز به تعویض موتور دارد.",
+    "warrantyDays": 90,
+    "createdAt": "2026-09-04T21:26:13.386Z",
+    "timeline": [
+      {
+        "status": "submitted",
+        "at": "2026-09-04T21:26:13.386Z"
+      },
+      {
+        "status": "received",
+        "at": "2026-09-06T21:26:13.386Z"
+      },
+      {
+        "status": "diagnosing",
+        "at": "2026-09-07T21:26:13.386Z"
+      },
+      {
+        "status": "quoted",
+        "at": "2026-09-08T21:26:13.386Z"
+      },
+      {
+        "status": "awaiting_approval",
+        "at": "2026-09-08T21:26:13.386Z",
+        "note": "در انتظار تأیید شما برای شروع تعمیر"
+      }
+    ],
+    "customer": {
+      "id": "usr_001",
+      "fullName": "سارا محمدی",
+      "phone": "09121234567"
+    }
+  },
+  {
+    "id": "rep_003",
+    "code": "RP-1404-1019",
+    "userId": "usr_002",
+    "deviceKind": "laptop",
+    "deviceBrand": "ایسوس",
+    "deviceModel": "VivoBook 15",
+    "issueIds": [
+      "iss_no_power"
+    ],
+    "issueDescription": "هیچ واکنشی ندارد. چراغ شارژ روشن می‌شود ولی بالا نمی‌آید.",
+    "photos": [],
+    "pickupMethod": "in_person",
+    "addressSummary": "تحویل حضوری — شعبه مرکزی",
+    "preferredDate": null,
+    "status": "completed",
+    "estimatedCost": {
+      "min": 1200000,
+      "max": 15000000
+    },
+    "finalCost": 4700000,
+    "technicianNote": "مادربرد ریبال شد و تست ۴۸ ساعته با موفقیت گذشت.",
+    "warrantyDays": 180,
+    "createdAt": "2026-08-22T21:26:13.386Z",
+    "timeline": [
+      {
+        "status": "submitted",
+        "at": "2026-08-22T21:26:13.386Z"
+      },
+      {
+        "status": "received",
+        "at": "2026-08-23T21:26:13.386Z"
+      },
+      {
+        "status": "diagnosing",
+        "at": "2026-08-24T21:26:13.386Z"
+      },
+      {
+        "status": "quoted",
+        "at": "2026-08-26T21:26:13.386Z"
+      },
+      {
+        "status": "repairing",
+        "at": "2026-08-27T21:26:13.386Z"
+      },
+      {
+        "status": "ready",
+        "at": "2026-08-30T21:26:13.386Z"
+      },
+      {
+        "status": "completed",
+        "at": "2026-08-31T21:26:13.386Z"
+      }
+    ],
+    "customer": {
+      "id": "usr_002",
+      "fullName": "امیر رضایی",
+      "phone": "09354445566"
+    }
+  }
+]

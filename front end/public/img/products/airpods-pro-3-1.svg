@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 520" width="560" height="520" role="img" aria-label="Apple AirPods Pro 3">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1a2340"/>
+      <stop offset="1" stop-color="#080c14"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5b6cff" stop-opacity=".38"/>
+      <stop offset="1" stop-color="#5b6cff" stop-opacity=".06"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="38%" r="58%">
+      <stop offset="0" stop-color="#5b6cff" stop-opacity=".45"/>
+      <stop offset="1" stop-color="#5b6cff" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="28" height="28" patternUnits="userSpaceOnUse">
+      <path d="M28 0H0v28" fill="none" stroke="#ffffff" stroke-opacity=".05"/>
+    </pattern>
+  </defs>
+  <rect width="560" height="520" fill="url(#bg)"/>
+  <rect width="560" height="520" fill="url(#grid)"/>
+  <rect width="560" height="520" fill="url(#glow)"/>
+  <g transform="translate(280 260) rotate(0) scale(1) translate(-280 -260)">
+    <path d="M160 300a120 120 0 0 1 240 0" fill="none" stroke="#5b6cff" stroke-width="14" opacity=".55" stroke-linecap="round"/>
+    <rect x="132" y="286" width="66" height="112" rx="26" fill="#0d1220" stroke="#5b6cff" stroke-width="2"/>
+    <rect x="362" y="286" width="66" height="112" rx="26" fill="#0d1220" stroke="#5b6cff" stroke-width="2"/>
+    <rect x="146" y="306" width="38" height="72" rx="18" fill="url(#screen)"/>
+    <rect x="376" y="306" width="38" height="72" rx="18" fill="url(#screen)"/></g>
+  <ellipse cx="280" cy="452" rx="150" ry="18" fill="#000" opacity=".35"/>
+  <text x="280" y="496" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" letter-spacing="1.2" fill="#ffffff" fill-opacity=".42">Apple AirPods Pro 3</text>
+</svg>

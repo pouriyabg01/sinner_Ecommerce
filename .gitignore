@@ -1,0 +1,29 @@
+# وابستگی‌ها و خروجی ساخت — روی سرور از نو ساخته می‌شوند
+node_modules/
+front end/.next/
+front end/tsconfig.tsbuildinfo
+backend/vendor/
+backend/composer.phar
+
+# تنظیمات و رمزها — هرگز نباید در مخزن باشند
+.env
+backend/.env
+front end/.env.local
+docker/nginx/certs/*.pem
+
+# داده‌ها و پشتیبان‌ها
+deploy-data-*/
+*.dump
+backend/storage/app/public/uploads/
+backend/storage/logs/
+backend/storage/framework/cache/
+backend/storage/framework/sessions/
+backend/storage/framework/views/
+backend/bootstrap/cache/
+backend/.phpunit.result.cache
+
+# پوشه‌ی خالی قدیمی
+back end/
+
+# سیستم‌عامل
+.DS_Store

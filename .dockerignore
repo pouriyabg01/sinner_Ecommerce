@@ -1,0 +1,22 @@
+back end/
+front end/
+**/node_modules
+**/.next
+backend/vendor
+backend/.env
+backend/.env.*
+backend/storage/logs/*
+backend/storage/framework/cache/*
+backend/storage/framework/sessions/*
+backend/storage/framework/views/*
+backend/storage/app/public/*
+backend/bootstrap/cache/*
+backend/tests
+backend/.phpunit.result.cache
+backend/composer.phar
+backend/docker-compose.yml
+*.dump
+.git
+deploy-data-*
+.env
+docker/nginx/certs/*.pem

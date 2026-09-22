@@ -1,0 +1,76 @@
+[
+ {
+  "id": "cat_mobile",
+  "slug": "mobile",
+  "title": "گوشی موبایل",
+  "icon": "smartphone",
+  "description": "پرچم‌داران و میان‌رده‌های روز بازار با گارانتی رسمی",
+  "specKeys": [
+   "display",
+   "chipset",
+   "ram",
+   "storage",
+   "battery",
+   "camera"
+  ],
+  "productCount": 5
+ },
+ {
+  "id": "cat_laptop",
+  "slug": "laptop",
+  "title": "لپ‌تاپ و کامپیوتر",
+  "icon": "laptop",
+  "description": "از اولترابوک‌های سبک تا سیستم‌های گیمینگ سنگین",
+  "specKeys": [
+   "display",
+   "cpu",
+   "gpu",
+   "ram",
+   "storage",
+   "weight"
+  ],
+  "productCount": 4
+ },
+ {
+  "id": "cat_console",
+  "slug": "console",
+  "title": "کنسول بازی",
+  "icon": "gamepad-2",
+  "description": "پلی‌استیشن، ایکس‌باکس و نینتندو با ضمانت اصالت",
+  "specKeys": [
+   "storage",
+   "resolution",
+   "fps",
+   "controllers"
+  ],
+  "productCount": 3
+ },
+ {
+  "id": "cat_game",
+  "slug": "game",
+  "title": "بازی",
+  "icon": "disc-3",
+  "description": "دیسک و اکانت قانونی جدیدترین بازی‌ها",
+  "specKeys": [
+   "platform",
+   "genre",
+   "players",
+   "language"
+  ],
+  "productCount": 3
+ },
+ {
+  "id": "cat_accessory",
+  "slug": "accessory",
+  "title": "لوازم جانبی",
+  "icon": "headphones",
+  "description": "هدست، شارژر، کیبورد و هر آنچه تجربه‌ی کاربری شما را کامل می‌کند",
+  "specKeys": [
+   "type",
+   "connection",
+   "battery",
+   "weight"
+  ],
+  "productCount": 3
+ }
+]

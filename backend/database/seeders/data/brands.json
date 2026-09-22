@@ -1,0 +1,56 @@
+[
+ {
+  "id": "br_apple",
+  "slug": "apple",
+  "title": "اپل",
+  "logo": "/img/brands/apple.svg"
+ },
+ {
+  "id": "br_samsung",
+  "slug": "samsung",
+  "title": "سامسونگ",
+  "logo": "/img/brands/samsung.svg"
+ },
+ {
+  "id": "br_xiaomi",
+  "slug": "xiaomi",
+  "title": "شیائومی",
+  "logo": "/img/brands/xiaomi.svg"
+ },
+ {
+  "id": "br_asus",
+  "slug": "asus",
+  "title": "ایسوس",
+  "logo": "/img/brands/asus.svg"
+ },
+ {
+  "id": "br_lenovo",
+  "slug": "lenovo",
+  "title": "لنوو",
+  "logo": "/img/brands/lenovo.svg"
+ },
+ {
+  "id": "br_sony",
+  "slug": "sony",
+  "title": "سونی",
+  "logo": "/img/brands/sony.svg"
+ },
+ {
+  "id": "br_microsoft",
+  "slug": "microsoft",
+  "title": "مایکروسافت",
+  "logo": "/img/brands/microsoft.svg"
+ },
+ {
+  "id": "br_nintendo",
+  "slug": "nintendo",
+  "title": "نینتندو",
+  "logo": "/img/brands/nintendo.svg"
+ },
+ {
+  "id": "br_logitech",
+  "slug": "logitech",
+  "title": "لاجیتک",
+  "logo": "/img/brands/logitech.svg"
+ }
+]

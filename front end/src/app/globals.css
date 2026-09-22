@@ -1,0 +1,318 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * فقط دستگاه‌هایی که واقعاً هاور دارند. کنترل‌هایی که با هاور ظاهر می‌شوند
+ * (مثل دکمه‌های کارت محصول) در موبایل هیچ‌وقت نمایان نمی‌شدند؛ با این واریانت
+ * حالت پایه‌شان «دیده‌شدنی» است و پنهان‌شدن فقط روی دسکتاپ اعمال می‌شود.
+ */
+@custom-variant can-hover (@media (hover: hover) and (pointer: fine));
+
+/* ---------------------------------------------------------------
+   توکن‌های طراحی — تم اختصاصی «Mint & Ember»
+   brand: مینت/تیل  |  ember: نارنجی-مرجانی برای CTA و تخفیف
+   --------------------------------------------------------------- */
+@theme {
+  --font-sans: var(--font-vazirmatn), system-ui, sans-serif;
+  --font-display: var(--font-yekan), var(--font-vazirmatn), system-ui, sans-serif;
+
+  --color-brand-50: #e6fbf6;
+  --color-brand-100: #c7f5ea;
+  --color-brand-200: #8fead6;
+  --color-brand-300: #52dcbe;
+  --color-brand-400: #22c9a6;
+  --color-brand-500: #00b392;
+  --color-brand-600: #009179;
+  --color-brand-700: #00725f;
+  --color-brand-800: #005748;
+  --color-brand-900: #003d33;
+
+  --color-ember-300: #ffa78f;
+  --color-ember-400: #ff7a5c;
+  --color-ember-500: #ff5c3e;
+  --color-ember-600: #e8432a;
+  --color-ember-700: #c1321c;
+
+  --color-ink-50: #f6f8fa;
+  --color-ink-100: #edf1f5;
+  --color-ink-200: #dce3eb;
+  --color-ink-300: #c2ccd8;
+  --color-ink-400: #94a2b3;
+  --color-ink-500: #6b7a8d;
+  --color-ink-600: #4e5c6e;
+  --color-ink-700: #3a4657;
+  --color-ink-800: #232d3c;
+  --color-ink-900: #151d28;
+  --color-ink-950: #0b111a;
+
+  --radius-card: 1.25rem;
+  --radius-pill: 999px;
+
+  --shadow-soft: 0 1px 2px rgb(11 17 26 / 0.04), 0 8px 24px -12px rgb(11 17 26 / 0.14);
+  --shadow-lift: 0 2px 6px rgb(11 17 26 / 0.06), 0 24px 48px -20px rgb(11 17 26 / 0.28);
+  --shadow-glow: 0 12px 40px -12px rgb(0 179 146 / 0.55);
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-fade-up: fade-up 0.55s var(--ease-out-soft) both;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-marquee: marquee 26s linear infinite;
+  --animate-glow-pulse: glow-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-14px) rotate(1deg); }
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(50%); }
+}
+
+/*
+ * درخشش خاموش/روشن. حالت پایه (۰٪ و ۱۰۰٪) همان حالت روشن است تا اگر کاربر
+ * prefers-reduced-motion داشته باشد و انیمیشن عملاً اجرا نشود، هاله ثابت و
+ * دیده‌شدنی بماند — نه خاموش.
+ */
+@keyframes glow-pulse {
+  0%, 100% {
+    text-shadow:
+      0 0 6px color-mix(in oklab, var(--glow-near) 75%, transparent),
+      0 0 15px color-mix(in oklab, var(--glow-far) 55%, transparent);
+  }
+  50% {
+    text-shadow:
+      0 0 2px color-mix(in oklab, var(--glow-near) 22%, transparent),
+      0 0 5px color-mix(in oklab, var(--glow-far) 12%, transparent);
+  }
+}
+
+@keyframes glow-pulse-svg {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 4px color-mix(in oklab, var(--glow-near) 85%, transparent))
+      drop-shadow(0 0 9px color-mix(in oklab, var(--glow-far) 60%, transparent));
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 1px color-mix(in oklab, var(--glow-near) 25%, transparent))
+      drop-shadow(0 0 3px color-mix(in oklab, var(--glow-far) 14%, transparent));
+  }
+}
+
+/* نقش‌های معنایی — لایت و دارک */
+:root {
+  --background: var(--color-ink-50);
+  --surface: #ffffff;
+  --surface-2: var(--color-ink-100);
+  --foreground: var(--color-ink-900);
+  --muted: var(--color-ink-500);
+  --border: var(--color-ink-200);
+  --ring: var(--color-brand-500);
+  /*
+   * هاله در تم روشن باید تیره‌تر از تم تاریک باشد؛ سبز روشن روی زمینه‌ی سفید
+   * کنتراست ندارد و عملاً دیده نمی‌شد. اینجا از brand-500/600 استفاده می‌کنیم،
+   * در تم تاریک از brand-400/500 که روی زمینه‌ی تیره می‌درخشد.
+   */
+  --glow-near: var(--color-brand-500);
+  --glow-far: var(--color-brand-600);
+}
+
+.dark {
+  --background: var(--color-ink-950);
+  --surface: #101825;
+  --surface-2: #16202f;
+  --foreground: var(--color-ink-100);
+  --muted: var(--color-ink-400);
+  --border: #24303f;
+  --ring: var(--color-brand-400);
+  --glow-near: var(--color-brand-400);
+  --glow-far: var(--color-brand-500);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: 'ss01';
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3, .font-display {
+    font-family: var(--font-display);
+    letter-spacing: 0;
+  }
+
+  /* Yekan ارتفاع خط زیادی می‌گیرد؛ برای تیترها جبران می‌کنیم */
+  h1, h2, h3 {
+    line-height: 1.55;
+  }
+
+  ::selection {
+    background-color: var(--color-brand-200);
+    color: var(--color-ink-900);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-ink-300);
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  .dark ::-webkit-scrollbar-thumb { background: var(--color-ink-700); background-clip: content-box; }
+}
+
+@layer utilities {
+  .container-page {
+    width: 100%;
+    margin-inline: auto;
+    max-width: 80rem;
+    padding-inline: 1rem;
+  }
+  @media (min-width: 768px) {
+    .container-page { padding-inline: 2rem; }
+  }
+
+  .text-balance { text-wrap: balance; }
+
+  /*
+   * اعداد لاتین با فونت Vazirmatn حتی داخل تیترهای Yekan.
+   *
+   * اینجا عمداً direction دست‌کاری نمی‌شود: قبلاً `direction: ltr` داشت و هر متنی
+   * که عدد و کلمه‌ی فارسی را با هم داشت برعکس دیده می‌شد — «۳ کالا» به‌شکل
+   * «کالا ۳» و «۴۱,۹۰۰,۰۰۰ تومان» به‌شکل «تومان ۴۱,۹۰۰,۰۰۰».
+   * رشته‌هایی که واقعاً چپ‌به‌راست‌اند (شماره تلفن، اسلاگ، ایمیل) خودشان
+   * `dir="ltr"` می‌گیرند، نه از این کلاس.
+   */
+  .num {
+    font-family: var(--font-vazirmatn), sans-serif;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /*
+   * کد سفارش، کد پیگیری تعمیر و کد رهگیری مرسوله همیشه با ارقام انگلیسی: مشتری همین
+   * را در فرم پیگیری یا سایت پست تایپ می‌کند. ss01 بدنه ارقام را فارسی نشان می‌دهد،
+   * پس اینجا خاموش می‌شود؛ isolate هم نمی‌گذارد خط تیره وسط متن راست‌چین جابه‌جا شود.
+   */
+  .en-code {
+    font-family: var(--font-vazirmatn), sans-serif;
+    font-feature-settings: normal;
+    font-variant-numeric: tabular-nums;
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+
+  /*
+   * سلول‌های چپ‌به‌راست جدول (اسلاگ، شماره، ایمیل). جهت ltr لازم است تا رشته‌ی
+   * لاتین درست خوانده شود، ولی همان جهت باعث می‌شد text-align: start به «چپ»
+   * ترجمه شود و مقدار زیر سرستونِ راست‌چین نایستد. فقط تراز برمی‌گردد.
+   */
+  th[dir='ltr'],
+  td[dir='ltr'] {
+    text-align: right;
+  }
+
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--color-surface-2) 25%,
+      color-mix(in oklab, var(--color-surface-2) 60%, var(--color-background)) 50%,
+      var(--color-surface-2) 75%
+    );
+    background-size: 200% 100%;
+    animation: var(--animate-shimmer);
+  }
+
+  .glass {
+    background: color-mix(in oklab, var(--color-surface) 72%, transparent);
+    backdrop-filter: blur(14px) saturate(160%);
+  }
+
+  /*
+   * لوگوی برندها SVG تک‌رنگ با fill="currentColor" است، ولی وقتی با <img> لود شود
+   * آن currentColor داخل سند خودِ SVG حساب می‌شود و به مشکی می‌رسد — یعنی در تم تیره
+   * ناپدید می‌شد. با mask، رنگ روی خودِ عنصر می‌نشیند و currentColor صفحه را دنبال می‌کند.
+   */
+  .mask-logo {
+    background-color: currentColor;
+    mask-image: var(--logo);
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+    -webkit-mask-image: var(--logo);
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    -webkit-mask-size: contain;
+  }
+
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { scrollbar-width: none; }
+
+  /*
+   * درخشش فقط روی خودِ متن و آیکون، نه روی کادر نشان.
+   * text-shadow روی گلیف‌ها کار می‌کند و drop-shadow روی مسیرهای SVG؛
+   * اگر filter را روی خود نشان می‌گذاشتیم، دور پس‌زمینه‌ی قرصی‌شکل هم هاله می‌افتاد.
+   *
+   * رنگ هاله از --glow-near/--glow-far می‌آید که در هر تم جدا تعریف شده،
+   * و انیمیشن آن را خاموش/روشن می‌کند.
+   */
+  .glow-brand {
+    text-shadow:
+      0 0 6px color-mix(in oklab, var(--glow-near) 75%, transparent),
+      0 0 15px color-mix(in oklab, var(--glow-far) 55%, transparent);
+    animation: var(--animate-glow-pulse);
+  }
+  .glow-brand > svg {
+    filter:
+      drop-shadow(0 0 4px color-mix(in oklab, var(--glow-near) 85%, transparent))
+      drop-shadow(0 0 9px color-mix(in oklab, var(--glow-far) 60%, transparent));
+    animation: glow-pulse-svg 2.4s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

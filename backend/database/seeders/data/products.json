@@ -1,0 +1,1266 @@
+[
+ {
+  "id": "prd_012",
+  "slug": "game-ea-fc-25",
+  "title": "بازی EA Sports FC 25",
+  "titleEn": "EA Sports FC 25 — PS5",
+  "categorySlug": "game",
+  "brandSlug": "sony",
+  "price": 4450000,
+  "compareAtPrice": null,
+  "rating": 4,
+  "reviewCount": 188,
+  "stock": 25,
+  "images": [
+   "/img/products/game-ea-fc-25-1.svg",
+   "/img/products/game-ea-fc-25-2.svg",
+   "/img/products/game-ea-fc-25-3.svg"
+  ],
+  "shortDescription": "محبوب‌ترین بازی فوتبال با موتور HyperMotion V",
+  "description": "نسخه‌ی امسال با موتور HyperMotion V و بازطراحی حالت Ultimate Team عرضه شده است. برای بازی آنلاین با دوستان، همچنان انتخاب اول بازار ایران است.",
+  "specs": [
+   {
+    "key": "platform",
+    "label": "پلتفرم",
+    "value": "PlayStation 5"
+   },
+   {
+    "key": "genre",
+    "label": "سبک",
+    "value": "ورزشی"
+   },
+   {
+    "key": "players",
+    "label": "تعداد بازیکن",
+    "value": "تا ۴ نفر آفلاین / آنلاین"
+   },
+   {
+    "key": "language",
+    "label": "زبان",
+    "value": "گزارش انگلیسی"
+   }
+  ],
+  "variants": [
+   {
+    "id": "game-ea-fc-25_v1",
+    "title": "استاندارد",
+    "price": 4450000,
+    "stock": 25
+   }
+  ],
+  "tags": [
+   "پرفروش"
+  ],
+  "isNew": true,
+  "isFeatured": false,
+  "status": "active",
+  "createdAt": "2026-09-07T21:26:13.386Z"
+ },
+ {
+  "id": "prd_001",
+  "slug": "iphone-16-pro-max",
+  "title": "آیفون ۱۶ پرو مکس",
+  "titleEn": "Apple iPhone 16 Pro Max",
+  "categorySlug": "mobile",
+  "brandSlug": "apple",
+  "price": 92500000,
+  "compareAtPrice": 99800000,
+  "rating": 4.8,
+  "reviewCount": 212,
+  "stock": 7,
+  "images": [
+   "/img/products/iphone-16-pro-max-1.svg",
+   "/img/products/iphone-16-pro-max-2.svg",
+   "/img/products/iphone-16-pro-max-3.svg"
+  ],
+  "shortDescription": "بدنه تیتانیوم، تراشه A18 Pro و دوربین ۴۸ مگاپیکسلی با ضبط ProRes",
+  "description": "آیفون ۱۶ پرو مکس با بدنه تیتانیومی سبک‌تر، نمایشگر ۶.۹ اینچی ProMotion و تراشه A18 Pro عرضه شده است. سیستم سه‌دوربینه با سنسور اصلی ۴۸ مگاپیکسل، دکمه اختصاصی دوربین و پشتیبانی از ضبط ویدیو ۴K/۱۲۰fps، آن را به کامل‌ترین آیفون تاریخ تبدیل کرده. باتری بهبودیافته تا ۳۳ ساعت پخش ویدیو دوام می‌آورد.",
+  "specs": [
+   {
+    "key": "display",
+    "label": "نمایشگر",
+    "value": "۶.۹ اینچ Super Retina XDR — ۱۲۰ هرتز",
+    "score": 69
+   },
+   {
+    "key": "chipset",
+    "label": "پردازنده",
+    "value": "Apple A18 Pro",
+    "score": 98
+   },
+   {
+    "key": "ram",
+    "label": "حافظه رم",
+    "value": "۸ گیگابایت",
+    "score": 8
+   },
+   {
+    "key": "storage",
+    "label": "حافظه داخلی",
+    "value": "۲۵۶ گیگابایت",
+    "score": 256
+   },
+   {
+    "key": "battery",
+    "label": "باتری",
+    "value": "۴۶۸۵ میلی‌آمپرساعت",
+    "score": 4685
+   },
+   {
+    "key": "camera",
+    "label": "دوربین اصلی",
+    "value": "۴۸ + ۴۸ + ۱۲ مگاپیکسل",
+    "score": 48
+   }
+  ],
+  "variants": [
+   {
+    "id": "iphone-16-pro-max_v1",
+    "title": "۲۵۶ گیگابایت — تیتانیوم طبیعی",
+    "price": 92500000,
+    "stock": 4,
+    "color": {
+     "name": "تیتانیوم طبیعی",
+     "hex": "#b6ada4"
+    }
+   },
+   {
+    "id": "iphone-16-pro-max_v2",
+    "title": "۵۱۲ گیگابایت — تیتانیوم مشکی",
+    "price": 108900000,
+    "stock": 2,
+    "color": {
+     "name": "تیتانیوم مشکی",
+     "hex": "#3b3b3d"
+    }
+   },
+   {
+    "id": "iphone-16-pro-max_v3",
+    "title": "۱ ترابایت — تیتانیوم صحرایی",
+    "price": 126000000,
+    "stock": 1,
+    "color": {
+     "name": "تیتانیوم صحرایی",
+     "hex": "#bfa48f"
+    }
+   }
+  ],
+  "tags": [
+   "پرچم‌دار",
+   "پرفروش",
+   "گارانتی طلایی"
+  ],
+  "isNew": true,
+  "isFeatured": true,
+  "status": "active",
+  "createdAt": "2026-09-06T21:26:13.386Z"
+ },
+ {
+  "id": "prd_010",
+  "slug": "nintendo-switch-2",
+  "title": "نینتندو سوییچ ۲",
+  "titleEn": "Nintendo Switch 2",
+  "categorySlug": "console",
+  "brandSlug": "nintendo",
+  "price": 33200000,
+  "compareAtPrice": 36000000,
+  "rating": 4.8,
+  "reviewCount": 97,
+  "stock": 3,
+  "images": [
+   "/img/products/nintendo-switch-2-1.svg",
+   "/img/products/nintendo-switch-2-2.svg",
+   "/img/products/nintendo-switch-2-3.svg"
+  ],
+  "shortDescription": "نمایشگر ۷.۹ اینچی و دسته‌های Joy-Con مغناطیسی",
+  "description": "سوییچ ۲ همان جادوی هیبریدی نسل قبل را با سخت‌افزاری بسیار قوی‌تر تکرار می‌کند. نمایشگر بزرگ‌تر، خروجی 4K در حالت داک و Joy-Con های جدید مغناطیسی از مهم‌ترین تغییرات هستند.",
+  "specs": [
+   {
+    "key": "storage",
+    "label": "حافظه",
+    "value": "۲۵۶ گیگابایت",
+    "score": 256
+   },
+   {
+    "key": "resolution",
+    "label": "رزولوشن",
+    "value": "1080p دستی / 4K داک",
+    "score": 4
+   },
+   {
+    "key": "fps",
+    "label": "نرخ فریم",
+    "value": "تا ۱۲۰ فریم بر ثانیه",
+    "score": 120
+   },
+   {
+    "key": "controllers",
+    "label": "دسته همراه",
+    "value": "۲ عدد Joy-Con 2",
+    "score": 2
+   }
+  ],
+  "variants": [
+   {
+    "id": "nintendo-switch-2_v1",
+    "title": "استاندارد",
+    "price": 33200000,
+    "stock": 3
+   }
+  ],
+  "tags": [
+   "گیمینگ",
+   "پیشنهاد سردبیر"
+  ],
+  "isNew": true,
+  "isFeatured": false,
+  "status": "active",
+  "createdAt": "2026-09-04T21:26:13.386Z"
+ },
+ {
+  "id": "prd_017",
+  "slug": "iphone-13-used",
+  "title": "آیفون ۱۳ — کارکرده تمیز",
+  "titleEn": "Apple iPhone 13 (Used)",
+  "categorySlug": "mobile",
+  "brandSlug": "apple",
+  "price": 27500000,
+  "compareAtPrice": 31000000,
+  "rating": 4.3,
+  "reviewCount": 71,
+  "stock": 4,
+  "images": [
+   "/img/products/iphone-13-used-1.svg",
+   "/img/products/iphone-13-used-2.svg",
+   "/img/products/iphone-13-used-3.svg"
+  ],
+  "shortDescription": "سلامت باتری بالای ۹۰٪ با ۶ ماه گارانتی فروشگاه",
+  "description": "دستگاه‌های کارکرده‌ی ما پیش از فروش توسط تکنسین‌های خودمان تست کامل سخت‌افزاری می‌شوند: سلامت باتری، دوربین، صفحه و پورت شارژ. همراه با ۶ ماه گارانتی تعویض قطعه.",
+  "specs": [
+   {
+    "key": "display",
+    "label": "نمایشگر",
+    "value": "۶.۱ اینچ Super Retina XDR",
+    "score": 61
+   },
+   {
+    "key": "chipset",
+    "label": "پردازنده",
+    "value": "Apple A15 Bionic",
+    "score": 74
+   },
+   {
+    "key": "ram",
+    "label": "حافظه رم",
+    "value": "۴ گیگابایت",
+    "score": 4
+   },
+   {
+    "key": "storage",
+    "label": "حافظه داخلی",
+    "value": "۱۲۸ گیگابایت",
+    "score": 128
+   },
+   {
+    "key": "battery",
+    "label": "باتری",
+    "value": "سلامت ۹۲٪",
+    "score": 3240
+   },
+   {
+    "key": "camera",
+    "label": "دوربین اصلی",
+    "value": "۱۲ + ۱۲ مگاپیکسل",
+    "score": 12
+   }
+  ],
+  "variants": [
+   {
+    "id": "iphone-13-used_v1",
+    "title": "استاندارد",
+    "price": 27500000,
+    "stock": 4
+   }
+  ],
+  "tags": [
+   "کارکرده تمیز",
+   "اقتصادی"
+  ],
+  "isNew": false,
+  "isFeatured": false,
+  "status": "active",
+  "createdAt": "2026-09-02T21:26:13.386Z"
+ },
+ {
+  "id": "prd_002",
+  "slug": "galaxy-s25-ultra",
+  "title": "گلکسی اس ۲۵ اولترا",
+  "titleEn": "Samsung Galaxy S25 Ultra",
+  "categorySlug": "mobile",
+  "brandSlug": "samsung",
+  "price": 78900000,
+  "compareAtPrice": 86400000,
+  "rating": 4.7,
+  "reviewCount": 168,
+  "stock": 12,
+  "images": [
+   "/img/products/galaxy-s25-ultra-1.svg",
+   "/img/products/galaxy-s25-ultra-2.svg",
+   "/img/products/galaxy-s25-ultra-3.svg"
+  ],
+  "shortDescription": "قلم S Pen، زوم اپتیکال ۵ برابر و نمایشگر ۶.۹ اینچی ضدانعکاس",
+  "description": "گلکسی اس ۲۵ اولترا با نمایشگر Dynamic AMOLED 2X و پوشش ضدانعکاس Gorilla Armor، حتی زیر نور مستقیم خورشید هم خوانا است. اسنپدراگون ۸ نسل ۴ به همراه ۱۲ گیگ رم، سنگین‌ترین بازی‌ها را بدون افت اجرا می‌کند و مجموعه دوربین ۲۰۰ مگاپیکسلی با زوم پریسکوپی، بهترین گزینه برای عکاسی از راه دور است.",
+  "specs": [
+   {
+    "key": "display",
+    "label": "نمایشگر",
+    "value": "۶.۹ اینچ Dynamic AMOLED 2X — ۱۲۰ هرتز",
+    "score": 69
+   },
+   {
+    "key": "chipset",
+    "label": "پردازنده",
+    "value": "Snapdragon 8 Elite",
+    "score": 96
+   },
+   {
+    "key": "ram",
+    "label": "حافظه رم",
+    "value": "۱۲ گیگابایت",
+    "score": 12
+   },
+   {
+    "key": "storage",
+    "label": "حافظه داخلی",
+    "value": "۲۵۶ گیگابایت",
+    "score": 256
+   },
+   {
+    "key": "battery",
+    "label": "باتری",
+    "value": "۵۰۰۰ میلی‌آمپرساعت",
+    "score": 5000
+   },
+   {
+    "key": "camera",
+    "label": "دوربین اصلی",
+    "value": "۲۰۰ + ۵۰ + ۱۰ + ۱۲ مگاپیکسل",
+    "score": 200
+   }
+  ],
+  "variants": [
+   {
+    "id": "galaxy-s25-ultra_v1",
+    "title": "۲۵۶ گیگابایت — مشکی تیتانیوم",
+    "price": 78900000,
+    "stock": 8,
+    "color": {
+     "name": "مشکی تیتانیوم",
+     "hex": "#2f3134"
+    }
+   },
+   {
+    "id": "galaxy-s25-ultra_v2",
+    "title": "۵۱۲ گیگابایت — خاکستری",
+    "price": 89500000,
+    "stock": 4,
+    "color": {
+     "name": "خاکستری تیتانیوم",
+     "hex": "#8d8f93"
+    }
+   }
+  ],
+  "tags": [
+   "پرچم‌دار",
+   "پرفروش"
+  ],
+  "isNew": true,
+  "isFeatured": true,
+  "status": "active",
+  "createdAt": "2026-09-01T21:26:13.386Z"
+ },
+ {
+  "id": "prd_008",
+  "slug": "playstation-5-slim",
+  "title": "پلی‌استیشن ۵ اسلیم",
+  "titleEn": "Sony PlayStation 5 Slim Disc",
+  "categorySlug": "console",
+  "brandSlug": "sony",
+  "price": 41900000,
+  "compareAtPrice": 45500000,
+  "rating": 4.9,
+  "reviewCount": 305,
+  "stock": 14,
+  "images": [
+   "/img/products/playstation-5-slim-1.svg",
+   "/img/products/playstation-5-slim-2.svg",
+   "/img/products/playstation-5-slim-3.svg"
+  ],
+  "shortDescription": "نسخه دیسک‌خور با ۱ ترابایت حافظه و دسته DualSense",
+  "description": "پلی‌استیشن ۵ اسلیم همان قدرت PS5 اصلی را در بدنه‌ای ۳۰٪ کوچک‌تر ارائه می‌دهد. درایو دیسک جداشدنی، ۱ ترابایت SSD داخلی و دسته DualSense با بازخورد لمسی، تجربه‌ای است که روی هیچ کنسول دیگری تکرار نشده.",
+  "specs": [
+   {
+    "key": "storage",
+    "label": "حافظه",
+    "value": "۱ ترابایت SSD",
+    "score": 1024
+   },
+   {
+    "key": "resolution",
+    "label": "رزولوشن",
+    "value": "تا 4K و پشتیبانی 8K",
+    "score": 4
+   },
+   {
+    "key": "fps",
+    "label": "نرخ فریم",
+    "value": "تا ۱۲۰ فریم بر ثانیه",
+    "score": 120
+   },
+   {
+    "key": "controllers",
+    "label": "دسته همراه",
+    "value": "۱ عدد DualSense",
+    "score": 1
+   }
+  ],
+  "variants": [
+   {
+    "id": "playstation-5-slim_v1",
+    "title": "نسخه دیسک‌خور — ۱TB",
+    "price": 41900000,
+    "stock": 9
+   },
+   {
+    "id": "playstation-5-slim_v2",
+    "title": "نسخه دیجیتال — ۱TB",
+    "price": 36400000,
+    "stock": 5
+   }
+  ],
+  "tags": [
+   "پرفروش",
+   "گیمینگ",
+   "گارانتی طلایی"
+  ],
+  "isNew": false,
+  "isFeatured": true,
+  "status": "active",
+  "createdAt": "2026-08-30T21:26:13.386Z"
+ },
+ {
+  "id": "prd_005",
+  "slug": "macbook-air-m4",
+  "title": "مک‌بوک ایر M4",
+  "titleEn": "Apple MacBook Air 13 M4",
+  "categorySlug": "laptop",
+  "brandSlug": "apple",
+  "price": 74200000,
+  "compareAtPrice": 79900000,
+  "rating": 4.9,
+  "reviewCount": 143,
+  "stock": 9,
+  "images": [
+   "/img/products/macbook-air-m4-1.svg",
+   "/img/products/macbook-air-m4-2.svg",
+   "/img/products/macbook-air-m4-3.svg"
+  ],
+  "shortDescription": "بدون فن، ۱۸ ساعت باتری و وزن ۱.۲۴ کیلوگرم",
+  "description": "مک‌بوک ایر M4 سبک‌ترین راه برای داشتن یک لپ‌تاپ حرفه‌ای است. طراحی بدون فن یعنی سکوت کامل، و تراشه M4 با ۱۰ هسته پردازشی، کارهای سنگین ادیت عکس و کدنویسی را بدون داغ شدن انجام می‌دهد.",
+  "specs": [
+   {
+    "key": "display",
+    "label": "نمایشگر",
+    "value": "۱۳.۶ اینچ Liquid Retina — ۲۵۶۰×۱۶۶۴",
+    "score": 136
+   },
+   {
+    "key": "cpu",
+    "label": "پردازنده",
+    "value": "Apple M4 — ۱۰ هسته",
+    "score": 92
+   },
+   {
+    "key": "gpu",
+    "label": "گرافیک",
+    "value": "Apple M4 GPU — ۸ هسته",
+    "score": 70
+   },
+   {
+    "key": "ram",
+    "label": "حافظه رم",
+    "value": "۱۶ گیگابایت یکپارچه",
+    "score": 16
+   },
+   {
+    "key": "storage",
+    "label": "حافظه",
+    "value": "۵۱۲ گیگابایت SSD",
+    "score": 512
+   },
+   {
+    "key": "weight",
+    "label": "وزن",
+    "value": "۱.۲۴ کیلوگرم",
+    "score": 1.24
+   }
+  ],
+  "variants": [
+   {
+    "id": "macbook-air-m4_v1",
+    "title": "۱۶GB / 512GB — نقره‌ای",
+    "price": 74200000,
+    "stock": 5,
+    "color": {
+     "name": "نقره‌ای",
+     "hex": "#e3e4e6"
+    }
+   },
+   {
+    "id": "macbook-air-m4_v2",
+    "title": "۲۴GB / 1TB — نیمه‌شب",
+    "price": 96800000,
+    "stock": 2,
+    "color": {
+     "name": "نیمه‌شب",
+     "hex": "#2e3641"
+    }
+   }
+  ],
+  "tags": [
+   "پیشنهاد سردبیر",
+   "گارانتی طلایی"
+  ],
+  "isNew": false,
+  "isFeatured": true,
+  "status": "active",
+  "createdAt": "2026-08-26T21:26:13.386Z"
+ },
+ {
+  "id": "prd_014",
+  "slug": "airpods-pro-3",
+  "title": "ایرپاد پرو ۳",
+  "titleEn": "Apple AirPods Pro 3",
+  "categorySlug": "accessory",
+  "brandSlug": "apple",
+  "price": 14900000,
+  "compareAtPrice": 16500000,
+  "rating": 4.6,
+  "reviewCount": 87,
+  "stock": 22,
+  "images": [
+   "/img/products/airpods-pro-3-1.svg",
+   "/img/products/airpods-pro-3-2.svg",
+   "/img/products/airpods-pro-3-3.svg"
+  ],
+  "shortDescription": "حذف نویز فعال نسل جدید با تشخیص دمای بدن",
+  "description": "ایرپاد پرو ۳ با تراشه H3 حذف نویز را تا دو برابر نسل قبل بهبود داده و حالت Transparency آن طبیعی‌ترین خروجی بازار است. سنسور دمای بدن و شارژ USB-C از دیگر تغییرات این نسل هستند.",
+  "specs": [
+   {
+    "key": "type",
+    "label": "نوع",
+    "value": "هندزفری داخل گوش (TWS)"
+   },
+   {
+    "key": "connection",
+    "label": "اتصال",
+    "value": "Bluetooth 5.4"
+   },
+   {
+    "key": "battery",
+    "label": "باتری",
+    "value": "تا ۳۰ ساعت با کیس",
+    "score": 30
+   },
+   {
+    "key": "weight",
+    "label": "وزن",
+    "value": "۵.۳ گرم هر ایرباد",
+    "score": 5.3
+   }
+  ],
+  "variants": [
+   {
+    "id": "airpods-pro-3_v1",
+    "title": "استاندارد",
+    "price": 14900000,
+    "stock": 22
+   }
+  ],
+  "tags": [
+   "پرفروش",
+   "ارسال فوری"
+  ],
+  "isNew": false,
+  "isFeatured": true,
+  "status": "active",
+  "createdAt": "2026-08-23T21:26:13.386Z"
+ },
+ {
+  "id": "prd_003",
+  "slug": "xiaomi-14t-pro",
+  "title": "شیائومی ۱۴T پرو",
+  "titleEn": "Xiaomi 14T Pro",
+  "categorySlug": "mobile",
+  "brandSlug": "xiaomi",
+  "price": 31400000,
+  "compareAtPrice": 35900000,
+  "rating": 4.5,
+  "reviewCount": 94,
+  "stock": 23,
+  "images": [
+   "/img/products/xiaomi-14t-pro-1.svg",
+   "/img/products/xiaomi-14t-pro-2.svg",
+   "/img/products/xiaomi-14t-pro-3.svg"
+  ],
+  "shortDescription": "شارژ ۱۲۰ واتی، لنز Leica و پردازنده Dimensity 9300+",
+  "description": "شیائومی ۱۴T پرو نسبت قیمت به کارایی فوق‌العاده‌ای دارد. شارژ سریع ۱۲۰ وات باتری را در حدود ۲۰ دقیقه پر می‌کند و کالیبراسیون رنگ لایکا، خروجی دوربین را از حالت اشباع‌شده‌ی معمول گوشی‌های چینی خارج کرده است.",
+  "specs": [
+   {
+    "key": "display",
+    "label": "نمایشگر",
+    "value": "۶.۶۷ اینچ AMOLED — ۱۴۴ هرتز",
+    "score": 66
+   },
+   {
+    "key": "chipset",
+    "label": "پردازنده",
+    "value": "Dimensity 9300+",
+    "score": 88
+   },
+   {
+    "key": "ram",
+    "label": "حافظه رم",
+    "value": "۱۲ گیگابایت",
+    "score": 12
+   },
+   {
+    "key": "storage",
+    "label": "حافظه داخلی",
+    "value": "۵۱۲ گیگابایت",
+    "score": 512
+   },
+   {
+    "key": "battery",
+    "label": "باتری",
+    "value": "۵۰۰۰ میلی‌آمپرساعت",
+    "score": 5000
+   },
+   {
+    "key": "camera",
+    "label": "دوربین اصلی",
+    "value": "۵۰ + ۵۰ + ۱۲ مگاپیکسل Leica",
+    "score": 50
+   }
+  ],
+  "variants": [
+   {
+    "id": "xiaomi-14t-pro_v1",
+    "title": "استاندارد",
+    "price": 31400000,
+    "stock": 23
+   }
+  ],
+  "tags": [
+   "اقتصادی",
+   "ارسال فوری"
+  ],
+  "isNew": false,
+  "isFeatured": true,
+  "status": "active",
+  "createdAt": "2026-08-20T21:26:13.386Z"
+ },
+ {
+  "id": "prd_009",
+  "slug": "xbox-series-x",
+  "title": "ایکس‌باکس سری ایکس",
+  "titleEn": "Microsoft Xbox Series X",
+  "categorySlug": "console",
+  "brandSlug": "microsoft",
+  "price": 38600000,
+  "compareAtPrice": null,
+  "rating": 4.7,
+  "reviewCount": 141,
+  "stock": 6,
+  "images": [
+   "/img/products/xbox-series-x-1.svg",
+   "/img/products/xbox-series-x-2.svg",
+   "/img/products/xbox-series-x-3.svg"
+  ],
+  "shortDescription": "قدرتمندترین کنسول مایکروسافت با ۱۲ ترافلاپس گرافیک",
+  "description": "سری ایکس روی کاغذ قدرتمندترین کنسول نسل است و با Game Pass، دسترسی به صدها بازی را ارزان می‌کند. سازگاری کامل با نسل‌های قبلی ایکس‌باکس نیز یکی از نقاط قوت بی‌رقیب آن است.",
+  "specs": [
+   {
+    "key": "storage",
+    "label": "حافظه",
+    "value": "۱ ترابایت NVMe",
+    "score": 1024
+   },
+   {
+    "key": "resolution",
+    "label": "رزولوشن",
+    "value": "بومی 4K",
+    "score": 4
+   },
+   {
+    "key": "fps",
+    "label": "نرخ فریم",
+    "value": "تا ۱۲۰ فریم بر ثانیه",
+    "score": 120
+   },
+   {
+    "key": "controllers",
+    "label": "دسته همراه",
+    "value": "۱ عدد Wireless",
+    "score": 1
+   }
+  ],
+  "variants": [
+   {
+    "id": "xbox-series-x_v1",
+    "title": "استاندارد",
+    "price": 38600000,
+    "stock": 6
+   }
+  ],
+  "tags": [
+   "گیمینگ"
+  ],
+  "isNew": false,
+  "isFeatured": false,
+  "status": "active",
+  "createdAt": "2026-08-15T21:26:13.386Z"
+ },
+ {
+  "id": "prd_006",
+  "slug": "asus-rog-strix-g16",
+  "title": "ایسوس ROG Strix G16",
+  "titleEn": "ASUS ROG Strix G16 RTX 4070",
+  "categorySlug": "laptop",
+  "brandSlug": "asus",
+  "price": 89500000,
+  "compareAtPrice": 97000000,
+  "rating": 4.6,
+  "reviewCount": 78,
+  "stock": 5,
+  "images": [
+   "/img/products/asus-rog-strix-g16-1.svg",
+   "/img/products/asus-rog-strix-g16-2.svg",
+   "/img/products/asus-rog-strix-g16-3.svg"
+  ],
+  "shortDescription": "RTX 4070 و نمایشگر ۲۴۰ هرتز برای گیمینگ بی‌رقیب",
+  "description": "اگر دنبال لپ‌تاپی هستید که هر بازی امروزی را روی تنظیمات بالا و بالای ۱۰۰ فریم اجرا کند، Strix G16 انتخاب مستقیم است. سیستم خنک‌کننده سه‌فنه و کیبورد مکانیکی-حسی آن، تفاوت را در جلسات طولانی بازی نشان می‌دهد.",
+  "specs": [
+   {
+    "key": "display",
+    "label": "نمایشگر",
+    "value": "۱۶ اینچ QHD+ — ۲۴۰ هرتز",
+    "score": 160
+   },
+   {
+    "key": "cpu",
+    "label": "پردازنده",
+    "value": "Intel Core i9-14900HX",
+    "score": 94
+   },
+   {
+    "key": "gpu",
+    "label": "گرافیک",
+    "value": "NVIDIA RTX 4070 8GB",
+    "score": 85
+   },
+   {
+    "key": "ram",
+    "label": "حافظه رم",
+    "value": "۳۲ گیگابایت DDR5",
+    "score": 32
+   },
+   {
+    "key": "storage",
+    "label": "حافظه",
+    "value": "۱ ترابایت SSD",
+    "score": 1024
+   },
+   {
+    "key": "weight",
+    "label": "وزن",
+    "value": "۲.۵ کیلوگرم",
+    "score": 2.5
+   }
+  ],
+  "variants": [
+   {
+    "id": "asus-rog-strix-g16_v1",
+    "title": "استاندارد",
+    "price": 89500000,
+    "stock": 5
+   }
+  ],
+  "tags": [
+   "گیمینگ",
+   "پرفروش"
+  ],
+  "isNew": false,
+  "isFeatured": true,
+  "status": "active",
+  "createdAt": "2026-08-11T21:26:13.386Z"
+ },
+ {
+  "id": "prd_013",
+  "slug": "game-elden-ring-shadow",
+  "title": "بازی Elden Ring — Shadow of the Erdtree",
+  "titleEn": "Elden Ring: Shadow of the Erdtree — PS5",
+  "categorySlug": "game",
+  "brandSlug": "sony",
+  "price": 3950000,
+  "compareAtPrice": 4600000,
+  "rating": 4.8,
+  "reviewCount": 121,
+  "stock": 12,
+  "images": [
+   "/img/products/game-elden-ring-shadow-1.svg",
+   "/img/products/game-elden-ring-shadow-2.svg",
+   "/img/products/game-elden-ring-shadow-3.svg"
+  ],
+  "shortDescription": "نسخه کامل به همراه بزرگ‌ترین بسته الحاقی فرام‌سافتور",
+  "description": "الدن رینگ به‌همراه الحاقی Shadow of the Erdtree، بیش از ۱۰۰ ساعت محتوای بی‌رحمانه و زیبا ارائه می‌دهد. اگر طرفدار بازی‌های سخت هستید، از این نسخه نگذرید.",
+  "specs": [
+   {
+    "key": "platform",
+    "label": "پلتفرم",
+    "value": "PlayStation 5"
+   },
+   {
+    "key": "genre",
+    "label": "سبک",
+    "value": "نقش‌آفرینی اکشن"
+   },
+   {
+    "key": "players",
+    "label": "تعداد بازیکن",
+    "value": "تک‌نفره با کوآپ آنلاین"
+   },
+   {
+    "key": "language",
+    "label": "زبان",
+    "value": "انگلیسی"
+   }
+  ],
+  "variants": [
+   {
+    "id": "game-elden-ring-shadow_v1",
+    "title": "استاندارد",
+    "price": 3950000,
+    "stock": 12
+   }
+  ],
+  "tags": [
+   "گیمینگ",
+   "پیشنهاد سردبیر"
+  ],
+  "isNew": false,
+  "isFeatured": false,
+  "status": "active",
+  "createdAt": "2026-08-07T21:26:13.386Z"
+ },
+ {
+  "id": "prd_015",
+  "slug": "logitech-g-pro-x-superlight-2",
+  "title": "ماوس لاجیتک G Pro X Superlight 2",
+  "titleEn": "Logitech G Pro X Superlight 2",
+  "categorySlug": "accessory",
+  "brandSlug": "logitech",
+  "price": 6850000,
+  "compareAtPrice": null,
+  "rating": 4.9,
+  "reviewCount": 64,
+  "stock": 16,
+  "images": [
+   "/img/products/logitech-g-pro-x-superlight-2-1.svg",
+   "/img/products/logitech-g-pro-x-superlight-2-2.svg",
+   "/img/products/logitech-g-pro-x-superlight-2-3.svg"
+  ],
+  "shortDescription": "وزن ۶۰ گرم، سنسور HERO 2 و ۹۵ ساعت باتری",
+  "description": "استاندارد طلایی ماوس‌های حرفه‌ای ای‌اسپورت. وزن زیر ۶۰ گرم، سوییچ‌های نوری هیبریدی و تأخیر بی‌سیم عملاً صفر — همان چیزی که اکثر بازیکنان حرفه‌ای CS و Valorant استفاده می‌کنند.",
+  "specs": [
+   {
+    "key": "type",
+    "label": "نوع",
+    "value": "ماوس گیمینگ بی‌سیم"
+   },
+   {
+    "key": "connection",
+    "label": "اتصال",
+    "value": "LIGHTSPEED بی‌سیم + USB-C"
+   },
+   {
+    "key": "battery",
+    "label": "باتری",
+    "value": "تا ۹۵ ساعت",
+    "score": 95
+   },
+   {
+    "key": "weight",
+    "label": "وزن",
+    "value": "۶۰ گرم",
+    "score": 60
+   }
+  ],
+  "variants": [
+   {
+    "id": "logitech-g-pro-x-superlight-2_v1",
+    "title": "استاندارد",
+    "price": 6850000,
+    "stock": 16
+   }
+  ],
+  "tags": [
+   "گیمینگ",
+   "پیشنهاد سردبیر"
+  ],
+  "isNew": false,
+  "isFeatured": false,
+  "status": "active",
+  "createdAt": "2026-08-01T21:26:13.386Z"
+ },
+ {
+  "id": "prd_018",
+  "slug": "asus-tuf-a15",
+  "title": "ایسوس TUF Gaming A15",
+  "titleEn": "ASUS TUF Gaming A15 RTX 4060",
+  "categorySlug": "laptop",
+  "brandSlug": "asus",
+  "price": 56700000,
+  "compareAtPrice": 61000000,
+  "rating": 4.4,
+  "reviewCount": 58,
+  "stock": 11,
+  "images": [
+   "/img/products/asus-tuf-a15-1.svg",
+   "/img/products/asus-tuf-a15-2.svg",
+   "/img/products/asus-tuf-a15-3.svg"
+  ],
+  "shortDescription": "گیمینگ مقرون‌به‌صرفه با RTX 4060 و صفحه ۱۴۴ هرتز",
+  "description": "TUF A15 نقطه‌ی شیرین بازار گیمینگ است: RTX 4060 برای بازی روان در رزولوشن 1080p، بدنه‌ی مقاوم با استاندارد نظامی MIL-STD و قیمتی که خیلی زیر رقبای هم‌رده است.",
+  "specs": [
+   {
+    "key": "display",
+    "label": "نمایشگر",
+    "value": "۱۵.۶ اینچ FHD — ۱۴۴ هرتز",
+    "score": 156
+   },
+   {
+    "key": "cpu",
+    "label": "پردازنده",
+    "value": "AMD Ryzen 7 7735HS",
+    "score": 78
+   },
+   {
+    "key": "gpu",
+    "label": "گرافیک",
+    "value": "NVIDIA RTX 4060 8GB",
+    "score": 72
+   },
+   {
+    "key": "ram",
+    "label": "حافظه رم",
+    "value": "۱۶ گیگابایت DDR5",
+    "score": 16
+   },
+   {
+    "key": "storage",
+    "label": "حافظه",
+    "value": "۵۱۲ گیگابایت SSD",
+    "score": 512
+   },
+   {
+    "key": "weight",
+    "label": "وزن",
+    "value": "۲.۲ کیلوگرم",
+    "score": 2.2
+   }
+  ],
+  "variants": [
+   {
+    "id": "asus-tuf-a15_v1",
+    "title": "استاندارد",
+    "price": 56700000,
+    "stock": 11
+   }
+  ],
+  "tags": [
+   "گیمینگ",
+   "اقتصادی"
+  ],
+  "isNew": false,
+  "isFeatured": false,
+  "status": "active",
+  "createdAt": "2026-07-28T21:26:13.386Z"
+ },
+ {
+  "id": "prd_004",
+  "slug": "galaxy-a56",
+  "title": "گلکسی A56",
+  "titleEn": "Samsung Galaxy A56 5G",
+  "categorySlug": "mobile",
+  "brandSlug": "samsung",
+  "price": 18700000,
+  "compareAtPrice": null,
+  "rating": 4.2,
+  "reviewCount": 56,
+  "stock": 41,
+  "images": [
+   "/img/products/galaxy-a56-1.svg",
+   "/img/products/galaxy-a56-2.svg",
+   "/img/products/galaxy-a56-3.svg"
+  ],
+  "shortDescription": "میان‌رده‌ی محبوب با نمایشگر ۱۲۰ هرتز و ۴ سال آپدیت",
+  "description": "A56 گزینه‌ی امن بازار میان‌رده است: بدنه فلزی، نمایشگر Super AMOLED یک‌دست و تعهد سامسونگ به چهار نسل آپدیت اندروید. برای کاربر روزمره‌ای که دنبال دردسر نیست، بهترین انتخاب زیر ۲۰ میلیون.",
+  "specs": [
+   {
+    "key": "display",
+    "label": "نمایشگر",
+    "value": "۶.۷ اینچ Super AMOLED — ۱۲۰ هرتز",
+    "score": 67
+   },
+   {
+    "key": "chipset",
+    "label": "پردازنده",
+    "value": "Exynos 1580",
+    "score": 62
+   },
+   {
+    "key": "ram",
+    "label": "حافظه رم",
+    "value": "۸ گیگابایت",
+    "score": 8
+   },
+   {
+    "key": "storage",
+    "label": "حافظه داخلی",
+    "value": "۱۲۸ گیگابایت",
+    "score": 128
+   },
+   {
+    "key": "battery",
+    "label": "باتری",
+    "value": "۵۰۰۰ میلی‌آمپرساعت",
+    "score": 5000
+   },
+   {
+    "key": "camera",
+    "label": "دوربین اصلی",
+    "value": "۵۰ + ۱۲ + ۵ مگاپیکسل",
+    "score": 50
+   }
+  ],
+  "variants": [
+   {
+    "id": "galaxy-a56_v1",
+    "title": "استاندارد",
+    "price": 18700000,
+    "stock": 41
+   }
+  ],
+  "tags": [
+   "اقتصادی",
+   "پرفروش"
+  ],
+  "isNew": false,
+  "isFeatured": false,
+  "status": "active",
+  "createdAt": "2026-07-25T21:26:13.386Z"
+ },
+ {
+  "id": "prd_016",
+  "slug": "dualsense-edge",
+  "title": "دسته DualSense Edge",
+  "titleEn": "Sony DualSense Edge Controller",
+  "categorySlug": "accessory",
+  "brandSlug": "sony",
+  "price": 12300000,
+  "compareAtPrice": 13900000,
+  "rating": 4.4,
+  "reviewCount": 52,
+  "stock": 8,
+  "images": [
+   "/img/products/dualsense-edge-1.svg",
+   "/img/products/dualsense-edge-2.svg",
+   "/img/products/dualsense-edge-3.svg"
+  ],
+  "shortDescription": "دسته حرفه‌ای با آنالوگ‌های تعویض‌پذیر و پروفایل سفارشی",
+  "description": "نسخه‌ی حرفه‌ای دسته PS5 با ماژول‌های آنالوگ قابل تعویض (پایان درد سر drift)، دکمه‌های پشتی و امکان ذخیره‌ی پروفایل‌های مختلف برای هر بازی.",
+  "specs": [
+   {
+    "key": "type",
+    "label": "نوع",
+    "value": "دسته بازی حرفه‌ای"
+   },
+   {
+    "key": "connection",
+    "label": "اتصال",
+    "value": "Bluetooth + USB-C"
+   },
+   {
+    "key": "battery",
+    "label": "باتری",
+    "value": "تا ۱۰ ساعت",
+    "score": 10
+   },
+   {
+    "key": "weight",
+    "label": "وزن",
+    "value": "۳۲۵ گرم",
+    "score": 325
+   }
+  ],
+  "variants": [
+   {
+    "id": "dualsense-edge_v1",
+    "title": "استاندارد",
+    "price": 12300000,
+    "stock": 8
+   }
+  ],
+  "tags": [
+   "گیمینگ",
+   "گارانتی طلایی"
+  ],
+  "isNew": false,
+  "isFeatured": false,
+  "status": "active",
+  "createdAt": "2026-07-17T21:26:13.386Z"
+ },
+ {
+  "id": "prd_007",
+  "slug": "lenovo-ideapad-slim-5",
+  "title": "لنوو آیدیاپد اسلیم ۵",
+  "titleEn": "Lenovo IdeaPad Slim 5",
+  "categorySlug": "laptop",
+  "brandSlug": "lenovo",
+  "price": 34800000,
+  "compareAtPrice": null,
+  "rating": 4.1,
+  "reviewCount": 39,
+  "stock": 18,
+  "images": [
+   "/img/products/lenovo-ideapad-slim-5-1.svg",
+   "/img/products/lenovo-ideapad-slim-5-2.svg",
+   "/img/products/lenovo-ideapad-slim-5-3.svg"
+  ],
+  "shortDescription": "گزینه‌ی اقتصادی برای دانشجو و کار اداری با ۱۶ گیگ رم",
+  "description": "آیدیاپد اسلیم ۵ تعادل خوبی بین قیمت و کیفیت ساخت دارد. بدنه آلومینیومی، صفحه‌کلید راحت و ۱۶ گیگابایت رم آن را برای چندوظیفگی سنگین اداری و برنامه‌نویسی سبک مناسب می‌کند.",
+  "specs": [
+   {
+    "key": "display",
+    "label": "نمایشگر",
+    "value": "۱۴ اینچ WUXGA IPS — ۶۰ هرتز",
+    "score": 140
+   },
+   {
+    "key": "cpu",
+    "label": "پردازنده",
+    "value": "AMD Ryzen 7 8845HS",
+    "score": 76
+   },
+   {
+    "key": "gpu",
+    "label": "گرافیک",
+    "value": "Radeon 780M یکپارچه",
+    "score": 40
+   },
+   {
+    "key": "ram",
+    "label": "حافظه رم",
+    "value": "۱۶ گیگابایت",
+    "score": 16
+   },
+   {
+    "key": "storage",
+    "label": "حافظه",
+    "value": "۵۱۲ گیگابایت SSD",
+    "score": 512
+   },
+   {
+    "key": "weight",
+    "label": "وزن",
+    "value": "۱.۴۶ کیلوگرم",
+    "score": 1.46
+   }
+  ],
+  "variants": [
+   {
+    "id": "lenovo-ideapad-slim-5_v1",
+    "title": "استاندارد",
+    "price": 34800000,
+    "stock": 18
+   }
+  ],
+  "tags": [
+   "اقتصادی",
+   "ارسال فوری"
+  ],
+  "isNew": false,
+  "isFeatured": false,
+  "status": "active",
+  "createdAt": "2026-07-10T21:26:13.386Z"
+ },
+ {
+  "id": "prd_011",
+  "slug": "game-god-of-war-ragnarok",
+  "title": "بازی God of War Ragnarök",
+  "titleEn": "God of War Ragnarök — PS5",
+  "categorySlug": "game",
+  "brandSlug": "sony",
+  "price": 3200000,
+  "compareAtPrice": 4100000,
+  "rating": 4.9,
+  "reviewCount": 264,
+  "stock": 30,
+  "images": [
+   "/img/products/game-god-of-war-ragnarok-1.svg",
+   "/img/products/game-god-of-war-ragnarok-2.svg",
+   "/img/products/game-god-of-war-ragnarok-3.svg"
+  ],
+  "shortDescription": "حماسه‌ی کریتوس و آترئوس با زیرنویس فارسی",
+  "description": "ادامه‌ی مستقیم God of War 2018 که کوراتوس و پسرش را در آستانه‌ی راگناروک قرار می‌دهد. سیستم مبارزه عمیق‌تر، جهان بزرگ‌تر و روایتی که یکی از بهترین‌های تاریخ بازی‌های ویدیویی لقب گرفته است.",
+  "specs": [
+   {
+    "key": "platform",
+    "label": "پلتفرم",
+    "value": "PlayStation 5"
+   },
+   {
+    "key": "genre",
+    "label": "سبک",
+    "value": "اکشن ماجراجویی"
+   },
+   {
+    "key": "players",
+    "label": "تعداد بازیکن",
+    "value": "تک‌نفره"
+   },
+   {
+    "key": "language",
+    "label": "زبان",
+    "value": "انگلیسی با زیرنویس فارسی"
+   }
+  ],
+  "variants": [
+   {
+    "id": "game-god-of-war-ragnarok_v1",
+    "title": "استاندارد",
+    "price": 3200000,
+    "stock": 30
+   }
+  ],
+  "tags": [
+   "پرفروش",
+   "گیمینگ"
+  ],
+  "isNew": false,
+  "isFeatured": false,
+  "status": "active",
+  "createdAt": "2026-06-12T21:26:13.386Z"
+ }
+]

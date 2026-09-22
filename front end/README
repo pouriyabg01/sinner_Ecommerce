@@ -1,0 +1,9 @@
+idea : yek front end site foroshgahi farsi kamel ba data mock besaz (faghat front end , badan gharare az api 
+data begire va dar app ham estefade kone)
+mahsolat : bazi va goshi va computer (mahsolat ziad nist)
+tarahi : font yekan , theme khas va shick ke range khase khodesho dashte bashe (say kon site zende bashe : transition , animation kocick ,hover) say kon tori tarahi koni ke aslan shabih be wordpress nabashe az site hayi mesle lioncomputer elham begir 
+bakhshe taghir tarahi site ro dar panel admin bezar (mesle slider , section ha , ...)
+page ha : admin panel , profile , landing page , product , moghayese , nazarat , filter ha , aout us , 
+sefareshat , ...
+mohem : yek ghesmat baraye sefareshe tamir , service ya har chiz dg baraye user va admin besaz (kheili mohhem dar tarahi va admin o landing page) : dastga(goshi , laptop , ...) , tarif moshkel ya list kardan moshkelat common , ersal kardane vasile ya tahvil dadan on be post ke miad dare khone
+2 type admin besaz : 1 admin koli , 2 admin CRUD mahsolat o takhfif o category o tag o in chiza 

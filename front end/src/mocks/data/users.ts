@@ -1,0 +1,75 @@
+import type { User } from '@/types/user'
+import { ADMIN_PRESETS } from '@/types/user'
+
+const preset = (id: string) => ADMIN_PRESETS.find((p) => p.id === id)!.permissions
+
+export const users: User[] = [
+  {
+    id: 'usr_001',
+    fullName: 'سارا محمدی',
+    phone: '09121234567',
+    email: 'sara@example.com',
+    role: 'customer',
+    status: 'active',
+    createdAt: '2024-03-11T08:00:00.000Z',
+    addresses: [
+      {
+        id: 'adr_001',
+        title: 'خانه',
+        receiver: 'سارا محمدی',
+        phone: '09121234567',
+        province: 'تهران',
+        city: 'تهران',
+        postalCode: '1998765432',
+        line: 'سعادت‌آباد، خیابان سرو غربی، پلاک ۲۴، واحد ۵',
+        isDefault: true,
+      },
+      {
+        id: 'adr_002',
+        title: 'محل کار',
+        receiver: 'سارا محمدی',
+        phone: '02188776655',
+        province: 'تهران',
+        city: 'تهران',
+        postalCode: '1583746291',
+        line: 'میدان ونک، برج نگین، طبقه ۹',
+        isDefault: false,
+      },
+    ],
+  },
+  {
+    id: 'usr_002',
+    fullName: 'امیر رضایی',
+    phone: '09354445566',
+    email: 'amir@example.com',
+    role: 'customer',
+    status: 'active',
+    createdAt: '2023-11-02T08:00:00.000Z',
+    addresses: [],
+  },
+  {
+    id: 'usr_100',
+    fullName: 'مدیر کل سایت',
+    adminTitle: 'مدیر کل',
+    phone: '09120000001',
+    email: 'admin@sinner.shop',
+    role: 'admin_super',
+    status: 'active',
+    createdAt: '2023-01-01T08:00:00.000Z',
+    addresses: [],
+  },
+  {
+    id: 'usr_101',
+    fullName: 'نیما کاظمی',
+    adminTitle: 'ادمین کاتالوگ',
+    phone: '09120000002',
+    email: 'catalog@sinner.shop',
+    role: 'admin',
+    status: 'active',
+    permissions: preset('catalog'),
+    createdAt: '2023-06-01T08:00:00.000Z',
+    addresses: [],
+  },
+]
+
+export const currentUserId = 'usr_001'
