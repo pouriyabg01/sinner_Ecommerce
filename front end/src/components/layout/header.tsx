@@ -266,7 +266,12 @@ function buildNav(categories: CategoryWithCount[] | undefined): NavEntry[] {
   const orphans = withProducts.filter((c) => c.parentId && !shownRootIds.has(c.parentId))
 
   const entries: NavEntry[] = [...roots, ...orphans].map((root) => {
-    const children = withProducts
+    /*
+     * برخلاف سطح اول، زیرمجموعه‌ی خالی هم نشان داده می‌شود: ساختار کاتالوگ از
+     * همین کشو فهمیده می‌شود و دسته‌ی تازه‌ساخته باید بلافاصله دیده شود. صفحه‌اش
+     * هم لینک مرده نیست، «کالایی پیدا نشد» می‌گوید — مثل نوار فیلتر کالاها.
+     */
+    const children = all
       .filter((c) => c.parentId === root.id)
       .map((c) => ({ href: `/products?category=${c.slug}`, label: c.title }))
 
