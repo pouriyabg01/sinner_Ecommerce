@@ -204,18 +204,31 @@ class CatalogController extends Controller
 
     public function categories(): JsonResponse
     {
+        $categories = Category::withCount(['products' => fn ($q) => $q->where('status', 'active')])->get();
+
+        /*
+         * شمار کالای دسته‌ی مادر، کالاهای زیردسته‌هایش را هم می‌شمارد. بدون این،
+         * مادرِ بی‌کالای مستقیم در منوی سایت «خالی» دیده می‌شد و حذف می‌شد، در
+         * حالی که زیرمجموعه‌هایش پر بودند.
+         */
+        $childCount = $categories
+            ->filter(fn (Category $c) => $c->parent_id)
+            ->groupBy('parent_id')
+            ->map(fn ($group) => $group->sum('products_count'));
+
         return response()->json(
-            Category::withCount(['products' => fn ($q) => $q->where('status', 'active')])
-                ->get()
-                ->map(fn (Category $c) => [
-                    'id' => (string) $c->id,
-                    'slug' => $c->slug,
-                    'title' => $c->title,
-                    'icon' => $c->icon,
-                    'description' => $c->description,
-                    'specKeys' => $c->spec_keys ?? [],
-                    'productCount' => $c->products_count,
-                ])
+            $categories->map(fn (Category $c) => [
+                'id' => (string) $c->id,
+                'parentId' => $c->parent_id ? (string) $c->parent_id : null,
+                'slug' => $c->slug,
+                'title' => $c->title,
+                'icon' => $c->icon,
+                'description' => $c->description,
+                'specKeys' => $c->spec_keys ?? [],
+                'productCount' => $c->products_count + ($childCount[$c->id] ?? 0),
+                /** فقط کالاهای خودِ دسته، بدون زیرمجموعه */
+                'ownProductCount' => $c->products_count,
+            ])
         );
     }
 

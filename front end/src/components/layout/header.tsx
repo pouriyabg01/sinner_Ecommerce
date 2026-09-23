@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'motion/react'
 import {
+  ChevronDown,
   GitCompareArrows,
   Heart,
   LogIn,
@@ -25,6 +26,7 @@ import { useSession } from '@/store/session'
 import { MOCKING_ENABLED } from '@/lib/api/config'
 import { useHydrated } from '@/lib/use-hydrated'
 import { useCategories, useSiteSettings, useWishlist } from '@/lib/api/queries'
+import type { CategoryWithCount } from '@/lib/api/endpoints'
 import { toFaDigits } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
@@ -44,12 +46,7 @@ export function Header() {
    * منوی دسته‌ها با ساختن، حذف یا تغییر نام دسته خودش به‌روز می‌شود — مثل ستون فوتر.
    * فقط دسته‌ای می‌آید که کالای قابل نمایش دارد؛ دسته‌ی حذف‌شده یا خالی لینک مرده می‌شد.
    */
-  const nav = [
-    ...(categories ?? [])
-      .filter((c) => c.productCount > 0)
-      .map((c) => ({ href: `/products?category=${c.slug}`, label: c.title, highlight: false })),
-    ...staticNav,
-  ]
+  const nav = buildNav(categories)
   const openCart = useCart((s) => s.open)
   const compareIds = useCompareStore((s) => s.ids)
   // در حالت mock ورودی وجود ندارد، پس همیشه «واردشده» فرض می‌شود. توکن فقط
@@ -192,22 +189,7 @@ export function Header() {
 
           <nav className="hidden items-center gap-1 border-t border-border py-1.5 lg:flex">
             {nav.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  'group relative rounded-lg px-3 py-2 text-[13.5px] font-medium transition-colors',
-                  item.highlight
-                    ? 'text-ember-600 hover:bg-ember-500/10 dark:text-ember-400'
-                    : 'text-muted hover:text-foreground',
-                )}
-              >
-                <span className="inline-flex items-center gap-1.5">
-                  {item.highlight && <Wrench className="size-3.5" />}
-                  {item.label}
-                </span>
-                <span className="absolute inset-x-3 -bottom-1.5 h-0.5 scale-x-0 rounded-full bg-brand-500 transition-transform duration-300 group-hover:scale-x-100" />
-              </Link>
+              <NavItem key={item.href} item={item} />
             ))}
           </nav>
         </div>
@@ -243,18 +225,7 @@ export function Header() {
               </div>
               <ul className="flex-1 space-y-1 overflow-y-auto p-3">
                 {nav.map((item) => (
-                  <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      className={cn(
-                        'flex items-center gap-2 rounded-xl px-3 py-3 text-sm font-medium transition-colors',
-                        item.highlight ? 'bg-ember-500/10 text-ember-600 dark:text-ember-400' : 'hover:bg-surface-2',
-                      )}
-                    >
-                      {item.highlight && <Wrench className="size-4" />}
-                      {item.label}
-                    </Link>
-                  </li>
+                  <MobileNavItem key={item.href} item={item} />
                 ))}
               </ul>
               <div className="border-t border-border p-4">
@@ -265,5 +236,162 @@ export function Header() {
         )}
       </AnimatePresence>
     </>
+  )
+}
+
+/** یک خانه‌ی منو؛ دسته‌ی مادر زیرمجموعه دارد و بقیه ندارند */
+interface NavEntry {
+  href: string
+  label: string
+  highlight: boolean
+  children?: { href: string; label: string }[]
+}
+
+/**
+ * منو از خود دسته‌بندی‌ها ساخته می‌شود تا با ساختن و حذف دسته همگام بماند.
+ *
+ * فقط دسته‌ای می‌آید که کالای قابل نمایش دارد — شمار دسته‌ی مادر شامل
+ * زیرمجموعه‌هایش هم هست، پس مادرِ پرکالا حتی اگر کالای مستقیم نداشته باشد می‌ماند.
+ */
+function buildNav(categories: CategoryWithCount[] | undefined): NavEntry[] {
+  const all = categories ?? []
+  const withProducts = all.filter((c) => c.productCount > 0)
+  const roots = withProducts.filter((c) => !c.parentId)
+
+  /*
+   * زیردسته‌ای که مادرش کالا ندارد (و از منو افتاده) یتیم می‌شود؛ آن را در سطح
+   * اول می‌آوریم تا لینکش گم نشود.
+   */
+  const shownRootIds = new Set(roots.map((c) => c.id))
+  const orphans = withProducts.filter((c) => c.parentId && !shownRootIds.has(c.parentId))
+
+  const entries: NavEntry[] = [...roots, ...orphans].map((root) => {
+    const children = withProducts
+      .filter((c) => c.parentId === root.id)
+      .map((c) => ({ href: `/products?category=${c.slug}`, label: c.title }))
+
+    return {
+      href: `/products?category=${root.slug}`,
+      label: root.title,
+      highlight: false,
+      ...(children.length ? { children } : {}),
+    }
+  })
+
+  return [...entries, ...staticNav]
+}
+
+/** خانه‌ی منوی دسکتاپ؛ با زیرمجموعه، کشو باز می‌شود */
+function NavItem({ item }: { item: NavEntry }) {
+  const [open, setOpen] = useState(false)
+
+  const link = (
+    <Link
+      href={item.href}
+      className={cn(
+        'group relative flex items-center gap-1.5 rounded-lg px-3 py-2 text-[13.5px] font-medium transition-colors',
+        item.highlight ? 'text-ember-600 hover:bg-ember-500/10 dark:text-ember-400' : 'text-muted hover:text-foreground',
+      )}
+    >
+      {item.highlight && <Wrench className="size-3.5" />}
+      {item.label}
+      {item.children && <ChevronDown className={cn('size-3.5 transition-transform', open && 'rotate-180')} />}
+      <span className="absolute inset-x-3 -bottom-1.5 h-0.5 scale-x-0 rounded-full bg-brand-500 transition-transform duration-300 group-hover:scale-x-100" />
+    </Link>
+  )
+
+  if (!item.children) return link
+
+  return (
+    /*
+     * باز شدن با ماوس و با تب هر دو کار می‌کند: کشو داخل همین ظرف است، پس
+     * حرکت ماوس از عنوان به زیرمجموعه‌ها آن را نمی‌بندد.
+     */
+    <div
+      className="relative"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+      onFocus={() => setOpen(true)}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node)) setOpen(false)
+      }}
+    >
+      {link}
+      <AnimatePresence>
+        {open && (
+          <motion.ul
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.15 }}
+            className="absolute start-0 top-full z-50 min-w-52 overflow-hidden rounded-2xl border border-border bg-surface p-1.5 shadow-lift"
+          >
+            <li>
+              <Link
+                href={item.href}
+                className="block rounded-xl px-3 py-2 text-[13px] font-bold transition-colors hover:bg-surface-2"
+              >
+                همه‌ی {item.label}
+              </Link>
+            </li>
+            {item.children.map((child) => (
+              <li key={child.href}>
+                <Link
+                  href={child.href}
+                  className="block rounded-xl px-3 py-2 text-[13px] text-muted transition-colors hover:bg-surface-2 hover:text-foreground"
+                >
+                  {child.label}
+                </Link>
+              </li>
+            ))}
+          </motion.ul>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+/** خانه‌ی منوی گوشی؛ زیرمجموعه‌ها با زدن فلش باز می‌شوند، نه با رفتن به صفحه */
+function MobileNavItem({ item }: { item: NavEntry }) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <li>
+      <div className="flex items-center gap-1">
+        <Link
+          href={item.href}
+          className={cn(
+            'flex flex-1 items-center gap-2 rounded-xl px-3 py-3 text-sm font-medium transition-colors',
+            item.highlight ? 'bg-ember-500/10 text-ember-600 dark:text-ember-400' : 'hover:bg-surface-2',
+          )}
+        >
+          {item.highlight && <Wrench className="size-4" />}
+          {item.label}
+        </Link>
+        {item.children && (
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-label={`زیرمجموعه‌های ${item.label}`}
+            className="grid size-9 shrink-0 place-items-center rounded-xl text-muted transition-colors hover:bg-surface-2 hover:text-foreground"
+          >
+            <ChevronDown className={cn('size-4 transition-transform', open && 'rotate-180')} />
+          </button>
+        )}
+      </div>
+
+      {item.children && open && (
+        <ul className="mt-0.5 space-y-0.5 border-e-2 border-border pe-3 ms-3">
+          {item.children.map((child) => (
+            <li key={child.href}>
+              <Link href={child.href} className="block rounded-xl px-3 py-2.5 text-[13px] text-muted transition-colors hover:bg-surface-2 hover:text-foreground">
+                {child.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </li>
   )
 }

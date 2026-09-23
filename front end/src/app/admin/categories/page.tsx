@@ -46,7 +46,8 @@ export default function AdminTaxonomyPage() {
   const [bulkCategories, setBulkCategories] = useState<CategoryWithCount[] | null>(null)
   const [brandBulkBusy, setBrandBulkBusy] = useState(false)
 
-  const categoryRows = categories.data ?? []
+  // مادرها به ترتیب، و هر زیرمجموعه بلافاصله زیر مادر خودش
+  const categoryRows = orderByTree(categories.data ?? [])
   const categoryIds = categoryRows.map((category) => category.id)
   const categorySelection = useSelection(categoryIds, categoryIds)
 
@@ -110,14 +111,16 @@ export default function AdminTaxonomyPage() {
                 حذف انتخاب‌شده‌ها
               </Button>
             </BulkBar>
-            <Table selection={categorySelection} head={['دسته', 'اسلاگ', 'کلیدهای مشخصات', 'تعداد کالا', '']}>
-              {categories.data.map((category) => {
+            <Table selection={categorySelection} head={['دسته', 'مادر', 'اسلاگ', 'کلیدهای مشخصات', 'تعداد کالا', '']}>
+              {categoryRows.map((category) => {
                 const Icon = getIcon(category.icon)
                 return (
                   <tr key={category.id} className="transition-colors hover:bg-surface-2/40">
                     <SelectCell selection={categorySelection} id={category.id} label={category.title} />
                     <td className="p-3.5">
-                      <div className="flex items-center gap-3">
+                      <div className={cn('flex items-center gap-3', category.parentId && 'ps-6')}>
+                        {/* خط کوچک، زیرمجموعه بودن را بدون خواندن ستون مادر نشان می‌دهد */}
+                        {category.parentId && <span className="-ms-4 h-px w-3 shrink-0 bg-border" />}
                         <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400">
                           <Icon className="size-4" />
                         </span>
@@ -126,6 +129,9 @@ export default function AdminTaxonomyPage() {
                           <p className="truncate text-[11px] text-muted">{category.description || '—'}</p>
                         </div>
                       </div>
+                    </td>
+                    <td className="p-3.5 text-muted">
+                      {categoryRows.find((c) => c.id === category.parentId)?.title ?? '—'}
                     </td>
                     <td className="num p-3.5 text-muted" dir="ltr">
                       {category.slug}
@@ -259,6 +265,7 @@ export default function AdminTaxonomyPage() {
         <CategoryDrawer
           open={categoryEdit !== undefined}
           editing={categoryEdit ?? null}
+          categories={categoryRows}
           saving={createCategory.isPending || updateCategory.isPending}
           onClose={() => setCategoryEdit(undefined)}
           onSubmit={(body, onFieldError) => {
@@ -540,4 +547,15 @@ function BulkDeleteCategoriesDrawer({
       </div>
     </Drawer>
   )
+}
+
+/**
+ * مرتب‌سازی درختی: هر مادر، و بلافاصله زیرش بچه‌هایش.
+ * دسته‌ای که مادرش در فهرست نیست، خودش در سطح اول می‌آید تا گم نشود.
+ */
+function orderByTree(categories: CategoryWithCount[]): CategoryWithCount[] {
+  const ids = new Set(categories.map((c) => c.id))
+  const roots = categories.filter((c) => !c.parentId || !ids.has(c.parentId))
+
+  return roots.flatMap((root) => [root, ...categories.filter((c) => c.parentId === root.id)])
 }

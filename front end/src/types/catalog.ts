@@ -7,6 +7,8 @@ export type CategorySlug = string
 
 export interface Category {
   id: string
+  /** شناسه‌ی دسته‌ی مادر؛ null یعنی خودش دسته‌ی اصلی است. بیشتر از دو سطح نداریم */
+  parentId?: string | null
   slug: CategorySlug
   title: string
   icon: string

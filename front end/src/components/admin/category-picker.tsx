@@ -24,9 +24,15 @@ export function CategoryPicker({
   if (isLoading) return <p className="text-xs text-muted">در حال بارگذاری…</p>
   if (!data?.length) return <p className="text-xs text-muted">هنوز دسته‌ای ساخته نشده است.</p>
 
+  // زیرمجموعه بلافاصله بعد از مادرش، تا انتخاب کردن با ترتیبِ پنل یکی باشد
+  const ids = new Set(data.map((c) => c.id))
+  const ordered = data
+    .filter((c) => !c.parentId || !ids.has(c.parentId))
+    .flatMap((root) => [root, ...data.filter((c) => c.parentId === root.id)])
+
   return (
     <div className="flex flex-wrap gap-2">
-      {data.map((category) => {
+      {ordered.map((category) => {
         const picked = value.includes(category.id)
         return (
           <button
@@ -49,6 +55,7 @@ export function CategoryPicker({
             >
               {picked && <Check className="size-3" />}
             </span>
+            {category.parentId && <span className="text-[11px] opacity-60">↳</span>}
             {category.title}
             <span className="num text-[11px] opacity-70">({toFaDigits(category.productCount)})</span>
           </button>

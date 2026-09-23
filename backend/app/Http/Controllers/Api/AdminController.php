@@ -664,6 +664,7 @@ class AdminController extends Controller
     {
         return response()->json(Category::withCount('products')->get()->map(fn (Category $c) => [
             'id' => (string) $c->id,
+            'parentId' => $c->parent_id ? (string) $c->parent_id : null,
             'slug' => $c->slug,
             'title' => $c->title,
             'icon' => $c->icon,
@@ -681,9 +682,13 @@ class AdminController extends Controller
             'icon' => ['nullable', 'string', 'max:60'],
             'description' => ['nullable', 'string', 'max:400'],
             'specKeys' => ['array'],
+            'parentId' => ['nullable', 'exists:categories,id'],
         ]);
 
+        $this->assertCategoryParent($data['parentId'] ?? null);
+
         $category = Category::create([
+            'parent_id' => $data['parentId'] ?? null,
             'slug' => $data['slug'],
             'title' => $data['title'],
             'icon' => $data['icon'] ?? '',
@@ -702,9 +707,19 @@ class AdminController extends Controller
             'icon' => ['sometimes', 'nullable', 'string', 'max:60'],
             'description' => ['sometimes', 'nullable', 'string', 'max:400'],
             'specKeys' => ['sometimes', 'array'],
+            'parentId' => ['sometimes', 'nullable', 'exists:categories,id'],
         ]);
 
+        if (array_key_exists('parentId', $data)) {
+            $this->assertCategoryParent($data['parentId'], $category);
+        }
+
         $data = $this->blankNulls($data, ['icon', 'description']);
+
+        // مادرِ null معنی‌دار است («دیگر زیرمجموعه نباشد») و نباید با array_filter بیفتد
+        if (array_key_exists('parentId', $data)) {
+            $category->parent_id = $data['parentId'];
+        }
 
         $category->update(array_filter([
             'slug' => $data['slug'] ?? null,
@@ -715,6 +730,33 @@ class AdminController extends Controller
         ], fn ($v) => $v !== null));
 
         return response()->json(['id' => (string) $category->id] + $request->all());
+    }
+
+    /**
+     * قاعده‌های مادر شدن.
+     *
+     * دو سطح بیشتر نداریم: منوی سایت یک کشوی بازشونده دارد، نه درخت تودرتو.
+     * دسته‌ای هم که خودش زیرمجموعه دارد نمی‌تواند زیر دسته‌ی دیگری برود، وگرنه
+     * سطح سوم از راه پشتی ساخته می‌شد.
+     */
+    private function assertCategoryParent(?string $parentId, ?Category $category = null): void
+    {
+        if (! $parentId) {
+            return;
+        }
+
+        if ($category && (string) $category->id === (string) $parentId) {
+            throw ValidationException::withMessages(['parentId' => 'یک دسته نمی‌تواند مادر خودش باشد']);
+        }
+
+        $parent = Category::find($parentId);
+        if ($parent?->parent_id) {
+            throw ValidationException::withMessages(['parentId' => 'این دسته خودش زیرمجموعه است؛ فقط دسته‌های اصلی می‌توانند مادر باشند']);
+        }
+
+        if ($category && Category::where('parent_id', $category->id)->exists()) {
+            throw ValidationException::withMessages(['parentId' => 'این دسته خودش زیرمجموعه دارد و نمی‌تواند زیر دسته‌ی دیگری برود']);
+        }
     }
 
     /**

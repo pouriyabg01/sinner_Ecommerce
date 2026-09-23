@@ -31,6 +31,13 @@ function ProductsView() {
   const { filtersOpen, setFiltersOpen } = useUi()
 
   const category = categories?.find((c) => c.slug === query.category)
+
+  const all = categories ?? []
+  const ids = new Set(all.map((c) => c.id))
+  const roots = all.filter((c) => !c.parentId || !ids.has(c.parentId))
+  // اگر زیردسته انتخاب شده، دسته‌ی اصلی‌اش هم باید روشن بماند
+  const activeRoot = category?.parentId ? all.find((c) => c.id === category.parentId) : category
+  const siblings = activeRoot ? all.filter((c) => c.parentId === activeRoot.id) : []
   const items = data?.items ?? []
 
   return (
@@ -61,13 +68,13 @@ function ProductsView() {
         >
           همه
         </button>
-        {(categories ?? []).map((c) => (
+        {roots.map((c) => (
           <button
             key={c.id}
             onClick={() => setFilters({ category: c.slug })}
             className={cn(
               'shrink-0 rounded-full border px-4 py-2 text-[13px] transition-all',
-              query.category === c.slug
+              query.category === c.slug || c.id === activeRoot?.id
                 ? 'border-brand-500 bg-brand-500 text-white'
                 : 'border-border text-muted hover:border-brand-400',
             )}
@@ -76,6 +83,29 @@ function ProductsView() {
           </button>
         ))}
       </div>
+
+      {/*
+       * ردیف دوم فقط وقتی می‌آید که دسته‌ی اصلیِ انتخاب‌شده زیرمجموعه داشته باشد؛
+       * نشان دادن همیشگی همه‌ی زیردسته‌ها این نوار را غیرقابل استفاده می‌کرد.
+       */}
+      {siblings.length > 0 && (
+        <div className="mb-6 -mt-3 flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+          {siblings.map((c) => (
+            <button
+              key={c.id}
+              onClick={() => setFilters({ category: c.slug })}
+              className={cn(
+                'shrink-0 rounded-full border px-3.5 py-1.5 text-[12.5px] transition-all',
+                query.category === c.slug
+                  ? 'border-brand-500 bg-brand-500/10 text-brand-700 dark:text-brand-300'
+                  : 'border-border text-muted hover:border-brand-400',
+              )}
+            >
+              {c.title}
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-[17rem_1fr]">
         <aside className="hidden lg:block">

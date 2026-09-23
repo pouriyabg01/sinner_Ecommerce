@@ -6,7 +6,7 @@ import type { Brand, Category, Tag } from '@/types/catalog'
 import { ApiError } from '@/lib/api/client'
 import { Drawer } from '@/components/ui/drawer'
 import { Button } from '@/components/ui/button'
-import { Field, Input, Textarea } from '@/components/ui/input'
+import { Field, Input, Select, Textarea } from '@/components/ui/input'
 import { toast } from '@/components/ui/toast'
 import { IconPicker } from '@/components/admin/editor-bits'
 import { SingleImageField } from '@/components/admin/image-field'
@@ -29,13 +29,14 @@ const brandSchema = z.object({
   logo: imageSourceSchema,
 })
 
-type CategoryDraft = { title: string; slug: string; description: string; icon: string; specKeys: string }
+type CategoryDraft = { title: string; slug: string; description: string; icon: string; specKeys: string; parentId: string }
 
-const EMPTY_CATEGORY: CategoryDraft = { title: '', slug: '', description: '', icon: 'package', specKeys: '' }
+const EMPTY_CATEGORY: CategoryDraft = { title: '', slug: '', description: '', icon: 'package', specKeys: '', parentId: '' }
 
 export function CategoryDrawer({
   open,
   editing,
+  categories,
   saving,
   onClose,
   onSubmit,
@@ -43,6 +44,8 @@ export function CategoryDrawer({
   open: boolean
   /** null یعنی ساخت دسته‌ی جدید */
   editing: Category | null
+  /** همه‌ی دسته‌ها، برای انتخاب مادر */
+  categories: Category[]
   saving: boolean
   onClose: () => void
   onSubmit: (body: Omit<Category, 'id'>, onError: (error: unknown) => void) => void
@@ -61,6 +64,7 @@ export function CategoryDrawer({
             description: editing.description,
             icon: editing.icon,
             specKeys: editing.specKeys.join('، '),
+            parentId: editing.parentId ?? '',
           }
         : EMPTY_CATEGORY,
     )
@@ -73,6 +77,15 @@ export function CategoryDrawer({
     form.revalidate(next)
   }
 
+  /*
+   * بیشتر از دو سطح نداریم: مادر فقط می‌تواند دسته‌ی اصلی باشد. دسته‌ای هم که
+   * خودش زیرمجموعه دارد، در فهرست مادرهای ممکنِ خودش نمی‌آید.
+   */
+  const hasChildren = categories.some((category) => category.parentId === editing?.id)
+  const parentOptions = hasChildren
+    ? []
+    : categories.filter((category) => !category.parentId && category.id !== editing?.id)
+
   const submit = () => {
     const clean = form.validate(draft)
     if (!clean) return toast.error('چند فیلد ایراد دارد — پیام‌های قرمز را بررسی کنید')
@@ -81,6 +94,8 @@ export function CategoryDrawer({
       {
         ...clean,
         icon: draft.icon,
+        // رشته‌ی خالی یعنی «دسته‌ی اصلی»؛ سرور null می‌خواهد نه ''
+        parentId: draft.parentId || null,
         // «رم، حافظه» → ['رم','حافظه'] — کلیدهایی که در فیلتر و مقایسه ستون می‌شوند
         specKeys: draft.specKeys
           .split(/[،,\n]/)
@@ -133,6 +148,21 @@ export function CategoryDrawer({
             placeholder="headphones"
             onChange={(e) => update({ slug: e.target.value })}
           />
+        </Field>
+
+        <Field
+          label="دسته‌ی مادر"
+          error={form.errors.parentId}
+          hint="خالی یعنی خودش یک دسته‌ی اصلی است و در منوی سایت جای خودش را دارد"
+        >
+          <Select value={draft.parentId} onChange={(e) => update({ parentId: e.target.value })}>
+            <option value="">— دسته‌ی اصلی —</option>
+            {parentOptions.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.title}
+              </option>
+            ))}
+          </Select>
         </Field>
 
         <IconPicker value={draft.icon} onChange={(icon) => update({ icon })} />
