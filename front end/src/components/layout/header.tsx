@@ -212,6 +212,14 @@ export function Header() {
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
               className="absolute inset-y-0 start-0 flex w-[min(20rem,85vw)] flex-col bg-surface"
+              /*
+               * رفتن از یک دسته به دسته‌ی دیگر مسیر صفحه را عوض نمی‌کند (هر دو
+               * /products اند و فقط پارامترشان فرق دارد)، پس بستنِ خودکار روی
+               * تغییر مسیر کافی نبود و منو باز می‌ماند.
+               */
+              onClick={(event) => {
+                if ((event.target as HTMLElement).closest('a')) setMobileOpen(false)
+              }}
             >
               <div className="flex items-center justify-between border-b border-border px-4 py-4">
                 <Logo />
@@ -334,6 +342,7 @@ function NavItem({ item }: { item: NavEntry }) {
             <li>
               <Link
                 href={item.href}
+                onClick={() => setOpen(false)}
                 className="block rounded-xl px-3 py-2 text-[13px] font-bold transition-colors hover:bg-surface-2"
               >
                 همه‌ی {item.label}
@@ -343,6 +352,7 @@ function NavItem({ item }: { item: NavEntry }) {
               <li key={child.href}>
                 <Link
                   href={child.href}
+                  onClick={() => setOpen(false)}
                   className="block rounded-xl px-3 py-2 text-[13px] text-muted transition-colors hover:bg-surface-2 hover:text-foreground"
                 >
                   {child.label}
