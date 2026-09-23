@@ -14,6 +14,7 @@ import { useCompareStore } from '@/store/compare'
 import { useHydrated } from '@/lib/use-hydrated'
 import { toast } from '@/components/ui/toast'
 import { WishlistButton } from './wishlist-button'
+import { conditionBadge } from '@/lib/product-condition'
 import { toFaDigits } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
@@ -70,6 +71,9 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
             <Badge tone="brand" className="glow-brand backdrop-blur-sm">
               <Sparkles className="size-3" /> جدید
             </Badge>
+          )}
+          {conditionBadge(product.condition) && (
+            <Badge tone="ember">{conditionBadge(product.condition)}</Badge>
           )}
           {outOfStock && <Badge tone="neutral">ناموجود</Badge>}
           {!outOfStock && product.stock <= 3 && (

@@ -32,6 +32,7 @@ import { toast } from '@/components/ui/toast'
 import { useCart } from '@/store/cart'
 import { useCompareStore } from '@/store/compare'
 import { useHydrated } from '@/lib/use-hydrated'
+import { CONDITION_HINT, conditionBadge } from '@/lib/product-condition'
 import { toFaDigits } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
@@ -117,6 +118,11 @@ export function ProductView({ slug }: { slug: string }) {
             <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-2">
                 {product.isNew && <Badge tone="brand" className="glow-brand">جدید</Badge>}
+                {conditionBadge(product.condition) && (
+                  <Badge tone="ember" title={CONDITION_HINT[product.condition ?? 'new']}>
+                    {conditionBadge(product.condition)}
+                  </Badge>
+                )}
                 {product.tags.map((t) => (
                   <Badge key={t} tone="neutral">{t}</Badge>
                 ))}

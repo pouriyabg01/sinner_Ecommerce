@@ -5,6 +5,9 @@
  */
 export type CategorySlug = string
 
+/** وضعیت کالا؛ «نو» پیش‌فرض است و نشانی نمی‌گیرد چون حالت عادی فروشگاه است */
+export type ProductCondition = 'new' | 'stock' | 'used'
+
 export interface Category {
   id: string
   /** شناسه‌ی دسته‌ی مادر؛ null یعنی خودش دسته‌ی اصلی است. بیشتر از دو سطح نداریم */
@@ -86,6 +89,8 @@ export interface Product {
   rating: number
   reviewCount: number
   stock: number
+  /** نو، استوک یا کارکرده — جدا از isNew که فقط برچسب «تازه اضافه شده» است */
+  condition?: ProductCondition
   images: string[]
   shortDescription: string
   description: string

@@ -27,6 +27,7 @@ class ProductResource extends JsonResource
             'rating' => (float) $this->rating,
             'reviewCount' => (int) $this->review_count,
             'stock' => (int) $this->stock,
+            'condition' => $this->condition ?? 'new',
             'images' => $this->images ?? [],
             'shortDescription' => $this->short_description,
             'description' => $this->description,

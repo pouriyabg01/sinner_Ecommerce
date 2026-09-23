@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import { z } from 'zod'
 import Image from 'next/image'
 import { Package, Pencil, Plus, Trash2 } from 'lucide-react'
-import type { Product, ProductStatus } from '@/types/catalog'
+import type { Product, ProductCondition, ProductStatus } from '@/types/catalog'
 import { PRODUCT_STATUS_LABEL, PRODUCT_STATUS_OPTIONS } from '@/types/catalog'
 import {
   useAdminProducts,
@@ -15,6 +15,7 @@ import {
   useDeleteProduct,
   useUpdateProduct,
 } from '@/lib/api/queries'
+import { CONDITION_HINT, CONDITION_OPTIONS } from '@/lib/product-condition'
 import { ApiError } from '@/lib/api/client'
 import { PermissionGate } from '@/components/admin/admin-shell'
 import { AdminCard, Table } from '@/components/admin/data-table'
@@ -67,6 +68,7 @@ type Draft = {
   specs: SpecDraft[]
   variants: VariantDraft[]
   status: ProductStatus
+  condition: ProductCondition
 }
 
 /** نامک از نام انگلیسی؛ «iPhone 16 Pro!» → «iphone-16-pro». خالی بماند، سرور خودش می‌سازد */
@@ -98,6 +100,7 @@ const emptyDraft: Draft = {
   specs: [],
   variants: [emptyVariant()],
   status: 'active',
+  condition: 'new',
 }
 
 function toDraft(product: Product): Draft {
@@ -116,6 +119,7 @@ function toDraft(product: Product): Draft {
     specs: toSpecDrafts(product.specs),
     variants: product.variants.length ? toVariantDrafts(product.variants) : [emptyVariant()],
     status: product.status,
+    condition: product.condition ?? 'new',
   }
 }
 
@@ -267,6 +271,7 @@ function ProductsView() {
       images: values.images.length > 0 ? values.images : [PLACEHOLDER_IMAGE],
       specs: fromSpecDrafts(values.specs),
       status: draft.status,
+      condition: draft.condition,
     }
 
     /**
@@ -559,9 +564,20 @@ function ProductsView() {
                 />
               </Field>
 
+              <div className="space-y-2">
+                <p className="text-[13px] font-medium">وضعیت کالا</p>
+                <ChipPicker
+                  label="نو، استوک یا کارکرده"
+                  value={draft.condition}
+                  options={CONDITION_OPTIONS.map(({ value, label }) => ({ value, label }))}
+                  onChange={(condition: ProductCondition) => update({ condition })}
+                />
+                <p className="text-xs leading-6 text-muted">{CONDITION_HINT[draft.condition]}</p>
+              </div>
+
               {/* Field اینجا به کار نمی‌آید: fieldset داخل label قرار نمی‌گیرد */}
               <div className="space-y-2">
-                <p className="text-[13px] font-medium">وضعیت</p>
+                <p className="text-[13px] font-medium">وضعیت انتشار</p>
                 <ChipPicker
                   label="وضعیت انتشار محصول"
                   value={draft.status}

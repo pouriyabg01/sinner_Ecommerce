@@ -120,6 +120,7 @@ class AdminController extends Controller
             'status' => ['sometimes', 'in:active,inactive'],
             'isNew' => ['sometimes', 'boolean'],
             'isFeatured' => ['sometimes', 'boolean'],
+            'condition' => ['sometimes', 'in:new,stock,used'],
         ], [
             'slug.regex' => 'نامک فقط حروف کوچک انگلیسی، عدد و خط تیره می‌پذیرد — مانند iphone-16-pro',
             'slug.unique' => 'کالای دیگری همین نامک را دارد؛ نامک دیگری بنویسید یا خالی بگذارید تا خودکار ساخته شود',
@@ -137,6 +138,7 @@ class AdminController extends Controller
             'status' => 'status',
             'isNew' => 'is_new',
             'isFeatured' => 'is_featured',
+            'condition' => 'condition',
         ];
 
         $attributes = [];
