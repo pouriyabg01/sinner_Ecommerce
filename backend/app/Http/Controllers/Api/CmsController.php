@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\SiteDocument;
+use App\Support\HtmlSanitizer;
 use App\Support\RepairPickup;
 use App\Support\SitePayments;
 use Illuminate\Http\JsonResponse;
@@ -17,12 +18,25 @@ class CmsController extends Controller
 {
     public function home(): JsonResponse
     {
-        return response()->json(SiteDocument::payloadFor('home', ['sections' => []]));
+        // سندهای ذخیره‌شده پیش از پاک‌سازی هم نباید اسکریپت به صفحه برسانند
+        return response()->json(self::sanitizeHome(SiteDocument::payloadFor('home', ['sections' => []])));
     }
 
     public function saveHome(Request $request): JsonResponse
     {
-        return response()->json(SiteDocument::store('home', $request->all()));
+        return response()->json(SiteDocument::store('home', self::sanitizeHome($request->all())));
+    }
+
+    /** HTML سکشن «متن آزاد» بی‌واسطه در صفحه‌ی اصلی نشانده می‌شود */
+    private static function sanitizeHome(array $home): array
+    {
+        foreach ($home['sections'] ?? [] as $i => $section) {
+            if (is_array($section) && ($section['type'] ?? null) === 'rich_text' && isset($section['props']['html'])) {
+                $home['sections'][$i]['props']['html'] = HtmlSanitizer::clean((string) $section['props']['html']);
+            }
+        }
+
+        return $home;
     }
 
     public function about(): JsonResponse

@@ -108,7 +108,7 @@ class DatabaseSeeder extends Seeder
                     'title' => $variant['title'],
                     'color_name' => $variant['color']['name'] ?? null,
                     'color_hex' => $variant['color']['hex'] ?? null,
-                    'storage' => $variant['storage'] ?? null,
+                    'option_value' => $variant['storage'] ?? $variant['option'] ?? null,
                     'price' => $variant['price'],
                     'stock' => $variant['stock'],
                     'position' => $index,

@@ -48,7 +48,8 @@ export interface ProductVariant {
   id: string
   title: string
   color?: { name: string; hex: string }
-  storage?: string
+  /** مقدار ویژگی‌ای که کالا با آن مدل‌بندی شده — مثلاً «۲۵۶ گیگابایت» */
+  option?: string
   price: number
   stock: number
 }
@@ -91,6 +92,8 @@ export interface Product {
   stock: number
   /** نو، استوک یا کارکرده — جدا از isNew که فقط برچسب «تازه اضافه شده» است */
   condition?: ProductCondition
+  /** نام ویژگی‌ای که مدل‌ها بر اساسش فرق می‌کنند — «حافظه»، «سایز»، … */
+  variantLabel?: string
   images: string[]
   shortDescription: string
   description: string

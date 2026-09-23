@@ -135,7 +135,10 @@ export function ProductView({ slug }: { slug: string }) {
 
             {product.variants.length > 1 && (
               <div className="space-y-2.5">
-                <span className="text-[13px] font-bold">انتخاب مدل</span>
+                {/* عنوان بخش، نام ویژگی‌ای که کالا با آن مدل‌بندی شده — مثلاً «حافظه» */}
+                <span className="text-[13px] font-bold">
+                  {product.variantLabel?.trim() ? `انتخاب ${product.variantLabel.trim()}` : 'انتخاب مدل'}
+                </span>
                 <div className="flex flex-wrap gap-2">
                   {product.variants.map((v, i) => (
                     <button
@@ -159,6 +162,10 @@ export function ProductView({ slug }: { slug: string }) {
                         />
                       )}
                       {v.title}
+                      {/* مقدار ویژگی فقط وقتی جدا نوشته می‌شود که در عنوان مدل نیامده باشد */}
+                      {v.option && !v.title.includes(v.option) && (
+                        <span className="text-[11px] text-muted">{v.option}</span>
+                      )}
                     </button>
                   ))}
                 </div>

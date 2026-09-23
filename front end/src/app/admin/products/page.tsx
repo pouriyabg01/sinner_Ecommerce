@@ -69,6 +69,7 @@ type Draft = {
   variants: VariantDraft[]
   status: ProductStatus
   condition: ProductCondition
+  variantLabel: string
 }
 
 /** نامک از نام انگلیسی؛ «iPhone 16 Pro!» → «iphone-16-pro». خالی بماند، سرور خودش می‌سازد */
@@ -101,6 +102,7 @@ const emptyDraft: Draft = {
   variants: [emptyVariant()],
   status: 'active',
   condition: 'new',
+  variantLabel: '',
 }
 
 function toDraft(product: Product): Draft {
@@ -120,6 +122,7 @@ function toDraft(product: Product): Draft {
     variants: product.variants.length ? toVariantDrafts(product.variants) : [emptyVariant()],
     status: product.status,
     condition: product.condition ?? 'new',
+    variantLabel: product.variantLabel ?? '',
   }
 }
 
@@ -272,6 +275,7 @@ function ProductsView() {
       specs: fromSpecDrafts(values.specs),
       status: draft.status,
       condition: draft.condition,
+      variantLabel: draft.variantLabel.trim(),
     }
 
     /**
@@ -547,6 +551,8 @@ function ProductsView() {
               </div>
 
               <VariantsField
+                variantLabel={draft.variantLabel}
+                onVariantLabelChange={(variantLabel) => update({ variantLabel })}
                 value={draft.variants}
                 onChange={(variants) => update({ variants })}
                 error={form.errors.variants}

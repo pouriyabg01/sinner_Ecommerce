@@ -12,7 +12,7 @@ class Product extends Model
 {
     protected $fillable = [
         'slug', 'title', 'title_en', 'category_id', 'brand_id', 'compare_at_price',
-        'images', 'short_description', 'description', 'specs', 'is_new', 'is_featured', 'status', 'condition',
+        'images', 'short_description', 'description', 'specs', 'is_new', 'is_featured', 'status', 'condition', 'variant_label',
     ];
 
     protected $casts = [

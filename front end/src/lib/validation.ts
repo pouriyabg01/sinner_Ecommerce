@@ -225,6 +225,7 @@ export const productVariantsSchema = z
       title: z.string(),
       colorName: z.string(),
       colorHex: z.string(),
+      option: z.string(),
       price: z.string(),
       stock: z.string(),
     }),

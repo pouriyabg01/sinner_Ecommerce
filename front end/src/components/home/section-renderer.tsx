@@ -1,5 +1,6 @@
 'use client'
 
+import DOMPurify from 'isomorphic-dompurify'
 import type { Section } from '@/types/cms'
 import { HeroSlider } from './hero-slider'
 import { FeaturesBar } from './features-bar'
@@ -63,7 +64,8 @@ export function SectionRenderer({ section }: { section: Section }) {
             <h2 className="mb-4 text-xl font-bold">{section.props.title}</h2>
             <div
               className="max-w-3xl text-sm leading-8 text-muted"
-              dangerouslySetInnerHTML={{ __html: section.props.html }}
+              // بک‌اند هم پاک می‌کند؛ این لایه‌ی دوم برای پیش‌نمایش ادمین و داده‌ی قدیمی است
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(section.props.html ?? '') }}
             />
           </div>
         )

@@ -16,6 +16,8 @@ export interface VariantDraft {
   title: string
   colorName: string
   colorHex: string
+  /** مقدار ویژگی‌ی دلخواه کالا — «۲۵۶ گیگابایت»، «۴۲»، … */
+  option: string
   price: string
   stock: string
 }
@@ -27,6 +29,7 @@ export const emptyVariant = (): VariantDraft => ({
   title: '',
   colorName: '',
   colorHex: DEFAULT_HEX,
+  option: '',
   price: '',
   stock: '',
 })
@@ -37,6 +40,7 @@ export function toVariantDrafts(variants: ProductVariant[]): VariantDraft[] {
     title: v.title,
     colorName: v.color?.name ?? '',
     colorHex: v.color?.hex ?? DEFAULT_HEX,
+    option: v.option ?? '',
     price: String(v.price),
     stock: String(v.stock),
   }))
@@ -54,6 +58,7 @@ export function fromVariantDrafts(drafts: VariantDraft[]): ProductVariant[] {
         stock: Number(toEnDigits(v.stock)) || 0,
       }
       if (v.colorName.trim()) variant.color = { name: v.colorName.trim(), hex: v.colorHex }
+      if (v.option.trim()) variant.option = v.option.trim()
       return variant
     })
 }
@@ -75,10 +80,15 @@ export function VariantsField({
   value,
   onChange,
   error,
+  variantLabel,
+  onVariantLabelChange,
 }: {
   value: VariantDraft[]
   onChange: (variants: VariantDraft[]) => void
   error?: string
+  /** نام ویژگی‌ای که مدل‌ها بر اساسش فرق می‌کنند */
+  variantLabel: string
+  onVariantLabelChange: (label: string) => void
 }) {
   const patch = (index: number, part: Partial<VariantDraft>) =>
     onChange(value.map((variant, i) => (i === index ? { ...variant, ...part } : variant)))
@@ -90,6 +100,21 @@ export function VariantsField({
   return (
     <div className="space-y-2">
       <span className="block text-[13px] font-medium">مدل‌های کالا</span>
+
+      {/*
+        نام ویژگی روی خود کالا می‌نشیند نه روی تک‌تک مدل‌ها: همه‌ی مدل‌های یک
+        کالا بر اساس یک چیز فرق می‌کنند (حافظه، سایز، …) و تکرارش در هر ردیف
+        هم شلوغ بود هم امکان ناهماهنگی می‌ساخت.
+      */}
+      <label className="block space-y-1">
+        <span className="block text-[11px] text-muted">مدل‌ها بر چه اساسی فرق می‌کنند؟ (اختیاری)</span>
+        <Input
+          value={variantLabel}
+          onChange={(e) => onVariantLabelChange(e.target.value)}
+          placeholder="مثلاً حافظه، سایز، ظرفیت"
+          className="h-9 text-[12.5px]"
+        />
+      </label>
 
       {value.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-border p-5 text-center text-xs text-muted">
@@ -142,6 +167,16 @@ export function VariantsField({
                     className="num h-9 w-full text-[12.5px]"
                   />
                 </label>
+              </div>
+
+              <div className="flex gap-2">
+                <Input
+                  value={variant.option}
+                  onChange={(e) => patch(i, { option: e.target.value })}
+                  placeholder={variantLabel.trim() ? `${variantLabel.trim()} این مدل` : 'ویژگی این مدل (اختیاری)'}
+                  aria-label={variantLabel.trim() || 'ویژگی این مدل'}
+                  className="h-9 flex-1 text-[12.5px]"
+                />
               </div>
 
               <div className="flex gap-2">

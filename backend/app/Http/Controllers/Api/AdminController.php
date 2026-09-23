@@ -116,6 +116,8 @@ class AdminController extends Controller
             'variants.*.title' => ['required', 'string', 'max:120'],
             'variants.*.price' => ['required', 'integer', 'min:1000'],
             'variants.*.stock' => ['required', 'integer', 'min:0'],
+            'variants.*.option' => ['sometimes', 'nullable', 'string', 'max:40'],
+            'variantLabel' => ['sometimes', 'nullable', 'string', 'max:30'],
             'tags' => ['sometimes', 'array'],
             'status' => ['sometimes', 'in:active,inactive'],
             'isNew' => ['sometimes', 'boolean'],
@@ -139,6 +141,7 @@ class AdminController extends Controller
             'isNew' => 'is_new',
             'isFeatured' => 'is_featured',
             'condition' => 'condition',
+            'variantLabel' => 'variant_label',
         ];
 
         $attributes = [];
@@ -220,7 +223,7 @@ class AdminController extends Controller
                     'title' => $variant['title'],
                     'color_name' => $variant['color']['name'] ?? null,
                     'color_hex' => $variant['color']['hex'] ?? null,
-                    'storage' => $variant['storage'] ?? null,
+                    'option_value' => $variant['option'] ?? null,
                     'price' => $variant['price'],
                     'stock' => $variant['stock'],
                     'position' => $index,
