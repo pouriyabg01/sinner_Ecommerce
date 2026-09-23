@@ -113,7 +113,7 @@ export function Header() {
                 <Link
                   href="/profile/wishlist"
                   aria-label="علاقه‌مندی‌ها"
-                  className="relative grid size-10 place-items-center rounded-xl text-muted transition-colors hover:bg-surface-2 hover:text-foreground"
+                  className="group relative grid size-10 place-items-center rounded-xl text-muted transition-colors hover:bg-surface-2 hover:text-foreground"
                 >
                   <Heart className="size-5" />
                   {wishCount > 0 && (
@@ -121,6 +121,7 @@ export function Header() {
                       {toFaDigits(wishCount)}
                     </span>
                   )}
+                  <IconHint>علاقه‌مندی‌ها</IconHint>
                 </Link>
               )}
 
@@ -132,7 +133,7 @@ export function Header() {
               <Link
                 href="/compare"
                 aria-label="مقایسه"
-                className="relative hidden size-10 place-items-center rounded-xl text-muted transition-colors hover:bg-surface-2 hover:text-foreground sm:grid"
+                className="group relative hidden size-10 place-items-center rounded-xl text-muted transition-colors hover:bg-surface-2 hover:text-foreground sm:grid"
               >
                 <GitCompareArrows className="size-5" />
                 {compareIds.length > 0 && (
@@ -140,6 +141,7 @@ export function Header() {
                     {toFaDigits(compareIds.length)}
                   </span>
                 )}
+                <IconHint>مقایسه</IconHint>
               </Link>
 
               {signedIn ? (
@@ -408,5 +410,22 @@ function MobileNavItem({ item }: { item: NavEntry }) {
         </ul>
       )}
     </li>
+  )
+}
+
+/**
+ * برچسب کوچکِ زیر آیکون‌های هدر، فقط هنگام رفتن ماوس روی آن یا فوکوس با صفحه‌کلید.
+ *
+ * روی لمسی نمایش داده نمی‌شود (hover واقعی وجود ندارد) و چون خود لینک
+ * aria-label دارد، از دید صفحه‌خوان پنهان می‌ماند تا اسم دوباره خوانده نشود.
+ */
+function IconHint({ children }: { children: React.ReactNode }) {
+  return (
+    <span
+      aria-hidden
+      className="pointer-events-none absolute left-1/2 top-full z-50 mt-1.5 hidden -translate-x-1/2 whitespace-nowrap rounded-lg border border-border bg-surface px-2 py-1 text-[11px] font-medium text-foreground opacity-0 shadow-soft transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 sm:block"
+    >
+      {children}
+    </span>
   )
 }
