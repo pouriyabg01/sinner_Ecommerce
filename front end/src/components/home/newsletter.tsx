@@ -59,9 +59,23 @@ export function Newsletter({ title, subtitle, placeholder, ctaLabel }: SectionPr
                 aria-invalid={Boolean(form.errors.email) || undefined}
                 aria-label={placeholder}
                 placeholder={placeholder}
-                dir="ltr"
+                /*
+                 * تا وقتی خالی است راست‌چین می‌ماند تا راهنمای فارسی مثل بقیه‌ی
+                 * صفحه از راست شروع شود؛ با اولین حرف، چپ‌چین می‌شود چون ایمیل
+                 * لاتین است. (dir="auto" اینجا کار نمی‌کند: مرورگر جهت را از
+                 * مقدار می‌گیرد نه از راهنما، و مقدار خالی یعنی چپ‌چین.)
+                 */
+                dir={email ? 'ltr' : 'rtl'}
                 className={cn(
-                  'h-12 flex-1 rounded-2xl border bg-background px-4 text-sm outline-none transition-all placeholder:text-muted/70',
+                  /*
+                   * روی گوشی چیدمان ستونی است و flex-1 آنجا روی ارتفاع اثر
+                   * می‌گذارد، نه عرض — کادر را به ۲۴ پیکسل له می‌کرد. پس فقط از
+                   * عرض تبلت به بالا flex می‌شود.
+                   *
+                   * قلم ۱۶ پیکسلی روی گوشی عمدی است: سافاری با قلم کوچک‌تر،
+                   * موقع لمس کادر کل صفحه را زوم می‌کند.
+                   */
+                  'h-12 w-full shrink-0 rounded-2xl border bg-background px-4 text-base outline-none transition-all placeholder:text-muted/70 sm:flex-1 sm:text-sm',
                   form.errors.email
                     ? 'border-red-500 focus:shadow-[0_0_0_4px_rgba(239,68,68,0.16)]'
                     : 'border-border focus:border-brand-400 focus:shadow-[0_0_0_4px_rgba(0,179,146,0.12)]',
