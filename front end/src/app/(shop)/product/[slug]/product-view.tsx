@@ -175,10 +175,9 @@ export function ProductView({ slug }: { slug: string }) {
             <div className="rounded-card border border-border bg-surface p-5">
               <div className="mb-4 flex items-end justify-between gap-3">
                 <Price value={variant.price} compareAt={product.compareAtPrice} size="lg" />
+                {/* تعداد باقی‌مانده اعلام نمی‌شود؛ فقط موجود یا ناموجود */}
                 {outOfStock ? (
                   <Badge tone="danger">ناموجود</Badge>
-                ) : variant.stock <= 3 ? (
-                  <Badge tone="warning">تنها {toFaDigits(variant.stock)} عدد باقی مانده</Badge>
                 ) : (
                   <Badge tone="success">
                     <BadgeCheck className="size-3" /> موجود در انبار

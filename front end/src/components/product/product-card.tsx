@@ -15,7 +15,6 @@ import { useHydrated } from '@/lib/use-hydrated'
 import { toast } from '@/components/ui/toast'
 import { WishlistButton } from './wishlist-button'
 import { conditionBadge } from '@/lib/product-condition'
-import { toFaDigits } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 export function ProductCard({ product, index = 0 }: { product: Product; index?: number }) {
@@ -75,10 +74,8 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
           {conditionBadge(product.condition) && (
             <Badge tone="ember">{conditionBadge(product.condition)}</Badge>
           )}
+          {/* شمار دقیق موجودی نشان داده نمی‌شود؛ فقط بود و نبودش */}
           {outOfStock && <Badge tone="neutral">ناموجود</Badge>}
-          {!outOfStock && product.stock <= 3 && (
-            <Badge tone="warning">تنها {toFaDigits(product.stock)} عدد</Badge>
-          )}
         </div>
 
         <button
