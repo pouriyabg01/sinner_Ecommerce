@@ -18,9 +18,13 @@ COPY . .
 ARG NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_API_MOCKING=disabled
 ARG NEXT_PUBLIC_SITE_URL
+# مقصدِ پلِ /storage در next.config — آن هم هنگام ساخت در مسیرها جاسازی می‌شود،
+# پس مثل متغیرهای بالا باید همین‌جا داده شود نه موقع اجرا.
+ARG INTERNAL_ORIGIN
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
     NEXT_PUBLIC_API_MOCKING=$NEXT_PUBLIC_API_MOCKING \
     NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL \
+    INTERNAL_ORIGIN=$INTERNAL_ORIGIN \
     NEXT_TELEMETRY_DISABLED=1
 
 # کش ساخت Next بین دفعه‌ها نگه داشته می‌شود. بدون این، هر بار کل صفحه‌ها از

@@ -46,6 +46,9 @@ services:
         NEXT_PUBLIC_API_URL: ${PUBLIC_URL:-http://localhost:8080}/api/v1
         NEXT_PUBLIC_SITE_URL: ${PUBLIC_URL:-http://localhost:8080}
         NEXT_PUBLIC_API_MOCKING: disabled
+        # بهینه‌ساز تصویرِ نکست، فایل‌های آپلودشده را از داخل شبکه‌ی داکر می‌گیرد،
+        # نه از آدرس عمومی سایت
+        INTERNAL_ORIGIN: http://nginx
     container_name: sinner-frontend
     restart: unless-stopped
     environment:

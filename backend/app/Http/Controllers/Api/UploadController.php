@@ -22,8 +22,15 @@ class UploadController extends Controller
 
         $path = $request->file('file')->store('uploads', 'public');
 
+        /*
+         * نشانی نسبی و نه کامل. `asset()` نشانیِ همین لحظه را داخل پایگاه داده
+         * می‌پخت: تصویرهای آپلودشده روی `http://<آی‌پی>` بعد از رفتن به دامنه و
+         * https همچنان به نشانی قدیمی اشاره می‌کردند، و مرورگر روی صفحه‌ی امن
+         * اصلاً تصویر http را باز نمی‌کند. نسبی یعنی هر جا که سایت بالا بیاید،
+         * تصویر هم از همان‌جا خوانده می‌شود.
+         */
         return response()->json([
-            'url' => asset('storage/'.$path),
+            'url' => '/storage/'.$path,
             'path' => $path,
         ], 201);
     }
