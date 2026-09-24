@@ -310,9 +310,24 @@ export function ProductView({ slug }: { slug: string }) {
       {related.length > 0 && (
         <div className="container-page mt-14">
           <SectionHeading title="محصولات مشابه" href={`/products?category=${product.categorySlug}`} />
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {related.slice(0, 4).map((p, i) => (
-              <ProductCard key={p.id} product={p} index={i} />
+          {/*
+            روی گوشی نواری افقی با ۷ کالا: چیدمان عمودی، بازدیدکننده را مجبور
+            می‌کرد برای دیدن کالای دوم اسکرول کند و عملاً بقیه دیده نمی‌شدند.
+            منفی‌کردن حاشیه، نوار را تا لبه‌ی صفحه می‌برد تا معلوم باشد ادامه دارد.
+            از عرض تبلت به بالا همان جدول قبلی با ۴ کالا می‌ماند.
+          */}
+          <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-1 no-scrollbar sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-4">
+            {related.slice(0, 7).map((p, i) => (
+              <div
+                key={p.id}
+                className={cn(
+                  'w-[46vw] max-w-60 shrink-0 snap-start sm:w-auto sm:max-w-none',
+                  // از تبلت به بالا فقط چهار تا؛ بیشترش ردیف دوم ناقص می‌ساخت
+                  i >= 4 && 'sm:hidden',
+                )}
+              >
+                <ProductCard product={p} index={i} />
+              </div>
             ))}
           </div>
         </div>
