@@ -128,7 +128,10 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
         <Link href={`/product/${product.slug}`} className="line-clamp-2 text-sm font-bold leading-7 hover:text-brand-600 dark:hover:text-brand-400">
           {product.title}
         </Link>
-        <p className="line-clamp-2 text-xs leading-6 text-muted">{product.shortDescription}</p>
+        {/*
+          توضیح کوتاه فقط در صفحه‌ی خود کالا می‌آید. در کارت، دو خط متن ریز
+          بین نام و قیمت می‌نشست و چشم را از آن دو دور می‌کرد.
+        */}
         <Rating value={product.rating} count={product.reviewCount} className="mt-auto" />
         <Price value={product.price} compareAt={product.compareAtPrice} />
       </div>
