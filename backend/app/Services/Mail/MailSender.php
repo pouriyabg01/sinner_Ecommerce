@@ -130,10 +130,14 @@ class MailSender
 
         try {
             /*
-             * فرستنده‌ی بی‌نام یعنی نامه یا رد می‌شود یا در هرزنامه می‌نشیند، پس
-             * نبودنش خطاست نه پیش‌فرض.
+             * فرستنده‌ی بی‌نام یعنی نامه یا رد می‌شود یا در هرزنامه می‌نشیند، پس در
+             * ارسال واقعی نبودنش خطاست. ولی در حالت آزمایشی چیزی بیرون نمی‌رود و
+             * این سخت‌گیری فقط جلوی دیدن خودِ جریان را می‌گرفت — آن‌هم دقیقاً وقتی
+             * که هنوز سرویسی نخریده‌اند و نشانی‌ای برای گذاشتن ندارند.
              */
-            $from = $settings['fromAddress'] ?: throw new \RuntimeException('نشانی فرستنده تنظیم نشده است');
+            $from = $settings['fromAddress'] ?: ($settings['mailer'] === 'log'
+                ? 'no-reply@localhost'
+                : throw new \RuntimeException('نشانی فرستنده تنظیم نشده است؛ آن را در همین صفحه پر کنید و ذخیره بزنید'));
 
             $mailer = Mail::build($this->transport($settings));
             $mailer->html($html, function ($message) use ($to, $subject, $from, $settings, $options) {

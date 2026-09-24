@@ -226,7 +226,7 @@ export default function AdminEmailPage() {
           </div>
         </AdminCard>
 
-        <TestMailCard />
+        <TestMailCard dirty={dirty} />
 
         <AdminCard title="ایمیل‌های خودکار">
           <div className="divide-y divide-border">
@@ -284,41 +284,55 @@ export default function AdminEmailPage() {
   )
 }
 
-function TestMailCard() {
+/**
+ * این دکمه با تنظیماتِ ذخیره‌شده کار می‌کند، نه با چیزی که همین حالا تایپ شده.
+ * پس تا وقتی تغییرِ ذخیره‌نشده هست، به‌جای خطای گیج‌کننده‌ی سمت سرور، همین‌جا
+ * گفته می‌شود که اول باید ذخیره کرد.
+ */
+function TestMailCard({ dirty }: { dirty: boolean }) {
   const test = useSendTestMail()
   const [email, setEmail] = useState('')
 
   return (
     <AdminCard title="ایمیل آزمایشی">
-      <div className="flex flex-wrap items-start gap-3 p-5">
-        <Field
-          label="نشانی ایمیل"
-          hint="با تنظیماتِ ذخیره‌شده ارسال می‌شود، حتی اگر ارسال ایمیل خاموش باشد"
-          className="min-w-60 flex-1"
-        >
-          <Input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            inputMode="email"
-            placeholder="me@example.com"
-            dir="ltr"
-            className="text-start"
-          />
-        </Field>
-        <Button
-          variant="outline"
-          className="mt-7"
-          loading={test.isPending}
-          onClick={() =>
-            test.mutate(email.trim(), {
-              onSuccess: (result) => toast.success(result.message),
-              onError: (error) => toast.error(error.message),
-            })
-          }
-        >
-          <Send className="size-4" />
-          ارسال
-        </Button>
+      <div className="space-y-3 p-5">
+        {dirty && (
+          <p className="flex items-start gap-2 rounded-xl bg-amber-500/10 px-3.5 py-2.5 text-[12.5px] leading-6 text-amber-700 dark:text-amber-300">
+            <AlertTriangle className="mt-1 size-4 shrink-0" />
+            تغییرهای بالا هنوز ذخیره نشده‌اند. ایمیل آزمایشی با تنظیماتِ ذخیره‌شده می‌رود، پس اول «ذخیره» را بزنید.
+          </p>
+        )}
+        <div className="flex flex-wrap items-start gap-3">
+          <Field
+            label="نشانی ایمیل"
+            hint="با تنظیماتِ ذخیره‌شده ارسال می‌شود، حتی اگر ارسال ایمیل خاموش باشد"
+            className="min-w-60 flex-1"
+          >
+            <Input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              inputMode="email"
+              placeholder="me@example.com"
+              dir="ltr"
+              className="text-start"
+            />
+          </Field>
+          <Button
+            variant="outline"
+            className="mt-7"
+            loading={test.isPending}
+            disabled={dirty}
+            onClick={() =>
+              test.mutate(email.trim(), {
+                onSuccess: (result) => toast.success(result.message),
+                onError: (error) => toast.error(error.message),
+              })
+            }
+          >
+            <Send className="size-4" />
+            ارسال
+          </Button>
+        </div>
       </div>
     </AdminCard>
   )
