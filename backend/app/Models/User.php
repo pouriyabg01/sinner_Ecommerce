@@ -20,6 +20,7 @@ class User extends Authenticatable
         'category.manage',
         'discount.manage',
         'tag.manage',
+        'newsletter.manage',
         'order.manage',
         'repair.manage',
         'review.moderate',

@@ -1,3 +1,5 @@
+import type { MailLogEntry, MailSettings, MailSettingsInput } from '@/types/mail'
+import type { Campaign, CampaignInput, SubscriberList } from '@/types/newsletter'
 import type { SmsLogEntry, SmsSettings, SmsSettingsInput } from '@/types/sms'
 import type { StockAlert } from '@/types/catalog'
 import { apiFetch } from './client'
@@ -100,6 +102,11 @@ export const authApi = {
   register: (body: { fullName: string; phone: string; email: string; password: string }) =>
     apiFetch<AuthSession>('/auth/register', { method: 'POST', body }),
   logout: () => apiFetch<{ ok: true }>('/auth/logout', { method: 'POST' }),
+  /* پاسخ چه حساب باشد چه نباشد یکی است، پس چیزی جز «ok» برنمی‌گردد */
+  forgotPassword: (email: string) =>
+    apiFetch<{ ok: true }>('/auth/password/forgot', { method: 'POST', body: { email } }),
+  resetPassword: (body: { email: string; token: string; password: string }) =>
+    apiFetch<AuthSession>('/auth/password/reset', { method: 'POST', body }),
 }
 
 /** آپلود فایل؛ با لایه‌ی mock کار نمی‌کند و آنجا مسیر data URL می‌ماند */
@@ -409,4 +416,48 @@ export const paymentGatewayApi = {
       method: 'DELETE',
       body: { driver, field },
     }),
+}
+
+/* ----------------------------------- ایمیل ---------------------------------- */
+export const mailApi = {
+  settings: () => apiFetch<MailSettings>('/admin/mail'),
+  save: (body: MailSettingsInput) => apiFetch<MailSettings>('/admin/mail', { method: 'PUT', body }),
+  test: (email: string) =>
+    apiFetch<{ ok: true; status: MailLogEntry['status']; message: string }>('/admin/mail/test', {
+      method: 'POST',
+      body: { email },
+    }),
+  messages: () => apiFetch<MailLogEntry[]>('/admin/mail/messages'),
+}
+
+/* ---------------------------------- خبرنامه --------------------------------- */
+export const newsletterApi = {
+  subscribe: (email: string) =>
+    apiFetch<{ ok: true; status: 'pending' | 'active' }>('/newsletter/subscribe', {
+      method: 'POST',
+      body: { email },
+    }),
+  confirm: (token: string) =>
+    apiFetch<{ ok: true; email: string }>(`/newsletter/confirm/${token}`, { method: 'POST' }),
+  unsubscribe: (token: string) =>
+    apiFetch<{ ok: true; email: string }>(`/newsletter/unsubscribe/${token}`, { method: 'POST' }),
+
+  subscribers: () => apiFetch<SubscriberList>('/admin/newsletter/subscribers'),
+  removeSubscriber: (id: string) =>
+    apiFetch<{ ok: true }>(`/admin/newsletter/subscribers/${id}`, { method: 'DELETE' }),
+
+  campaigns: () => apiFetch<Campaign[]>('/admin/newsletter/campaigns'),
+  createCampaign: (body: CampaignInput) =>
+    apiFetch<Campaign>('/admin/newsletter/campaigns', { method: 'POST', body }),
+  updateCampaign: ({ id, ...body }: CampaignInput & { id: string }) =>
+    apiFetch<Campaign>(`/admin/newsletter/campaigns/${id}`, { method: 'PATCH', body }),
+  removeCampaign: (id: string) =>
+    apiFetch<{ ok: true }>(`/admin/newsletter/campaigns/${id}`, { method: 'DELETE' }),
+  testCampaign: ({ id, email }: { id: string; email: string }) =>
+    apiFetch<{ ok: true; status: MailLogEntry['status'] }>(`/admin/newsletter/campaigns/${id}/test`, {
+      method: 'POST',
+      body: { email },
+    }),
+  sendCampaign: (id: string) =>
+    apiFetch<Campaign>(`/admin/newsletter/campaigns/${id}/send`, { method: 'POST' }),
 }

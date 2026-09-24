@@ -1,17 +1,19 @@
 <?php
 
-use App\Http\Controllers\Api\SmsController;
-use App\Http\Controllers\Api\StockAlertController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CatalogController;
 use App\Http\Controllers\Api\CmsController;
+use App\Http\Controllers\Api\MailController;
+use App\Http\Controllers\Api\MeController;
+use App\Http\Controllers\Api\NewsletterController;
+use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\PaymentGatewayController;
-use App\Http\Controllers\Api\MeController;
-use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\RepairController;
+use App\Http\Controllers\Api\SmsController;
 use App\Http\Controllers\Api\StatsController;
+use App\Http\Controllers\Api\StockAlertController;
 use App\Http\Controllers\Api\UploadController;
 use Illuminate\Support\Facades\Route;
 
@@ -29,6 +31,8 @@ Route::prefix('v1')->group(function () {
         Route::post('otp/verify', [AuthController::class, 'verifyOtp'])->middleware('throttle:login');
         Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login');
         Route::post('register', [AuthController::class, 'register'])->middleware('throttle:login');
+        Route::post('password/forgot', [AuthController::class, 'forgotPassword'])->middleware('throttle:login');
+        Route::post('password/reset', [AuthController::class, 'resetPassword'])->middleware('throttle:login');
         Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
     });
 
@@ -43,6 +47,14 @@ Route::prefix('v1')->group(function () {
     Route::get('categories', [CatalogController::class, 'categories']);
     Route::get('brands', [CatalogController::class, 'brands']);
     Route::get('tags', [CatalogController::class, 'tags']);
+
+    /* -------------------------------- خبرنامه -------------------------------- */
+    Route::prefix('newsletter')->group(function () {
+        Route::post('subscribe', [NewsletterController::class, 'subscribe'])->middleware('throttle:lookup');
+        // خودِ توکن راز است، پس تأیید و لغو عضویت ورود نمی‌خواهند
+        Route::post('confirm/{token}', [NewsletterController::class, 'confirm'])->middleware('throttle:lookup');
+        Route::post('unsubscribe/{token}', [NewsletterController::class, 'unsubscribe'])->middleware('throttle:lookup');
+    });
 
     Route::post('discounts/validate', [OrderController::class, 'validateDiscount'])->middleware('throttle:lookup');
 
@@ -172,6 +184,22 @@ Route::prefix('v1')->group(function () {
             Route::put('sms', [SmsController::class, 'update']);
             Route::post('sms/test', [SmsController::class, 'test'])->middleware('throttle:lookup');
             Route::get('sms/messages', [SmsController::class, 'messages']);
+
+            Route::get('mail', [MailController::class, 'show']);
+            Route::put('mail', [MailController::class, 'update']);
+            Route::post('mail/test', [MailController::class, 'test'])->middleware('throttle:lookup');
+            Route::get('mail/messages', [MailController::class, 'messages']);
+        });
+
+        Route::middleware('permission:newsletter.manage')->prefix('newsletter')->group(function () {
+            Route::get('subscribers', [NewsletterController::class, 'subscribers']);
+            Route::delete('subscribers/{subscriber}', [NewsletterController::class, 'destroySubscriber'])->whereNumber('subscriber');
+            Route::get('campaigns', [NewsletterController::class, 'campaigns']);
+            Route::post('campaigns', [NewsletterController::class, 'storeCampaign']);
+            Route::patch('campaigns/{campaign}', [NewsletterController::class, 'updateCampaign'])->whereNumber('campaign');
+            Route::delete('campaigns/{campaign}', [NewsletterController::class, 'destroyCampaign'])->whereNumber('campaign');
+            Route::post('campaigns/{campaign}/test', [NewsletterController::class, 'testCampaign'])->whereNumber('campaign');
+            Route::post('campaigns/{campaign}/send', [NewsletterController::class, 'sendCampaign'])->whereNumber('campaign');
         });
 
         Route::middleware('permission:tag.manage')->group(function () {

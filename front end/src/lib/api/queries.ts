@@ -16,7 +16,7 @@ import {
 } from './endpoints'
 import type { Product, ProductQuery } from '@/types/catalog'
 import { MOCKING_ENABLED } from './config'
-import { smsApi, stockAlertApi } from './endpoints'
+import { mailApi, newsletterApi, smsApi, stockAlertApi } from './endpoints'
 import type { StockAlert } from '@/types/catalog'
 import { useSession } from '@/store/session'
 import type { DeviceKind } from '@/types/repair'
@@ -43,6 +43,10 @@ export const qk = {
   adminOrders: ['admin', 'orders'] as const,
   smsSettings: ['admin', 'sms'] as const,
   smsMessages: ['admin', 'sms', 'messages'] as const,
+  mailSettings: ['admin', 'mail'] as const,
+  mailMessages: ['admin', 'mail', 'messages'] as const,
+  subscribers: ['admin', 'newsletter', 'subscribers'] as const,
+  campaigns: ['admin', 'newsletter', 'campaigns'] as const,
   stockAlerts: (userId?: string) => ['me', 'stock-alerts', userId] as const,
   adminRepairs: ['admin', 'repairs'] as const,
   adminReviews: ['admin', 'reviews'] as const,
@@ -489,6 +493,63 @@ export function useSendTestSms() {
     onSettled: () => qc.invalidateQueries({ queryKey: qk.smsMessages }),
   })
 }
+
+/* ----------------------------------- ایمیل ---------------------------------- */
+export const useMailSettings = () => useQuery({ queryKey: qk.mailSettings, queryFn: mailApi.settings })
+
+export function useSaveMailSettings() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: mailApi.save,
+    onSuccess: (saved) => qc.setQueryData(qk.mailSettings, saved),
+  })
+}
+
+/** گزارش هر ۱۵ ثانیه تازه می‌شود تا ایمیلِ رویدادِ همین حالا هم دیده شود */
+export const useMailMessages = () =>
+  useQuery({ queryKey: qk.mailMessages, queryFn: mailApi.messages, refetchInterval: 15_000 })
+
+export function useSendTestMail() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: mailApi.test,
+    onSettled: () => qc.invalidateQueries({ queryKey: qk.mailMessages }),
+  })
+}
+
+/* ---------------------------------- خبرنامه --------------------------------- */
+export const useSubscribers = () => useQuery({ queryKey: qk.subscribers, queryFn: newsletterApi.subscribers })
+
+export const useDeleteSubscriber = () => useAdminMutation(newsletterApi.removeSubscriber, [[...qk.subscribers]])
+
+/**
+ * وقتی اطلاع‌رسانی‌ای در حال ارسال است هر ۵ ثانیه تازه می‌شود تا شمارنده جلو برود؛
+ * بقیه‌ی وقت‌ها ساکت می‌ماند.
+ */
+export const useCampaigns = () =>
+  useQuery({
+    queryKey: qk.campaigns,
+    queryFn: newsletterApi.campaigns,
+    refetchInterval: (query) =>
+      query.state.data?.some((campaign) => campaign.status === 'sending') ? 5_000 : false,
+  })
+
+export const useCreateCampaign = () => useAdminMutation(newsletterApi.createCampaign, [[...qk.campaigns]])
+export const useUpdateCampaign = () => useAdminMutation(newsletterApi.updateCampaign, [[...qk.campaigns]])
+export const useDeleteCampaign = () => useAdminMutation(newsletterApi.removeCampaign, [[...qk.campaigns]])
+export const useSendCampaign = () => useAdminMutation(newsletterApi.sendCampaign, [[...qk.campaigns]])
+
+export function useTestCampaign() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: newsletterApi.testCampaign,
+    onSettled: () => qc.invalidateQueries({ queryKey: qk.mailMessages }),
+  })
+}
+
+export const useSubscribeToNewsletter = () => useMutation({ mutationFn: newsletterApi.subscribe })
+export const useConfirmSubscription = () => useMutation({ mutationFn: newsletterApi.confirm })
+export const useUnsubscribe = () => useMutation({ mutationFn: newsletterApi.unsubscribe })
 
 /* -------------------------------- خبرم کن -------------------------------- */
 export function useStockAlerts() {

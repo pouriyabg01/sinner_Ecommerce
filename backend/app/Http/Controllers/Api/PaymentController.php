@@ -10,6 +10,7 @@ use App\Models\RepairRequest;
 use App\Services\Payment\GatewayException;
 use App\Services\Payment\PaymentGateway;
 use App\Services\Payment\PaymentGatewaySettings;
+use App\Services\Mail\MailSender;
 use App\Services\Sms\SmsSender;
 use App\Support\Digits;
 use Illuminate\Http\JsonResponse;
@@ -172,6 +173,7 @@ class PaymentController extends Controller
     {
         if ($payable instanceof Order) {
             app(SmsSender::class)->order($payable->fresh('items'), 'order.placed');
+            app(MailSender::class)->order($payable->fresh('items'), 'order.placed');
         }
     }
 

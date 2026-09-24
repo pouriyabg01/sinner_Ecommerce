@@ -4,7 +4,7 @@ import { Fragment, useId } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { AnimatePresence, motion } from 'motion/react'
-import { ArrowRightLeft, BadgePercent, ChevronDown, Layers, LayoutDashboard, MessageSquareText, Package, Palette, Settings, ShieldCheck, ShoppingCart, Smartphone, Tags, Users, Wrench } from 'lucide-react'
+import { ArrowRightLeft, BadgePercent, ChevronDown, Layers, LayoutDashboard, Mail, Megaphone, MessageSquareText, Package, Palette, Settings, ShieldCheck, ShoppingCart, Smartphone, Tags, Users, Wrench } from 'lucide-react'
 import type { Permission } from '@/types/user'
 import { useCan } from '@/lib/use-can'
 import { useSession } from '@/store/session'
@@ -50,6 +50,7 @@ const menu: { title?: string; items: MenuItem[] }[] = [
       { href: '/admin/orders', label: 'سفارش‌ها', icon: ShoppingCart, permission: 'order.manage' },
       { href: '/admin/repairs', label: 'تعمیرات', icon: Wrench, permission: 'repair.manage' },
       { href: '/admin/reviews', label: 'نظرات', icon: MessageSquareText, permission: 'review.moderate' },
+      { href: '/admin/newsletter', label: 'خبرنامه', icon: Megaphone, permission: 'newsletter.manage' },
     ],
   },
   {
@@ -65,6 +66,7 @@ const menu: { title?: string; items: MenuItem[] }[] = [
       { href: '/admin/appearance', label: 'طراحی سایت', icon: Palette, permission: 'appearance.manage' },
       { href: '/admin/settings', label: 'تنظیمات', icon: Settings, permission: 'settings.manage' },
       { href: '/admin/sms', label: 'پیامک', icon: Smartphone, permission: 'settings.manage' },
+      { href: '/admin/email', label: 'ایمیل', icon: Mail, permission: 'settings.manage' },
     ],
   },
 ]

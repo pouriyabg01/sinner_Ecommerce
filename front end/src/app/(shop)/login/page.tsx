@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 import { z } from 'zod'
@@ -313,6 +314,11 @@ function PasswordForm({ busy, setBusy, onDone }: StepProps) {
       <Button type="submit" block loading={busy}>
         ورود
       </Button>
+      <p className="text-center text-[13px]">
+        <Link href="/login/forgot" className="text-muted underline-offset-4 hover:text-brand-600 hover:underline dark:hover:text-brand-400">
+          رمزم را فراموش کرده‌ام
+        </Link>
+      </p>
     </form>
   )
 }

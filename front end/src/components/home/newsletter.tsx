@@ -8,14 +8,15 @@ import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/toast'
 import { cn } from '@/lib/utils'
 import { useForm } from '@/lib/use-form'
+import { useSubscribeToNewsletter } from '@/lib/api/queries'
 import { emailSchema } from '@/lib/validation'
 
 const newsletterSchema = z.object({ email: emailSchema })
 
 export function Newsletter({ title, subtitle, placeholder, ctaLabel }: SectionProps['newsletter']) {
   const [email, setEmail] = useState('')
-  const [loading, setLoading] = useState(false)
   const form = useForm(newsletterSchema)
+  const subscribe = useSubscribeToNewsletter()
 
   return (
     <div className="container-page">
@@ -37,13 +38,19 @@ export function Newsletter({ title, subtitle, placeholder, ctaLabel }: SectionPr
             onSubmit={(e) => {
               e.preventDefault()
               if (!form.validate({ email })) return
-              setLoading(true)
-              setTimeout(() => {
-                setLoading(false)
-                setEmail('')
-                form.reset()
-                toast.success('عضویت شما در خبرنامه ثبت شد.')
-              }, 700)
+              subscribe.mutate(email.trim(), {
+                onSuccess: () => {
+                  setEmail('')
+                  form.reset()
+                  /*
+                   * عضویت دومرحله‌ای است: اینجا فقط نامه‌ی تأیید رفته. پیام هم همین
+                   * را می‌گوید، وگرنه کاربر منتظر خبرنامه‌ای می‌ماند که هیچ‌وقت
+                   * نمی‌آید چون روی لینک تأیید نزده است.
+                   */
+                  toast.success('نامه‌ی تأیید برایتان فرستاده شد؛ صندوق ورودی ایمیلتان را ببینید.')
+                },
+                onError: (error) => toast.error(error.message),
+              })
             }}
             noValidate
             className="space-y-2 pt-2"
@@ -81,7 +88,7 @@ export function Newsletter({ title, subtitle, placeholder, ctaLabel }: SectionPr
                     : 'border-border focus:border-brand-400 focus:shadow-[0_0_0_4px_rgba(0,179,146,0.12)]',
                 )}
               />
-              <Button type="submit" size="lg" loading={loading}>
+              <Button type="submit" size="lg" loading={subscribe.isPending}>
                 <Send className="size-4" />
                 {ctaLabel}
               </Button>

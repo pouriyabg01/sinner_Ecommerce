@@ -20,6 +20,7 @@ use App\Models\SiteDocument;
 use App\Models\Tag;
 use App\Models\User;
 use App\Services\ProductQuery;
+use App\Services\Mail\MailSender;
 use App\Services\Sms\SmsSender;
 use App\Services\StockAlerts;
 use App\Support\Digits;
@@ -285,6 +286,7 @@ class AdminController extends Controller
 
         if ($statusChanged && in_array($order->status, ['shipped', 'delivered', 'cancelled'], true)) {
             app(SmsSender::class)->order($order, 'order.'.$order->status);
+            app(MailSender::class)->order($order, 'order.'.$order->status);
         }
 
         return response()->json(OrderResource::forAdmin($order->fresh()->load(['items', 'user']))->resolve());

@@ -1,7 +1,8 @@
-# کل سایت در پنج کانتینر:
+# کل سایت در شش کانتینر:
 #   nginx    → تنها در ورودی؛ درخواست را بین لاراول و Next پخش می‌کند
 #   frontend → موتور صفحه‌های Next (خروجی standalone)
 #   backend  → لاراول روی PHP-FPM
+#   worker   → همان تصویر backend، ولی کارهای صف را اجرا می‌کند
 #   postgres → پایگاه داده
 #   redis    → کش و نشست
 #
@@ -61,6 +62,8 @@ services:
       context: .
       dockerfile: docker/backend/Dockerfile
       pull: false
+    # نام مشترک با worker، تا تصویر یک بار ساخته و دو بار استفاده شود
+    image: sinner-backend:local
     container_name: sinner-backend
     restart: unless-stopped
     environment:
@@ -71,6 +74,8 @@ services:
       APP_URL: ${PUBLIC_URL:-http://localhost:8080}
       APP_LOCALE: fa
       APP_FALLBACK_LOCALE: en
+      # لینک‌های داخل ایمیل (تأیید عضویت، لغو عضویت، بازیابی رمز) از این ساخته می‌شوند
+      FRONTEND_URL: ${PUBLIC_URL:-http://localhost:8080}
       LOG_CHANNEL: stderr
       LOG_LEVEL: warning
       DB_CONNECTION: pgsql
@@ -97,6 +102,51 @@ services:
         condition: service_healthy
     expose:
       - '9000'
+
+  # کارهای صف — تا امروز فقط ارسال اطلاع‌رسانی ایمیلی.
+  # بدون این سرویس، دکمه‌ی «ارسال» در پنل خبرنامه کار را در صف می‌گذارد و
+  # هیچ‌وقت کسی برش نمی‌دارد.
+  worker:
+    build:
+      context: .
+      dockerfile: docker/backend/Dockerfile
+      pull: false
+    image: sinner-backend:local
+    container_name: sinner-worker
+    restart: unless-stopped
+    # مهاجرت و کش را backend انجام می‌دهد؛ این یکی فقط کار برمی‌دارد
+    command: ['php', 'artisan', 'queue:work', '--tries=3', '--sleep=3', '--max-time=3600']
+    environment:
+      APP_NAME: ${APP_NAME:-SInner}
+      APP_ENV: production
+      APP_KEY: ${APP_KEY:?APP_KEY لازم است}
+      APP_DEBUG: 'false'
+      APP_URL: ${PUBLIC_URL:-http://localhost:8080}
+      APP_LOCALE: fa
+      APP_FALLBACK_LOCALE: en
+      FRONTEND_URL: ${PUBLIC_URL:-http://localhost:8080}
+      LOG_CHANNEL: stderr
+      LOG_LEVEL: warning
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: '5432'
+      DB_DATABASE: ${DB_DATABASE:-sinner}
+      DB_USERNAME: ${DB_USERNAME:-sinner}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD لازم است}
+      REDIS_CLIENT: predis
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      CACHE_STORE: redis
+      SESSION_DRIVER: redis
+      QUEUE_CONNECTION: redis
+      FILESYSTEM_DISK: local
+    volumes:
+      - storage:/var/www/html/storage/app/public
+    depends_on:
+      backend:
+        condition: service_started
+      redis:
+        condition: service_healthy
 
   postgres:
     image: postgres:18-alpine

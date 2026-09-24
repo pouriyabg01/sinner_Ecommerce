@@ -74,6 +74,7 @@ export type Permission =
   | 'category.manage'
   | 'discount.manage'
   | 'tag.manage'
+  | 'newsletter.manage'
   | 'order.manage'
   | 'repair.manage'
   | 'review.moderate'
@@ -89,6 +90,7 @@ export const ALL_PERMISSIONS: Permission[] = [
   'category.manage',
   'tag.manage',
   'discount.manage',
+  'newsletter.manage',
   'order.manage',
   'repair.manage',
   'review.moderate',
@@ -127,6 +129,7 @@ export const PERMISSION_LABEL: Record<Permission, { label: string; hint: string 
   'appearance.manage': { label: 'طراحی سایت', hint: 'چیدمان صفحه اصلی و محتوای صفحه درباره ما' },
   'settings.manage': { label: 'تنظیمات سایت', hint: 'اطلاعات پایه، تماس و نوار اعلان' },
   'user.manage': { label: 'کاربران', hint: 'مشاهده‌ی فهرست کاربران و اطلاعات تماس آن‌ها' },
+  'newsletter.manage': { label: 'خبرنامه', hint: 'مشاهده‌ی مشترکان و ساخت و ارسال اطلاع‌رسانی ایمیلی' },
   'admin.manage': { label: 'ادمین‌ها', hint: 'ساخت و حذف حساب ادمین — فقط مدیر کل' },
 }
 
@@ -135,6 +138,7 @@ export const PERMISSION_GROUPS: { title: string; permissions: Permission[] }[] =
   { title: 'عمومی', permissions: ['dashboard.view'] },
   { title: 'کاتالوگ', permissions: ['product.manage', 'category.manage', 'tag.manage', 'discount.manage'] },
   { title: 'فروش و خدمات', permissions: ['order.manage', 'repair.manage', 'review.moderate'] },
+  { title: 'بازاریابی', permissions: ['newsletter.manage'] },
   { title: 'سایت و کاربران', permissions: ['appearance.manage', 'settings.manage', 'user.manage'] },
 ]
 

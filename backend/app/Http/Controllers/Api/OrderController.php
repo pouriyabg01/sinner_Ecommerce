@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\SiteDocument;
+use App\Services\Mail\MailSender;
 use App\Services\Sms\SmsSender;
 use App\Support\Digits;
 use App\Support\SitePayments;
@@ -231,6 +232,7 @@ class OrderController extends Controller
         // پرداخت اینترنتی بعد از تراکنش موفق پیامک می‌گیرد، نه همین حالا
         if ($order->status === 'processing') {
             app(SmsSender::class)->order($order, 'order.placed');
+            app(MailSender::class)->order($order, 'order.placed');
         }
 
         return response()->json((new OrderResource($order->load('items')))->resolve(), 201);

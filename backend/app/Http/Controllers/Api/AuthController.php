@@ -7,10 +7,14 @@ use App\Http\Resources\UserResource;
 use App\Models\OtpCode;
 use App\Models\SiteDocument;
 use App\Models\User;
+use App\Services\Mail\MailSender;
 use App\Services\Sms\SmsSender;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -25,6 +29,8 @@ class AuthController extends Controller
     private const OTP_TTL_SECONDS = 120;
 
     private const OTP_MAX_ATTEMPTS = 5;
+
+    private const RESET_TTL_MINUTES = 60;
 
     public function methods(): JsonResponse
     {
@@ -157,6 +163,67 @@ class AuthController extends Controller
             'role' => 'customer',
             'status' => 'active',
         ]);
+
+        return $this->issueToken($user);
+    }
+
+    /**
+     * «رمزم را فراموش کرده‌ام». لینک بازیابی به ایمیل می‌رود، پس این تنها جایی است
+     * که ورود با رمز به ایمیل وابسته می‌شود؛ ورود با کد پیامکی مسیر جداگانه‌ی خودش
+     * را دارد و از این دست نمی‌خورد.
+     */
+    public function forgotPassword(Request $request, MailSender $mail): JsonResponse
+    {
+        $this->ensureEnabled('password');
+
+        $data = $request->validate(['email' => ['required', 'email']]);
+
+        $user = User::where('email', mb_strtolower(trim($data['email'])))->first();
+
+        if ($user && $user->status !== 'blocked') {
+            $token = Str::random(64);
+
+            // خودِ توکن ذخیره نمی‌شود؛ لو رفتن این جدول نباید یعنی گرفتن حساب‌ها
+            DB::table('password_reset_tokens')->updateOrInsert(
+                ['email' => $user->email],
+                ['token' => Hash::make($token), 'created_at' => now()],
+            );
+
+            $mail->passwordReset($user, $token, self::RESET_TTL_MINUTES);
+        }
+
+        /*
+         * پاسخ چه حساب باشد چه نباشد یکی است: وگرنه با همین فرم می‌شد فهمید کدام
+         * ایمیل در سایت حساب دارد.
+         */
+        return response()->json(['ok' => true]);
+    }
+
+    public function resetPassword(Request $request): JsonResponse
+    {
+        $this->ensureEnabled('password');
+
+        $data = $request->validate([
+            'email' => ['required', 'email'],
+            'token' => ['required', 'string'],
+            'password' => ['required', 'string', 'min:8'],
+        ]);
+
+        $email = mb_strtolower(trim($data['email']));
+        $row = DB::table('password_reset_tokens')->where('email', $email)->first();
+        $expired = $row && Carbon::parse($row->created_at)->addMinutes(self::RESET_TTL_MINUTES)->isPast();
+
+        if (! $row || $expired || ! Hash::check($data['token'], $row->token)) {
+            throw ValidationException::withMessages(['token' => 'این لینک معتبر نیست یا منقضی شده است']);
+        }
+
+        $user = User::where('email', $email)->firstOrFail();
+        $user->update(['password' => $data['password']]);
+
+        DB::table('password_reset_tokens')->where('email', $email)->delete();
+
+        // هرکس با رمز قبلی جایی وارد مانده بیرون می‌رود — نکته‌ی اصلیِ عوض‌کردن رمز همین است
+        $user->tokens()->delete();
 
         return $this->issueToken($user);
     }
