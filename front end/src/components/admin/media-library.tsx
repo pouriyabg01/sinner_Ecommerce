@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState } from 'react'
 import Image from 'next/image'
-import { AlertTriangle, Check, ImageIcon, Search, Trash2, Upload } from 'lucide-react'
+import { AlertTriangle, Check, ImageIcon, Scissors, Search, Trash2, Upload } from 'lucide-react'
 import {
   MEDIA_SORT_LABEL,
   formatBytes,
@@ -12,6 +12,7 @@ import {
   type MediaSort,
 } from '@/types/media'
 import { useDeleteMedia, useMedia, useUpdateMedia, useUploadMedia } from '@/lib/api/queries'
+import { MediaEditor } from '@/components/admin/media-editor'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Drawer } from '@/components/ui/drawer'
@@ -273,11 +274,21 @@ export function MediaBrowser({
 /* -------------------------------- جزئیات -------------------------------- */
 
 /** ویرایش عنوان، متن جایگزین و توضیح یک تصویر، به‌علاوه‌ی حذف از کتابخانه */
-export function MediaDetails({ item, onDeleted }: { item: MediaItem; onDeleted?: () => void }) {
+export function MediaDetails({
+  item,
+  onDeleted,
+  onCreated,
+}: {
+  item: MediaItem
+  onDeleted?: () => void
+  /** کپی تازه‌ای که ویرایشگر ساخته؛ صفحه یا پنجره‌ی انتخاب همان را نشان می‌دهد */
+  onCreated?: (created: MediaItem) => void
+}) {
   const save = useUpdateMedia()
   const remove = useDeleteMedia()
   const [draft, setDraft] = useState({ title: item.title, alt: item.alt, caption: item.caption })
   const [confirmUsage, setConfirmUsage] = useState(0)
+  const [editing, setEditing] = useState(false)
 
   const dirty = draft.title !== item.title || draft.alt !== item.alt || draft.caption !== item.caption
 
@@ -361,11 +372,17 @@ export function MediaDetails({ item, onDeleted }: { item: MediaItem; onDeleted?:
         >
           ذخیره
         </Button>
+        <Button size="sm" variant="outline" onClick={() => setEditing(true)}>
+          <Scissors className="size-3.5" />
+          برش و تغییر اندازه
+        </Button>
         <Button size="sm" variant="danger" loading={remove.isPending} onClick={() => del(false)}>
           <Trash2 className="size-3.5" />
           حذف از کتابخانه
         </Button>
       </div>
+
+      <MediaEditor item={item} open={editing} onClose={() => setEditing(false)} onSaved={onCreated} />
 
       {confirmUsage > 0 && (
         <div className="space-y-2 rounded-xl bg-amber-500/10 p-3.5 text-[12.5px] leading-6 text-amber-700 dark:text-amber-300">
@@ -456,7 +473,12 @@ export function MediaPicker({
 
         <aside className="min-w-0">
           {picked.length === 1 ? (
-            <MediaDetails item={picked[0]} onDeleted={() => setPicked([])} />
+            <MediaDetails
+              item={picked[0]}
+              onDeleted={() => setPicked([])}
+              // کسی که همین‌جا تصویر را برید، همان کپی را می‌خواهد نه اصل را
+              onCreated={(created) => setPicked(multiple ? [...picked, created] : [created])}
+            />
           ) : (
             <p className="rounded-xl bg-surface-2 p-4 text-[12.5px] leading-7 text-muted">
               {picked.length > 1

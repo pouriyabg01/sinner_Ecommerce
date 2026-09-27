@@ -42,6 +42,7 @@ export default function AdminMediaPage() {
                 key={selected.id}
                 item={selected}
                 onDeleted={() => setSelected(null)}
+                onCreated={(created) => setSelected(created)}
               />
             ) : (
               <p className="rounded-xl bg-surface-2 p-4 text-[12.5px] leading-7 text-muted">
