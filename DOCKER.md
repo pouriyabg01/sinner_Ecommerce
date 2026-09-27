@@ -122,21 +122,41 @@ cd ~/SInner && bash scripts/import-data.sh deploy-data-XXXXXX
 
 ### ۷. گواهی امنیتی
 
-گواهی را از پنل میزبان بگیرید و دو فایلش را روی سرور در `docker/nginx/certs/` بگذارید با همین نام‌ها:
-
-```
-fullchain.pem   گواهی + زنجیره‌ی صادرکننده
-privkey.pem     کلید خصوصی
-```
-
-بعد در `.env` بنویسید `NGINX_CONF=https.conf` و بزنید:
+گواهی رایگان و خودتمدیدشونده، روی خود سرور:
 
 ```bash
-docker compose up -d nginx
+sudo apt-get install -y certbot
+sudo certbot certonly --webroot -w ~/SInner/docker/nginx/acme \
+  -d example.com -d www.example.com --agree-tos --register-unsafely-without-email
 ```
 
-از این به بعد درگاه ۸۰ خودش به نسخه‌ی امن هدایت می‌کند. اگر گواهی تاریخ انقضا دارد، بعد از هر
-تمدید فقط فایل‌ها را جایگزین کنید و همین دستور را دوباره بزنید.
+`--webroot` یعنی بدون خاموش‌کردن سایت. مسیر آزمونش در هر دو نسخه‌ی nginx باز است و
+پیش از هدایت به نسخه‌ی امن می‌آید — وگرنه صادرکننده به‌جای فایل آزمون ریدایرکت می‌گرفت.
+
+بعد یک قلاب بسازید تا هر تمدید، گواهی تازه را سر جایش بگذارد و nginx را بی‌قطعی نو کند
+(`/etc/letsencrypt/renewal-hooks/deploy/`): دو فایل `fullchain.pem` و `privkey.pem` را از
+`/etc/letsencrypt/live/<دامنه>/` به `docker/nginx/certs/` کپی کند و بعد
+`docker exec sinner-nginx nginx -s reload` بزند. بدون این، تمدید انجام می‌شود ولی کانتینر
+همان گواهی منقضی را نگه می‌دارد.
+
+حالا در `.env` بنویسید:
+
+```
+PUBLIC_URL=https://example.com
+NGINX_CONF=https.conf
+```
+
+و چون نشانی سایت هنگام ساخت داخل کد جاسازی می‌شود، باید دوباره ساخته شود:
+
+```bash
+docker compose build frontend backend && docker compose up -d
+```
+
+بدون ساخت دوباره، صفحه روی نشانی امن باز می‌شود ولی پشت پرده سراغ نشانی ناامن می‌رود و
+مرورگر جلویش را می‌گیرد. از این به بعد درگاه ۸۰ خودش به نسخه‌ی امن هدایت می‌کند.
+
+اگر گواهی را از پنل میزبان می‌گیرید، همان دو فایل را با همین نام‌ها در `docker/nginx/certs/`
+بگذارید و مرحله‌ی certbot را رد کنید.
 
 ### ۸. تنظیم‌های داخل پنل
 

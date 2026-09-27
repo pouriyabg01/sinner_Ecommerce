@@ -34,8 +34,10 @@ echo "== وضعیت =="
 docker compose ps --format '{{.Name}} {{.Status}}'
 
 echo "== آزمون =="
+# -L چون روی سایت گواهی‌دار، درگاه ۸۰ فقط ریدایرکت می‌دهد و بدون دنبال‌کردنش
+# همیشه ۳۰۱ چاپ می‌شد؛ -k چون گواهی برای دامنه است نه برای 127.0.0.1.
 for p in /up /api/v1/products /; do
-  printf '%s -> %s\n' "$p" "$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 "http://127.0.0.1$p")"
+  printf '%s -> %s\n' "$p" "$(curl -sLk -o /dev/null -w '%{http_code}' --max-time 30 "http://127.0.0.1$p")"
 done
 
 echo "== پایان: $(date '+%Y-%m-%d %H:%M') =="
