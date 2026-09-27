@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { Mail, MapPin, Phone } from 'lucide-react'
 import { Logo } from './logo'
@@ -8,6 +9,7 @@ import type { FooterColumn, FooterLink } from '@/types/cms'
 import { DEVICE_KIND_LABEL, type DeviceKind } from '@/types/repair'
 import { getIcon } from '@/lib/icons'
 import { toFaDigits } from '@/lib/format'
+import { cn } from '@/lib/utils'
 
 const serviceLabel = (kind: DeviceKind) => (kind === 'other' ? 'تعمیر سایر دستگاه‌ها' : `تعمیر ${DEVICE_KIND_LABEL[kind]}`)
 
@@ -60,6 +62,14 @@ function EnamadSeal() {
   const rawAttrs: Record<string, string> = { referrerpolicy: 'origin' }
   const imgAttrs: Record<string, string> = { ...rawAttrs, code: SEAL_CODE }
 
+  /*
+   * تا وقتی نشان در سامانه تأیید نشده، سرورشان به‌جای تصویر خطا برمی‌گرداند و
+   * ته فوتر یک کادر سفیدِ شکسته می‌ماند. پس اگر تصویر نیامد، از چشم پنهان
+   * می‌شود — ولی از صفحه حذف نمی‌شود، چون بررسیِ خود سامانه در متن صفحه دنبال
+   * کد می‌گردد. پیش‌فرض «نمایش» است تا اگر رویداد خطا هم نرسید، نشان دیده شود.
+   */
+  const [broken, setBroken] = useState(false)
+
   return (
     <a
       {...rawAttrs}
@@ -72,12 +82,16 @@ function EnamadSeal() {
        * نباشد، چیزی که دیده می‌شود متن جایگزین است و با رنگِ پوسته‌ی تیره روی
        * این کادر سفید ناپیدا می‌شد.
        */
-      className="inline-block w-fit rounded-xl bg-white p-2 text-[11px] leading-5 text-ink-900 transition-shadow hover:shadow-lift"
+      className={cn(
+        'inline-block w-fit rounded-xl bg-white p-2 text-[11px] leading-5 text-ink-900 transition-shadow hover:shadow-lift',
+        broken && 'hidden',
+      )}
     >
       <img
         {...imgAttrs}
         src={`https://trustseal.enamad.ir/logo.aspx?id=${SEAL_ID}&Code=${SEAL_CODE}`}
         alt="نماد اعتماد الکترونیکی"
+        onError={() => setBroken(true)}
         className="h-auto w-20 cursor-pointer"
       />
     </a>
