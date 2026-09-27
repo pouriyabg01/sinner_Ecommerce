@@ -1,10 +1,10 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Crop, RotateCcw, Save } from 'lucide-react'
+import { AlertTriangle, Copy, Crop, RotateCcw, Save } from 'lucide-react'
 import type { MediaItem } from '@/types/media'
 import { formatBytes } from '@/types/media'
-import { useUploadMedia } from '@/lib/api/queries'
+import { useReplaceMedia, useUploadMedia } from '@/lib/api/queries'
 import { Button } from '@/components/ui/button'
 import { Drawer } from '@/components/ui/drawer'
 import { Field, Input, Select } from '@/components/ui/input'
@@ -56,6 +56,7 @@ export function MediaEditor({
   onSaved?: (created: MediaItem) => void
 }) {
   const upload = useUploadMedia()
+  const replace = useReplaceMedia()
   const imgRef = useRef<HTMLImageElement>(null)
   const [natural, setNatural] = useState({ w: item.width, h: item.height })
   const [scale, setScale] = useState(1)
@@ -65,6 +66,7 @@ export function MediaEditor({
   const [out, setOut] = useState({ w: String(item.width), h: String(item.height) })
   const [locked, setLocked] = useState(true)
   const [busy, setBusy] = useState(false)
+  const [confirming, setConfirming] = useState(false)
 
   /** نسبت نمایش به پیکسل واقعی؛ با تغییر عرض پنجره دوباره حساب می‌شود */
   const measure = useCallback(() => {
@@ -168,50 +170,86 @@ export function MediaEditor({
     setOut(locked && h ? { w: String(Math.round((h * crop.w) / crop.h)), h: String(h) } : { ...out, h: String(h) })
   }
 
-  const save = async () => {
+  /** برش و تغییر اندازه روی بوم؛ خروجی فایلی است که هر دو دکمه از آن استفاده می‌کنند */
+  const render = async (): Promise<File | null> => {
     const width = numeric(out.w)
     const height = numeric(out.h)
 
     if (width < 1 || height < 1) {
       toast.error('اندازه‌ی خروجی را وارد کنید')
-      return
+      return null
     }
 
+    const canvas = document.createElement('canvas')
+    canvas.width = width
+    canvas.height = height
+    const ctx = canvas.getContext('2d')
+    if (!ctx || !imgRef.current) throw new Error('مرورگر نتوانست تصویر را بسازد')
+
+    // کیفیت کوچک‌کردن: بدون این، تصویر پله‌پله و دندانه‌دار درمی‌آید
+    ctx.imageSmoothingEnabled = true
+    ctx.imageSmoothingQuality = 'high'
+    ctx.drawImage(imgRef.current, crop.x, crop.y, crop.w, crop.h, 0, 0, width, height)
+
+    const mime = FORMATS.find((f) => f.id === format)?.mime ?? (item.mime || 'image/png')
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, mime, 0.9))
+    if (!blob) throw new Error('ساخت فایل ناموفق بود')
+
+    if (blob.size > MAX_UPLOAD_BYTES) {
+      toast.error(
+        `حجم خروجی ${formatBytes(blob.size)} شد و از ۲ مگابایت بیشتر است — اندازه را کمتر کنید یا قالب وب‌پی را بزنید.`,
+      )
+      return null
+    }
+
+    const ext = mime.split('/')[1]?.replace('jpeg', 'jpg') ?? 'png'
+    const base = item.name.replace(/\.[^.]+$/, '')
+
+    return new File([blob], `${base}.${ext}`, { type: mime })
+  }
+
+  /** کپی تازه؛ اصل دست‌نخورده می‌ماند */
+  const saveCopy = async () => {
     setBusy(true)
     try {
-      const canvas = document.createElement('canvas')
-      canvas.width = width
-      canvas.height = height
-      const ctx = canvas.getContext('2d')
-      if (!ctx || !imgRef.current) throw new Error('مرورگر نتوانست تصویر را بسازد')
+      const file = await render()
+      if (!file) return
 
-      // کیفیت کوچک‌کردن: بدون این، تصویر پله‌پله و دندانه‌دار درمی‌آید
-      ctx.imageSmoothingEnabled = true
-      ctx.imageSmoothingQuality = 'high'
-      ctx.drawImage(imgRef.current, crop.x, crop.y, crop.w, crop.h, 0, 0, width, height)
+      const base = file.name.replace(/\.[^.]+$/, '')
+      const ext = file.name.split('.').pop()
+      const created = await upload.mutateAsync(new File([file], `${base}-edited.${ext}`, { type: file.type }))
 
-      const mime = FORMATS.find((f) => f.id === format)?.mime ?? (item.mime || 'image/png')
-      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, mime, 0.9))
-      if (!blob) throw new Error('ساخت فایل ناموفق بود')
-
-      if (blob.size > MAX_UPLOAD_BYTES) {
-        toast.error(
-          `حجم خروجی ${formatBytes(blob.size)} شد و از ۲ مگابایت بیشتر است — اندازه را کمتر کنید یا قالب وب‌پی را بزنید.`,
-        )
-        return
-      }
-
-      const ext = mime.split('/')[1]?.replace('jpeg', 'jpg') ?? 'png'
-      const base = item.name.replace(/\.[^.]+$/, '')
-      const created = await upload.mutateAsync(new File([blob], `${base}-edited.${ext}`, { type: mime }))
-
-      toast.success(`کپی تازه ساخته شد — ${formatBytes(blob.size)}`)
+      toast.success(`کپی تازه ساخته شد — ${formatBytes(file.size)}`)
       onSaved?.(created)
       onClose()
     } catch (error) {
       toast.error((error as Error).message)
     } finally {
       setBusy(false)
+    }
+  }
+
+  /** جایگزینی خودِ تصویر؛ هر جای سایت که از آن استفاده می‌کند هم عوض می‌شود */
+  const saveOver = async () => {
+    setBusy(true)
+    try {
+      const file = await render()
+      if (!file) return
+
+      const { item: updated, updated: places } = await replace.mutateAsync({ id: item.id, file })
+
+      toast.success(
+        places > 0
+          ? `تصویر جایگزین شد و ${toFaDigits(places)} جای سایت به‌روز شد — ${formatBytes(file.size)}`
+          : `تصویر جایگزین شد — ${formatBytes(file.size)}`,
+      )
+      onSaved?.(updated)
+      onClose()
+    } catch (error) {
+      toast.error((error as Error).message)
+    } finally {
+      setBusy(false)
+      setConfirming(false)
     }
   }
 
@@ -233,20 +271,46 @@ export function MediaEditor({
       title="ویرایش تصویر"
       widthClass="w-full max-w-3xl"
       footer={
-        <div className="flex items-center justify-between gap-3">
-          <span className="num text-[12.5px] text-muted">
-            خروجی: {toFaDigits(numeric(out.w))}×{toFaDigits(numeric(out.h))}
-          </span>
-          <Button loading={busy} onClick={save}>
-            <Save className="size-4" />
-            ذخیره به‌عنوان کپی
-          </Button>
+        <div className="space-y-2">
+          {confirming && (
+            <p className="flex items-start gap-2 rounded-xl bg-amber-500/10 px-3.5 py-2.5 text-[12px] leading-6 text-amber-700 dark:text-amber-300">
+              <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+              با جایگزینی، این تصویر هر جای سایت که استفاده شده هم عوض می‌شود و نسخه‌ی قبلی برنمی‌گردد. مطمئنید؟
+            </p>
+          )}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <span className="num text-[12.5px] text-muted">
+              خروجی: {toFaDigits(numeric(out.w))}×{toFaDigits(numeric(out.h))}
+            </span>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" loading={busy} onClick={saveCopy}>
+                <Copy className="size-4" />
+                ذخیره‌ی کپی
+              </Button>
+              {confirming ? (
+                <>
+                  <Button variant="danger" loading={busy} onClick={saveOver}>
+                    جایگزین کن
+                  </Button>
+                  <Button variant="ghost" onClick={() => setConfirming(false)}>
+                    انصراف
+                  </Button>
+                </>
+              ) : (
+                <Button loading={busy} onClick={() => setConfirming(true)}>
+                  <Save className="size-4" />
+                  ذخیره روی همین تصویر
+                </Button>
+              )}
+            </div>
+          </div>
         </div>
       }
     >
       <div className="space-y-4 p-5">
         <p className="rounded-xl bg-surface-2 px-3.5 py-2.5 text-[12px] leading-6 text-muted">
-          تصویر اصلی دست‌نخورده می‌ماند و نتیجه به‌عنوان تصویر تازه در کتابخانه ذخیره می‌شود.
+          «ذخیره‌ی کپی» تصویر تازه‌ای می‌سازد و اصل را دست نمی‌زند. «ذخیره روی همین تصویر» خودِ آن را عوض می‌کند —
+          یعنی هر جای سایت که از آن استفاده شده هم تغییر می‌کند.
         </p>
 
         <div className="relative select-none overflow-hidden rounded-xl border border-border bg-ink-950">

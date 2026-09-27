@@ -125,6 +125,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/', [MediaController::class, 'index']);
             Route::post('/', [MediaController::class, 'store']);
             Route::patch('{medium}', [MediaController::class, 'update'])->whereNumber('medium');
+            Route::post('{medium}/replace', [MediaController::class, 'replace'])->whereNumber('medium');
             Route::delete('{medium}', [MediaController::class, 'destroy'])->whereNumber('medium');
         });
 

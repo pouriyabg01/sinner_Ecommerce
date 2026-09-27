@@ -62,6 +62,19 @@ class MediaController extends Controller
         return response()->json($this->row($media), 201);
     }
 
+    /**
+     * جایگزینی خودِ فایل، بدون ساختن ردیف تازه. همه‌ی جاهایی که این تصویر را
+     * نشان می‌دهند، نسخه‌ی تازه را می‌بینند — که هدف همین است.
+     */
+    public function replace(Request $request, Media $medium, MediaLibrary $library): JsonResponse
+    {
+        $request->validate(['file' => ['required', 'file', 'image', 'max:2048']]);
+
+        $updated = $library->replace($medium, $request->file('file'), $request->user());
+
+        return response()->json(['item' => $this->row($medium->fresh()), 'updated' => $updated]);
+    }
+
     public function update(Request $request, Media $medium): JsonResponse
     {
         $data = $request->validate([

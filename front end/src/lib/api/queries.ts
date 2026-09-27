@@ -508,6 +508,12 @@ export const useMedia = (params: { search?: string; sort?: MediaSort; page?: num
 const MEDIA_KEY = [['admin', 'media']]
 
 export const useUploadMedia = () => useAdminMutation(mediaApi.upload, MEDIA_KEY)
+/*
+ * جایگزینی، تصویر را هر جای سایت که استفاده شده عوض می‌کند، پس فهرست کالاها و
+ * محتوای صفحه‌ها هم باید از نو خوانده شوند نه فقط خود کتابخانه.
+ */
+export const useReplaceMedia = () =>
+  useAdminMutation(mediaApi.replace, [['admin', 'media'], ['admin', 'products'], ['products'], ['cms'], ['categories'], ['brands']])
 export const useUpdateMedia = () => useAdminMutation(mediaApi.update, MEDIA_KEY)
 export const useDeleteMedia = () => useAdminMutation(mediaApi.remove, MEDIA_KEY)
 

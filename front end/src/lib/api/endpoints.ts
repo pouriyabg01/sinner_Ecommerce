@@ -475,6 +475,16 @@ export const mediaApi = {
   },
   update: ({ id, ...body }: MediaMeta & { id: string }) =>
     apiFetch<MediaItem>(`/admin/media/${id}`, { method: 'PATCH', body }),
+  /** جایگزینی خودِ فایل؛ `updated` می‌گوید چند جای سایت به‌روز شد */
+  replace: async ({ id, file }: { id: string; file: File }) => {
+    const form = new FormData()
+    form.append('file', file)
+
+    return apiFetch<{ item: MediaItem; updated: number }>(`/admin/media/${id}/replace`, {
+      method: 'POST',
+      body: form,
+    })
+  },
   /** `force` فقط وقتی لازم است که تصویر جایی استفاده شده و مدیر باز هم بخواهد */
   remove: ({ id, force }: { id: string; force?: boolean }) =>
     apiFetch<{ ok: true }>(`/admin/media/${id}`, { method: 'DELETE', params: { force } }),
