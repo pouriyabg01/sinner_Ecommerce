@@ -23,6 +23,8 @@ services:
       # با NGINX_CONF=https.conf به نسخه‌ی گواهی‌دار سوئیچ می‌شود
       - ./docker/nginx/${NGINX_CONF:-default.conf}:/etc/nginx/conf.d/default.conf:ro
       - ${TLS_CERT_DIR:-./docker/nginx/certs}:/etc/nginx/certs:ro
+      # جایی که صادرکننده‌ی گواهی فایل آزمونش را می‌گذارد تا nginx نشانش بدهد
+      - ./docker/nginx/acme:/var/www/acme:ro
       - storage:/srv/storage:ro
     depends_on:
       - frontend
