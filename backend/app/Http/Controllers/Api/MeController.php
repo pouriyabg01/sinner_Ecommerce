@@ -10,6 +10,7 @@ use App\Http\Resources\UserResource;
 use App\Models\Address;
 use App\Models\Product;
 use App\Models\User;
+use App\Services\Mail\MailSender;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -35,12 +36,27 @@ class MeController extends Controller
             'email' => ['sometimes', 'nullable', 'email', Rule::unique('users', 'email')->ignore($user->id)],
         ]);
 
+        $newEmail = isset($data['email']) ? mb_strtolower(trim((string) $data['email'])) : null;
+        $emailChanged = $newEmail !== null && $newEmail !== $user->email;
+
         $user->update(array_filter([
             'full_name' => $data['fullName'] ?? null,
             'name' => $data['fullName'] ?? null,
             'phone' => $data['phone'] ?? null,
-            'email' => $data['email'] ?? null,
+            'email' => $newEmail,
         ], fn ($value) => $value !== null));
+
+        /*
+         * نشانی تازه هنوز تأیید نشده است. بدون باطل‌کردن تأیید قبلی، می‌شد با یک
+         * حساب تأییدشده، ایمیل را به نشانی دلخواه عوض کرد و همان تأیید را نگه داشت.
+         */
+        if ($emailChanged) {
+            $user->forceFill(['email_verified_at' => null])->save();
+
+            if ($newEmail !== '') {
+                AuthController::issueVerification($user->fresh(), app(MailSender::class));
+            }
+        }
 
         return response()->json((new UserResource($user->fresh()->load('addresses')))->resolve());
     }

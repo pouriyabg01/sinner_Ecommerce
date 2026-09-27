@@ -343,6 +343,7 @@ class AdminController extends Controller
         $repairEvent = ['awaiting_approval' => 'repair.quoted', 'ready' => 'repair.ready', 'completed' => 'repair.completed'][$repair->status] ?? null;
         if ($statusChanged && $repairEvent) {
             app(SmsSender::class)->repair($repair->fresh(), $repairEvent);
+            app(MailSender::class)->repair($repair->fresh(), $repairEvent);
         }
 
         return response()->json(RepairRequestResource::forAdmin($repair->fresh()->load(['issues', 'user']))->resolve());

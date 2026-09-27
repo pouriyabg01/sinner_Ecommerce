@@ -32,6 +32,8 @@ class AuthController extends Controller
 
     private const RESET_TTL_MINUTES = 60;
 
+    public const VERIFY_TTL_MINUTES = 120;
+
     public function methods(): JsonResponse
     {
         return response()->json($this->enabledMethods());
@@ -164,7 +166,70 @@ class AuthController extends Controller
             'status' => 'active',
         ]);
 
+        // نامه‌ی تأیید همان لحظه می‌رود؛ حسابش بدون تأیید هم کار می‌کند
+        self::issueVerification($user, app(MailSender::class));
+
         return $this->issueToken($user);
+    }
+
+    /**
+     * فرستادن (یا دوباره فرستادن) نامه‌ی تأیید ایمیل.
+     *
+     * سقف تکرارش در مسیر است نه اینجا؛ وگرنه می‌شد با تکرار درخواست، صندوق کسی
+     * را پر کرد.
+     */
+    public function sendVerification(Request $request, MailSender $mail): JsonResponse
+    {
+        $user = $request->user();
+
+        if (! $user->email) {
+            return response()->json(['message' => 'اول یک نشانی ایمیل در حسابتان ثبت کنید'], 422);
+        }
+
+        if ($user->email_verified_at) {
+            return response()->json(['ok' => true, 'alreadyVerified' => true]);
+        }
+
+        self::issueVerification($user, $mail);
+
+        return response()->json(['ok' => true]);
+    }
+
+    /** ساخت توکن تازه و فرستادن نامه — از ثبت‌نام و تغییر ایمیل هم صدا زده می‌شود */
+    public static function issueVerification(User $user, MailSender $mail): void
+    {
+        $token = Str::random(64);
+
+        // خودِ توکن ذخیره نمی‌شود؛ لو رفتن این جدول نباید یعنی تأیید جعلی
+        DB::table('email_verifications')->updateOrInsert(
+            ['email' => $user->email],
+            ['token' => Hash::make($token), 'created_at' => now()],
+        );
+
+        $mail->verifyEmail($user, $token, self::VERIFY_TTL_MINUTES);
+    }
+
+    public function verifyEmail(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'email' => ['required', 'email'],
+            'token' => ['required', 'string'],
+        ]);
+
+        $email = mb_strtolower(trim($data['email']));
+        $row = DB::table('email_verifications')->where('email', $email)->first();
+        $expired = $row && Carbon::parse($row->created_at)->addMinutes(self::VERIFY_TTL_MINUTES)->isPast();
+
+        if (! $row || $expired || ! Hash::check($data['token'], $row->token)) {
+            throw ValidationException::withMessages(['token' => 'این لینک معتبر نیست یا منقضی شده است']);
+        }
+
+        $user = User::where('email', $email)->firstOrFail();
+        $user->forceFill(['email_verified_at' => now()])->save();
+
+        DB::table('email_verifications')->where('email', $email)->delete();
+
+        return response()->json(['ok' => true, 'email' => $email]);
     }
 
     /**

@@ -108,6 +108,10 @@ export const authApi = {
     apiFetch<{ ok: true }>('/auth/password/forgot', { method: 'POST', body: { email } }),
   resetPassword: (body: { email: string; token: string; password: string }) =>
     apiFetch<AuthSession>('/auth/password/reset', { method: 'POST', body }),
+  verifyEmail: (body: { email: string; token: string }) =>
+    apiFetch<{ ok: true; email: string }>('/auth/email/verify', { method: 'POST', body }),
+  resendVerification: () =>
+    apiFetch<{ ok: true; alreadyVerified?: boolean }>('/auth/email/resend', { method: 'POST' }),
 }
 
 /** آپلود فایل؛ با لایه‌ی mock کار نمی‌کند و آنجا مسیر data URL می‌ماند */

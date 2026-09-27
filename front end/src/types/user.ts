@@ -43,6 +43,8 @@ export interface User {
   fullName: string
   phone: string
   email: string
+  /** تا تأیید نشده، خبر سفارش و تعمیر با ایمیل نمی‌رود */
+  emailVerified?: boolean
   /** حساب ساخته‌شده با کد پیامکی رمز ندارد؛ آن‌وقت تغییر رمز «رمز فعلی» نمی‌خواهد */
   hasPassword?: boolean
   role: UserRole

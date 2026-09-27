@@ -14,6 +14,7 @@ class UserResource extends JsonResource
             'fullName' => $this->full_name,
             'phone' => $this->phone ?? '',
             'email' => $this->email ?? '',
+            'emailVerified' => (bool) $this->email_verified_at,
             // حساب ساخته‌شده با کد پیامکی رمز ندارد؛ فرم تغییر رمز «رمز فعلی» نمی‌خواهد
             'hasPassword' => (bool) $this->password,
             'role' => $this->role,

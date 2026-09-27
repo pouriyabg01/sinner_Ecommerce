@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\RepairRequestResource;
 use App\Models\RepairIssue;
 use App\Models\RepairRequest;
+use App\Services\Mail\MailSender;
 use App\Services\Sms\SmsSender;
 use App\Support\Digits;
 use App\Support\RepairPickup;
@@ -103,6 +104,7 @@ class RepairController extends Controller
 
         $repair->issues()->sync($data['issueIds'] ?? []);
         app(SmsSender::class)->repair($repair, 'repair.submitted');
+        app(MailSender::class)->repair($repair, 'repair.submitted');
 
         return response()->json((new RepairRequestResource($repair->load('issues')))->resolve(), 201);
     }

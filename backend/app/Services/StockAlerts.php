@@ -4,12 +4,13 @@ namespace App\Services;
 
 use App\Models\Product;
 use App\Models\StockAlert;
+use App\Services\Mail\MailSender;
 use App\Services\Sms\SmsSender;
 
 /** «موجود شد خبرم کن»: بعد از هر ذخیره‌ی کالا، منتظرانِ مدلی که حالا موجود است خبر می‌گیرند */
 class StockAlerts
 {
-    public function __construct(private SmsSender $sms) {}
+    public function __construct(private SmsSender $sms, private MailSender $mail) {}
 
     public function notifyAvailable(Product $product): void
     {
@@ -30,6 +31,7 @@ class StockAlerts
                 }
                 $alert->update(['notified_at' => now()]);
                 $this->sms->backInStock($alert, $product);
+                $this->mail->backInStock($alert, $product);
             });
     }
 

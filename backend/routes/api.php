@@ -32,6 +32,10 @@ Route::prefix('v1')->group(function () {
         Route::post('otp/verify', [AuthController::class, 'verifyOtp'])->middleware('throttle:login');
         Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login');
         Route::post('register', [AuthController::class, 'register'])->middleware('throttle:login');
+        // تأیید با خودِ توکن انجام می‌شود، پس ورود نمی‌خواهد
+        Route::post('email/verify', [AuthController::class, 'verifyEmail'])->middleware('throttle:login');
+        Route::post('email/resend', [AuthController::class, 'sendVerification'])
+            ->middleware(['auth:sanctum', 'throttle:lookup']);
         Route::post('password/forgot', [AuthController::class, 'forgotPassword'])->middleware('throttle:login');
         Route::post('password/reset', [AuthController::class, 'resetPassword'])->middleware('throttle:login');
         Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');

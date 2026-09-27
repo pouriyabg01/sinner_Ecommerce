@@ -6,7 +6,10 @@ use App\Models\Campaign;
 use App\Models\EmailMessage;
 use App\Models\NewsletterSubscriber;
 use App\Models\Order;
+use App\Models\Product;
+use App\Models\RepairRequest;
 use App\Models\SiteDocument;
+use App\Models\StockAlert;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -69,6 +72,37 @@ class MailSender
             'total' => number_format((int) $order->total),
             'tracking' => $order->tracking_code ?: 'به‌زودی اعلام می‌شود',
             'link' => $this->frontend('/profile/orders'),
+        ]);
+    }
+
+    public function repair(RepairRequest $repair, string $event): void
+    {
+        $repair->loadMissing('user');
+        $this->notify($event, $repair->user?->email, [
+            'name' => $repair->user?->full_name ?? '',
+            'code' => $repair->code,
+            'cost' => $repair->final_cost ? number_format((int) $repair->final_cost) : 'به‌زودی اعلام می‌شود',
+            'warranty' => (string) $repair->warranty_days,
+            'link' => $this->frontend('/profile/repairs'),
+        ]);
+    }
+
+    public function backInStock(StockAlert $alert, Product $product): void
+    {
+        $alert->loadMissing('user');
+        $this->notify('back_in_stock', $alert->user?->email, [
+            'name' => $alert->user?->full_name ?? '',
+            'product' => $product->title,
+            'link' => $this->frontend('/product/'.$product->slug),
+        ]);
+    }
+
+    public function verifyEmail(User $user, string $token, int $minutes): void
+    {
+        $this->notify('email.verify', $user->email, [
+            'name' => $user->full_name ?: $user->name,
+            'minutes' => (string) $minutes,
+            'link' => $this->frontend('/verify-email?token='.$token.'&email='.urlencode($user->email)),
         ]);
     }
 

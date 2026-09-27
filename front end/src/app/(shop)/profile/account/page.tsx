@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import { z } from 'zod'
-import { Save, RotateCcw } from 'lucide-react'
+import { BadgeCheck, MailWarning, RotateCcw, Save } from 'lucide-react'
 import type { User } from '@/types/user'
 import { ApiError } from '@/lib/api/client'
+import { authApi } from '@/lib/api/endpoints'
 import { useMe, useUpdateProfile } from '@/lib/api/queries'
 import { useSession } from '@/store/session'
 import { Button } from '@/components/ui/button'
@@ -148,6 +149,8 @@ export default function AccountPage() {
             />
           </Field>
         </div>
+
+        <EmailVerification user={user} onSent={() => refetch()} />
       </section>
 
       {/* فرم و دکمه‌ی جدای خودش را دارد؛ «ذخیره تغییرات» بالا فقط اطلاعات بالا را ذخیره می‌کند */}
@@ -162,6 +165,59 @@ export default function AccountPage() {
         </div>
         <PasswordForm key={user.id} needsCurrent={user.hasPassword !== false} />
       </section>
+    </div>
+  )
+}
+
+/**
+ * وضعیت تأیید ایمیل.
+ *
+ * تأیید هیچ‌جا را قفل نمی‌کند؛ فقط تا انجام نشود خبر سفارش و تعمیر با ایمیل
+ * نمی‌رود. پس به‌جای هشدار قرمز، یک یادآوری آرام است.
+ */
+function EmailVerification({ user, onSent }: { user: User; onSent: () => void }) {
+  const [busy, setBusy] = useState(false)
+
+  if (!user.email) return null
+
+  if (user.emailVerified) {
+    return (
+      <p className="mt-4 flex items-center gap-2 rounded-xl bg-emerald-500/10 px-3.5 py-2.5 text-[12.5px] text-emerald-600 dark:text-emerald-400">
+        <BadgeCheck className="size-4 shrink-0" />
+        ایمیل شما تأیید شده است.
+      </p>
+    )
+  }
+
+  return (
+    <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl bg-amber-500/10 px-3.5 py-2.5 text-[12.5px] leading-6 text-amber-700 dark:text-amber-300">
+      <MailWarning className="size-4 shrink-0" />
+      <span className="flex-1">
+        ایمیلتان هنوز تأیید نشده — تا تأیید نکنید، خبر سفارش‌ها و تعمیرها به این نشانی نمی‌رسد.
+      </span>
+      <Button
+        size="sm"
+        variant="soft"
+        loading={busy}
+        onClick={async () => {
+          setBusy(true)
+          try {
+            const result = await authApi.resendVerification()
+            toast.success(
+              result.alreadyVerified
+                ? 'این ایمیل از قبل تأیید شده است'
+                : 'نامه‌ی تأیید فرستاده شد؛ صندوق ورودی‌تان را ببینید',
+            )
+            onSent()
+          } catch (error) {
+            toast.error((error as Error).message)
+          } finally {
+            setBusy(false)
+          }
+        }}
+      >
+        فرستادن نامه‌ی تأیید
+      </Button>
     </div>
   )
 }
