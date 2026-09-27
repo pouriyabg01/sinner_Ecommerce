@@ -16,8 +16,9 @@ import {
 } from './endpoints'
 import type { Product, ProductQuery } from '@/types/catalog'
 import { MOCKING_ENABLED } from './config'
-import { mailApi, newsletterApi, smsApi, stockAlertApi } from './endpoints'
+import { mailApi, mediaApi, newsletterApi, smsApi, stockAlertApi } from './endpoints'
 import type { StockAlert } from '@/types/catalog'
+import type { MediaSort } from '@/types/media'
 import { useSession } from '@/store/session'
 import type { DeviceKind } from '@/types/repair'
 
@@ -43,6 +44,7 @@ export const qk = {
   adminOrders: ['admin', 'orders'] as const,
   smsSettings: ['admin', 'sms'] as const,
   smsMessages: ['admin', 'sms', 'messages'] as const,
+  media: (params: { search?: string; sort?: string; page?: number }) => ['admin', 'media', params] as const,
   mailSettings: ['admin', 'mail'] as const,
   mailMessages: ['admin', 'mail', 'messages'] as const,
   subscribers: ['admin', 'newsletter', 'subscribers'] as const,
@@ -493,6 +495,21 @@ export function useSendTestSms() {
     onSettled: () => qc.invalidateQueries({ queryKey: qk.smsMessages }),
   })
 }
+
+/* ------------------------------ کتابخانه‌ی تصویر ----------------------------- */
+export const useMedia = (params: { search?: string; sort?: MediaSort; page?: number }) =>
+  useQuery({
+    queryKey: qk.media(params),
+    queryFn: () => mediaApi.list(params),
+    // فهرست با هر تایپ در جست‌وجو عوض می‌شود؛ نگه‌داشتن نتیجه‌ی قبلی از پرش چیدمان جلوگیری می‌کند
+    placeholderData: (previous) => previous,
+  })
+
+const MEDIA_KEY = [['admin', 'media']]
+
+export const useUploadMedia = () => useAdminMutation(mediaApi.upload, MEDIA_KEY)
+export const useUpdateMedia = () => useAdminMutation(mediaApi.update, MEDIA_KEY)
+export const useDeleteMedia = () => useAdminMutation(mediaApi.remove, MEDIA_KEY)
 
 /* ----------------------------------- ایمیل ---------------------------------- */
 export const useMailSettings = () => useQuery({ queryKey: qk.mailSettings, queryFn: mailApi.settings })

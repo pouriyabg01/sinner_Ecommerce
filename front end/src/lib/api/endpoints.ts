@@ -1,4 +1,5 @@
 import type { MailLogEntry, MailSettings, MailSettingsInput } from '@/types/mail'
+import type { MediaItem, MediaMeta, MediaPage, MediaSort } from '@/types/media'
 import type { Campaign, CampaignInput, SubscriberList } from '@/types/newsletter'
 import type { SmsLogEntry, SmsSettings, SmsSettingsInput } from '@/types/sms'
 import type { StockAlert } from '@/types/catalog'
@@ -460,4 +461,21 @@ export const newsletterApi = {
     }),
   sendCampaign: (id: string) =>
     apiFetch<Campaign>(`/admin/newsletter/campaigns/${id}/send`, { method: 'POST' }),
+}
+
+/* ------------------------------ کتابخانه‌ی تصویر ----------------------------- */
+export const mediaApi = {
+  list: (params: { search?: string; sort?: MediaSort; page?: number }) =>
+    apiFetch<MediaPage>('/admin/media', { params }),
+  upload: async (file: File) => {
+    const form = new FormData()
+    form.append('file', file)
+
+    return apiFetch<MediaItem>('/admin/media', { method: 'POST', body: form })
+  },
+  update: ({ id, ...body }: MediaMeta & { id: string }) =>
+    apiFetch<MediaItem>(`/admin/media/${id}`, { method: 'PATCH', body }),
+  /** `force` فقط وقتی لازم است که تصویر جایی استفاده شده و مدیر باز هم بخواهد */
+  remove: ({ id, force }: { id: string; force?: boolean }) =>
+    apiFetch<{ ok: true }>(`/admin/media/${id}`, { method: 'DELETE', params: { force } }),
 }

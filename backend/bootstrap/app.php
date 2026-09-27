@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\EnsureAdmin;
+use App\Http\Middleware\EnsurePermission;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -19,10 +21,13 @@ return Application::configure(basePath: dirname(__DIR__))
          * اختیاری) null می‌شد و فرم پنل بار بعد دیگر اعتبارسنجی نمی‌شد.
          */
         $middleware->convertEmptyStringsToNull(except: [
-            fn (\Illuminate\Http\Request $request) => $request->is('api/v1/cms/*'),
+            fn (Request $request) => $request->is('api/v1/cms/*'),
         ]);
 
-        $middleware->alias(['permission' => \App\Http\Middleware\EnsurePermission::class]);
+        $middleware->alias([
+            'permission' => EnsurePermission::class,
+            'admin' => EnsureAdmin::class,
+        ]);
 
         // این یک API است و صفحه‌ی ورود ندارد؛ مهمانِ احراز نشده باید ۴۰۱ بگیرد،
         // نه ریدایرکت به روتی که اصلاً وجود ندارد.

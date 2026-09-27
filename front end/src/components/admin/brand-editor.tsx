@@ -157,6 +157,7 @@ export function BrandEditor() {
           <div className="space-y-2">
             <SingleImageField
               label="تصویر نشان"
+              advice={{ width: 512, height: 512, note: 'مربع و ترجیحاً با پس‌زمینه‌ی شفاف.' }}
               hint="مربع و ترجیحاً PNG یا SVG با پس‌زمینه‌ی شفاف. خالی بگذارید تا نشان پیش‌فرض بماند."
               value={draft.brand.mark}
               onChange={(mark) => patchBrand({ mark })}
@@ -172,6 +173,7 @@ export function BrandEditor() {
           <div className="space-y-2">
             <SingleImageField
               label="آیکون تب مرورگر"
+              advice={{ width: 256, height: 256, note: 'مرورگر آن را خیلی کوچک نشان می‌دهد، پس ساده باشد.' }}
               hint="مرورگر آن را در ۱۶ تا ۳۲ پیکسل نشان می‌دهد، پس تصویر ساده انتخاب کنید. خالی یعنی همان نشان پیش‌فرض."
               value={draft.brand.favicon}
               onChange={(favicon) => patchBrand({ favicon })}

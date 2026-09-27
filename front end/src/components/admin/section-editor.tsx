@@ -115,6 +115,7 @@ export function SectionEditor({ section, onChange }: { section: Section; onChang
                   value={slide.image}
                   onChange={(image) => patchSlide(slide.id, { image })}
                   label="تصویر لپ‌تاپ و دسکتاپ"
+                  advice={{ width: 2100, height: 900, note: 'قاب عریض ۲۱ به ۹.' }}
                   hint="قاب عریض ۲۱ به ۹؛ مثلاً ۲۱۰۰ در ۹۰۰ پیکسل. حداکثر ۲ مگابایت."
                   error={checkField(imageSourceSchema, slide.image)}
                 />
@@ -122,6 +123,7 @@ export function SectionEditor({ section, onChange }: { section: Section; onChang
                   value={slide.mobileImage ?? ''}
                   onChange={(mobileImage) => patchSlide(slide.id, { mobileImage })}
                   label="تصویر گوشی (اختیاری)"
+                  advice={{ width: 1080, height: 1080, note: 'قاب تقریباً مربع.' }}
                   hint="قاب تقریباً مربع؛ مثلاً ۱۰۸۰ در ۱۰۸۰ پیکسل. اگر خالی بماند، در گوشی همان تصویر لپ‌تاپ با برش دو طرف نمایش داده می‌شود."
                   error={checkField(imageSourceSchema, slide.mobileImage ?? '')}
                 />
@@ -363,6 +365,7 @@ export function SectionEditor({ section, onChange }: { section: Section; onChang
                   <SingleImageField
                     value={banner.image}
                     label="تصویر بنر"
+                    advice={{ width: 1200, height: 600, note: 'قاب دو به یک.' }}
                     error={checkField(imageSourceSchema, banner.image)}
                     onChange={(image) => patchBanner(banner.id, { image })}
                   />
@@ -442,6 +445,7 @@ export function SectionEditor({ section, onChange }: { section: Section; onChang
           <SingleImageField
             value={props.image}
             label="تصویر بخش"
+            advice={{ width: 1200, height: 800, note: 'قاب سه به دو.' }}
             error={checkField(imageSourceSchema, props.image)}
             onChange={(image) => onChange({ ...props, image })}
           />

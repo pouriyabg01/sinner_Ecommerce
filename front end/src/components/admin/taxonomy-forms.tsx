@@ -279,6 +279,7 @@ export function BrandDrawer({
 
         <SingleImageField
           label="لوگو"
+          advice={{ width: 400, height: 200, note: 'در نوار برندها کوچک دیده می‌شود.' }}
           value={draft.logo}
           error={form.errors.logo}
           onChange={(logo) => update({ logo })}

@@ -2,7 +2,9 @@
 
 import { useRef, useState } from 'react'
 import Image from 'next/image'
-import { ImagePlus, Upload, X } from 'lucide-react'
+import { ImageIcon, ImagePlus, Upload, X } from 'lucide-react'
+import type { MediaAdvice } from '@/types/media'
+import { MediaPicker } from '@/components/admin/media-library'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/toast'
@@ -36,15 +38,18 @@ export function ImageField({
   value,
   onChange,
   label = 'تصاویر',
-  hint = 'اولین تصویر به‌عنوان کاور کالا استفاده می‌شود. می‌توانید فایل آپلود کنید یا مسیر/لینک تصویر را وارد کنید.',
+  hint = 'اولین تصویر به‌عنوان کاور کالا استفاده می‌شود. از کتابخانه انتخاب کنید، فایل آپلود کنید یا لینک بدهید.',
+  advice = { width: 1200, height: 1200, note: 'مربع بهتر است؛ کارت‌های کالا تصویر را مربع می‌برند.' },
 }: {
   value: string[]
   onChange: (images: string[]) => void
   label?: string
   hint?: string
+  advice?: MediaAdvice
 }) {
   const [url, setUrl] = useState('')
   const [urlError, setUrlError] = useState<string>()
+  const [picking, setPicking] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   const addUrl = () => {
@@ -155,11 +160,24 @@ export function ImageField({
           <ImagePlus className="size-4" />
           افزودن
         </Button>
-        <Button type="button" variant="soft" size="sm" onClick={() => fileRef.current?.click()}>
+        <Button type="button" variant="soft" size="sm" onClick={() => setPicking(true)}>
+          <ImageIcon className="size-4" />
+          کتابخانه
+        </Button>
+        <Button type="button" variant="ghost" size="sm" onClick={() => fileRef.current?.click()}>
           <Upload className="size-4" />
-          آپلود
+          آپلود سریع
         </Button>
       </div>
+
+      <MediaPicker
+        open={picking}
+        multiple
+        advice={advice}
+        onClose={() => setPicking(false)}
+        // تکراری‌ها کنار گذاشته می‌شوند، وگرنه یک تصویر دو بار در گالری کالا می‌نشست
+        onPick={(picked) => onChange([...value, ...picked.filter((src) => !value.includes(src))])}
+      />
 
       <input
         ref={fileRef}
@@ -191,9 +209,10 @@ export function SingleImageField({
   value,
   onChange,
   label = 'تصویر',
-  hint = 'فایل را بکشید و اینجا رها کنید، آپلود کنید، یا مسیر/لینک تصویر را بنویسید. حداکثر ۲ مگابایت.',
+  hint = 'از کتابخانه انتخاب کنید، فایل را اینجا رها کنید، یا مسیر/لینک تصویر را بنویسید. حداکثر ۲ مگابایت.',
   error,
   placeholder = '/img/… یا https://…',
+  advice,
 }: {
   value: string
   onChange: (src: string) => void
@@ -201,9 +220,11 @@ export function SingleImageField({
   hint?: string
   error?: string
   placeholder?: string
+  advice?: MediaAdvice
 }) {
   const fileRef = useRef<HTMLInputElement>(null)
   const [dragging, setDragging] = useState(false)
+  const [picking, setPicking] = useState(false)
   const uploaded = value.startsWith('data:')
 
   const pick = async (files: FileList | null) => {
@@ -254,10 +275,14 @@ export function SingleImageField({
         </button>
 
         <div className="flex min-w-0 flex-1 flex-col gap-2">
-          <div className="flex gap-2">
-            <Button type="button" variant="soft" size="sm" onClick={() => fileRef.current?.click()}>
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" variant="soft" size="sm" onClick={() => setPicking(true)}>
+              <ImageIcon className="size-4" />
+              کتابخانه
+            </Button>
+            <Button type="button" variant="ghost" size="sm" onClick={() => fileRef.current?.click()}>
               <Upload className="size-4" />
-              {value ? 'تغییر تصویر' : 'آپلود تصویر'}
+              {value ? 'تغییر' : 'آپلود'}
             </Button>
             {value && (
               <Button
@@ -291,6 +316,13 @@ export function SingleImageField({
       </div>
 
       <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => void pick(e.target.files)} />
+
+      <MediaPicker
+        open={picking}
+        advice={advice}
+        onClose={() => setPicking(false)}
+        onPick={([src]) => onChange(src)}
+      />
 
       {error ? (
         <span role="alert" className="block text-xs text-red-500">

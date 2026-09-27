@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\CatalogController;
 use App\Http\Controllers\Api\CmsController;
 use App\Http\Controllers\Api\MailController;
 use App\Http\Controllers\Api\MeController;
+use App\Http\Controllers\Api\MediaController;
 use App\Http\Controllers\Api\NewsletterController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PaymentController;
@@ -116,6 +117,17 @@ Route::prefix('v1')->group(function () {
 
     /* ---------------------------------- پنل ---------------------------------- */
     Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
+        /*
+         * کتابخانه‌ی تصویرها برای هر ادمینی باز است، نه پشت یک دسترسیِ ریز:
+         * ویرایش کالا، برند و صفحه‌ی اصلی همه ناچار تصویر می‌خواهند.
+         */
+        Route::middleware('admin')->prefix('media')->group(function () {
+            Route::get('/', [MediaController::class, 'index']);
+            Route::post('/', [MediaController::class, 'store']);
+            Route::patch('{medium}', [MediaController::class, 'update'])->whereNumber('medium');
+            Route::delete('{medium}', [MediaController::class, 'destroy'])->whereNumber('medium');
+        });
+
         Route::get('stats', StatsController::class)->middleware('permission:dashboard.view');
 
         Route::middleware('permission:product.manage')->group(function () {

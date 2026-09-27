@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Services\Media\MediaLibrary;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -14,13 +15,14 @@ use Illuminate\Http\Request;
  */
 class UploadController extends Controller
 {
-    public function store(Request $request): JsonResponse
+    public function store(Request $request, MediaLibrary $library): JsonResponse
     {
         $request->validate([
             'file' => ['required', 'file', 'image', 'max:2048'],
         ]);
 
-        $path = $request->file('file')->store('uploads', 'public');
+        // از کتابخانه رد می‌شود تا هر آپلودی، از هر جای پنل، در گالری هم ثبت شود
+        $path = $library->store($request->file('file'), $request->user())->path;
 
         /*
          * نشانی نسبی و نه کامل. `asset()` نشانیِ همین لحظه را داخل پایگاه داده
