@@ -41,6 +41,49 @@ export function useFooterLinks() {
   }
 }
 
+/**
+ * نشان اعتماد الکترونیکی.
+ *
+ * عمداً با تگ ساده‌ی تصویر نوشته شده و نه با بهینه‌ساز تصویر نکست: بهینه‌ساز،
+ * تصویر را سمت سرور می‌گیرد و هدر ارجاع مرورگر را با خود نمی‌برد، در حالی که
+ * سرورِ نشان دقیقاً از همین هدر می‌فهمد تصویر روی کدام دامنه نشسته است. با
+ * بهینه‌ساز، به‌جای نشان، تصویر خطا برمی‌گشت.
+ *
+ * `code` و `referrerpolicy` از راه spread داده می‌شوند: سامانه هنگام بررسی دنبال
+ * همین نام‌ها در متن خام صفحه می‌گردد، و ری‌اکت نام کملی را با حرف بزرگ چاپ می‌کند.
+ * برای مرورگر فرقی ندارد، برای یک بررسیِ متنی ممکن است داشته باشد.
+ */
+const SEAL_ID = '7899252'
+const SEAL_CODE = '1OQmy8ahl2OtwIv4ie9gdR2akSNEdL3B'
+
+function EnamadSeal() {
+  const rawAttrs: Record<string, string> = { referrerpolicy: 'origin' }
+  const imgAttrs: Record<string, string> = { ...rawAttrs, code: SEAL_CODE }
+
+  return (
+    <a
+      {...rawAttrs}
+      href={`https://trustseal.enamad.ir/?id=${SEAL_ID}&Code=${SEAL_CODE}`}
+      target="_blank"
+      rel="noreferrer"
+      /*
+       * پس‌زمینه‌ی روشنِ ثابت، چون خودِ نشان روشن است و روی پوسته‌ی تیره وصله
+       * به نظر می‌رسید. رنگ نوشته هم تیرهِ ثابت است: اگر سرورِ نشان در دسترس
+       * نباشد، چیزی که دیده می‌شود متن جایگزین است و با رنگِ پوسته‌ی تیره روی
+       * این کادر سفید ناپیدا می‌شد.
+       */
+      className="inline-block w-fit rounded-xl bg-white p-2 text-[11px] leading-5 text-ink-900 transition-shadow hover:shadow-lift"
+    >
+      <img
+        {...imgAttrs}
+        src={`https://trustseal.enamad.ir/logo.aspx?id=${SEAL_ID}&Code=${SEAL_CODE}`}
+        alt="نماد اعتماد الکترونیکی"
+        className="h-auto w-20 cursor-pointer"
+      />
+    </a>
+  )
+}
+
 export function Footer() {
   const { data: settings } = useSiteSettings()
   const footer = settings?.footer
@@ -88,6 +131,7 @@ export function Footer() {
                 <span dir="ltr">{settings?.email}</span>
               </li>
             </ul>
+            <EnamadSeal />
           </div>
 
           {footer?.columns.map((col) => {
