@@ -34,9 +34,10 @@ const issueSchema = z
     hint: optionalText(160, 'توضیح کوتاه'),
     icon: z.string(),
     deviceKinds: z.array(z.string()).min(1, { message: 'حداقل یک نوع دستگاه انتخاب کنید' }),
-    estimatedMin: amountSchema({ label: 'حداقل هزینه', min: 0 }),
-    estimatedMax: amountSchema({ label: 'حداکثر هزینه', min: 0 }),
-    estimatedDays: amountSchema({ label: 'زمان تقریبی', min: 1, max: 60 }),
+    // هر سه دلخواه‌اند؛ خالی که بمانند، در سایت اصلاً نمایش داده نمی‌شوند
+    estimatedMin: amountSchema({ label: 'حداقل هزینه', min: 0, required: false }),
+    estimatedMax: amountSchema({ label: 'حداکثر هزینه', min: 0, required: false }),
+    estimatedDays: amountSchema({ label: 'زمان تقریبی', min: 1, max: 60, required: false }),
   })
   .refine((v) => v.estimatedMax === null || v.estimatedMin === null || v.estimatedMax >= v.estimatedMin, {
     message: 'حداکثر هزینه نباید کمتر از حداقل باشد',
@@ -60,7 +61,7 @@ const EMPTY: Draft = {
   deviceKinds: ['mobile'],
   estimatedMin: '',
   estimatedMax: '',
-  estimatedDays: '۱',
+  estimatedDays: '',
 }
 
 const toDraft = (issue: CommonIssue): Draft => ({
@@ -68,9 +69,10 @@ const toDraft = (issue: CommonIssue): Draft => ({
   hint: issue.hint,
   icon: issue.icon,
   deviceKinds: [...issue.deviceKinds],
-  estimatedMin: String(issue.estimatedMin),
-  estimatedMax: String(issue.estimatedMax),
-  estimatedDays: String(issue.estimatedDays),
+  // صفر در پایگاه داده یعنی «تعیین نشده»، پس کادر خالی باز می‌شود نه با ۰
+  estimatedMin: issue.estimatedMin ? String(issue.estimatedMin) : '',
+  estimatedMax: issue.estimatedMax ? String(issue.estimatedMax) : '',
+  estimatedDays: issue.estimatedDays ? String(issue.estimatedDays) : '',
 })
 
 /**
@@ -123,9 +125,9 @@ export function RepairIssuesEditor() {
       hint: clean.hint,
       icon: clean.icon,
       deviceKinds: clean.deviceKinds as DeviceKind[],
-      estimatedMin: clean.estimatedMin!,
-      estimatedMax: clean.estimatedMax!,
-      estimatedDays: clean.estimatedDays!,
+      estimatedMin: clean.estimatedMin ?? 0,
+      estimatedMax: clean.estimatedMax ?? 0,
+      estimatedDays: clean.estimatedDays ?? 0,
     }
 
     const done = (message: string) => () => {
@@ -205,10 +207,14 @@ export function RepairIssuesEditor() {
                     </span>
                   </td>
                   <td className="num whitespace-nowrap p-3.5">
-                    {formatPrice(issue.estimatedMin, false)} تا {formatPrice(issue.estimatedMax, false)}
+                    {issue.estimatedMax ? (
+                      `${formatPrice(issue.estimatedMin, false)} تا ${formatPrice(issue.estimatedMax, false)}`
+                    ) : (
+                      <span className="text-muted">—</span>
+                    )}
                   </td>
                   <td className="num whitespace-nowrap p-3.5 text-muted">
-                    {toFaDigits(issue.estimatedDays)} روز
+                    {issue.estimatedDays ? `${toFaDigits(issue.estimatedDays)} روز` : '—'}
                   </td>
                   <td className="p-3.5">
                     <div className="flex justify-end gap-1">
@@ -312,15 +318,24 @@ export function RepairIssuesEditor() {
             )}
           </div>
 
+          {/*
+            هزینه و زمان دلخواه‌اند. خالی که بمانند، در سایت نه بازه‌ی قیمت این
+            مشکل دیده می‌شود و نه در برآورد اولیه حساب می‌شود — همان حالتی که
+            هزینه‌اش پیش از دیدن دستگاه معلوم نیست.
+          */}
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="حداقل هزینه (تومان)" required error={form.errors.estimatedMin}>
+            <Field
+              label="حداقل هزینه (تومان)"
+              hint="دلخواه — خالی بگذارید تا قیمتی نمایش داده نشود"
+              error={form.errors.estimatedMin}
+            >
               <PriceInput
                 value={draft.estimatedMin}
                 onChange={(estimatedMin) => update({ estimatedMin })}
                 invalid={Boolean(form.errors.estimatedMin)}
               />
             </Field>
-            <Field label="حداکثر هزینه (تومان)" required error={form.errors.estimatedMax}>
+            <Field label="حداکثر هزینه (تومان)" hint="دلخواه" error={form.errors.estimatedMax}>
               <PriceInput
                 value={draft.estimatedMax}
                 onChange={(estimatedMax) => update({ estimatedMax })}
@@ -329,7 +344,11 @@ export function RepairIssuesEditor() {
             </Field>
           </div>
 
-          <Field label="زمان تقریبی (روز)" required error={form.errors.estimatedDays}>
+          <Field
+            label="زمان تقریبی (روز)"
+            hint="دلخواه — خالی بگذارید تا زمانی اعلام نشود"
+            error={form.errors.estimatedDays}
+          >
             <Input
               value={draft.estimatedDays}
               onChange={(e) => update({ estimatedDays: e.target.value })}

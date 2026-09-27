@@ -307,9 +307,12 @@ export function RepairWizard({ onDone }: { onDone: (repair: RepairRequest) => vo
                             <span className="min-w-0 flex-1">
                               <span className="block text-[13px] font-bold">{issue.title}</span>
                               <span className="mt-1 block text-[11px] leading-5 text-muted">{issue.hint}</span>
-                              <span className="num mt-1.5 block text-[11px] text-brand-600 dark:text-brand-400">
-                                {formatPrice(issue.estimatedMin, false)} تا {formatPrice(issue.estimatedMax)}
-                              </span>
+                              {/* هزینه‌ی این مشکل دلخواه است؛ تعیین‌نشده یعنی چیزی نشان نده، نه «۰ تومان» */}
+                              {issue.estimatedMax > 0 && (
+                                <span className="num mt-1.5 block text-[11px] text-brand-600 dark:text-brand-400">
+                                  {formatPrice(issue.estimatedMin, false)} تا {formatPrice(issue.estimatedMax)}
+                                </span>
+                              )}
                             </span>
                           </button>
                         )
@@ -341,12 +344,20 @@ export function RepairWizard({ onDone }: { onDone: (repair: RepairRequest) => vo
                     className="rounded-2xl border border-brand-500/30 bg-brand-500/6 p-4"
                   >
                     <p className="text-[13px] font-bold text-brand-700 dark:text-brand-300">برآورد اولیه</p>
+                    {/*
+                      هزینه و زمان هر دو دلخواه‌اند. نبودنشان یعنی هنوز عددی برای
+                      گفتن نداریم، پس به‌جای «۰ تومان» و «۰ روز» چیزی گفته
+                      نمی‌شود — تنها جمله‌ای که همیشه می‌ماند، همان تضمینِ
+                      عیب‌یابی رایگان است.
+                    */}
                     <p className="num mt-1.5 text-sm">
-                      {formatPrice(estimate.min, false)} تا {formatPrice(estimate.max)}
+                      {estimate.max > 0
+                        ? `${formatPrice(estimate.min, false)} تا ${formatPrice(estimate.max)}`
+                        : 'هزینه پس از عیب‌یابی اعلام می‌شود'}
                     </p>
                     <p className="mt-1 text-[11px] text-muted">
-                      زمان تقریبی: {toFaDigits(estimate.days)} روز کاری — هزینه‌ی قطعی پس از عیب‌یابی رایگان اعلام
-                      می‌شود و بدون تأیید شما هیچ اقدامی انجام نمی‌شود.
+                      {estimate.days > 0 && `زمان تقریبی: ${toFaDigits(estimate.days)} روز کاری — `}
+                      هزینه‌ی قطعی پس از عیب‌یابی رایگان اعلام می‌شود و بدون تأیید شما هیچ اقدامی انجام نمی‌شود.
                     </p>
                   </motion.div>
                 )}
