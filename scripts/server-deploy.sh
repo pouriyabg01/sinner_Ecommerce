@@ -30,6 +30,16 @@ fi
 echo "== بالا آوردن =="
 docker compose up -d
 
+# تنظیمات nginx از بیرون سوار می‌شود و داکر فایلِ تکی را به همان گره‌ی قبلی
+# می‌چسباند؛ گیت که فایل را عوض می‌کند، کانتینر هنوز نسخه‌ی کهنه را می‌بیند و
+# reload هم کاری نمی‌کند. پس با عوض شدن تنظیمات، از نو ساخته می‌شود.
+case "$CHANGED" in
+  *"docker/nginx/"*)
+    echo "== ساخت دوباره‌ی nginx (تنظیماتش عوض شده) =="
+    docker compose up -d --force-recreate nginx
+    ;;
+esac
+
 echo "== وضعیت =="
 docker compose ps --format '{{.Name}} {{.Status}}'
 
