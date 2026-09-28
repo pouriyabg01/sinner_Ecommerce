@@ -55,8 +55,10 @@ services:
     restart: unless-stopped
     environment:
       # رندر سمت سرور داخل شبکه‌ی داکر انجام می‌شود و به آدرس عمومی دسترسی
-      # ندارد؛ برای همین از نام سرویس استفاده می‌کند.
-      INTERNAL_API_URL: http://nginx/api/v1
+      # ندارد؛ برای همین از نام سرویس استفاده می‌کند. درگاه ۸۰۸۱ درِ داخلیِ
+      # nginx است: منتشر نشده و برخلاف درگاه ۸۰ به https هدایت نمی‌کند، که
+      # گواهی‌اش برای دامنه است نه برای نام سرویس.
+      INTERNAL_API_URL: http://nginx:8081/api/v1
     depends_on:
       - backend
     expose:
