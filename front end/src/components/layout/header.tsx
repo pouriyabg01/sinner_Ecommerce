@@ -249,6 +249,12 @@ export function Header() {
 /** سقف سطرهای هر ستون در تابلوی دسته‌ها؛ بیشتر که شد، ستون بعدی ساخته می‌شود */
 const COLUMN_LIMIT = 15
 
+/** تو رفتگی زیرمجموعه‌ها، درست زیر عنوانِ مادر (پهنای نشان به‌علاوه‌ی فاصله‌اش) */
+const HEAD_INDENT = 14
+
+/** گروهِ ته کار برای دسته‌هایی که خودشان شاخه‌ای ندارند */
+const OTHER_KEY = 'other'
+
 /** یک خانه‌ی منو؛ هر خانه خودش می‌تواند زیرمجموعه داشته باشد، در هر عمقی */
 interface NavEntry {
   href: string
@@ -363,19 +369,30 @@ function NavItem({ item, open, onEnter }: { item: NavEntry; open: boolean; onEnt
  * بلندتر نمی‌شود.
  */
 function MegaPanel({ item, onNavigate }: { item: NavEntry; onNavigate: () => void }) {
-  const groups: MenuGroup<NavLink>[] = item.children.map((child) => ({
-    key: child.href,
-    head: { entry: child, depth: 0 },
-    continued: false,
-    items: flattenEntries(child.children),
-  }))
-
   /*
-   * دسته‌ای که زیرمجموعه‌هایش خودشان شاخه ندارند، گروهِ بی‌لینک می‌سازد؛ آن‌وقت
-   * تابلو یک فهرست ساده‌ی ستون‌بندی‌شده است و عنوان‌های درشت و فاصله‌های گروهی
-   * فقط شلوغش می‌کردند.
+   * هر گروه یک مادر است و زیرش شاخه‌اش. دسته‌های بی‌شاخه گروه نمی‌سازند —
+   * وگرنه سرِ ستون‌ها یک لینک تنها می‌افتاد — و همه با هم در «سایر» ته کار
+   * جمع می‌شوند، بعد از مادرها.
    */
-  const plain = groups.every((group) => group.items.length === 0)
+  const groups: MenuGroup<NavLink>[] = item.children
+    .filter((child) => child.children.length > 0)
+    .map((child) => ({
+      key: child.href,
+      head: { entry: child, depth: 0 },
+      continued: false,
+      items: flattenEntries(child.children),
+    }))
+
+  const loose = item.children.filter((child) => child.children.length === 0)
+  if (loose.length) {
+    groups.push({
+      key: OTHER_KEY,
+      head: { entry: { href: '', label: 'سایر', highlight: false, children: [] }, depth: 0 },
+      continued: false,
+      items: loose.map((entry) => ({ entry, depth: 0 })),
+    })
+  }
+
   const columns = packColumns(groups, COLUMN_LIMIT)
 
   return (
@@ -405,52 +422,58 @@ function MegaPanel({ item, onNavigate }: { item: NavEntry; onNavigate: () => voi
 
         <div className="flex flex-wrap gap-x-8 gap-y-6">
           {columns.map((column, index) => (
-            <div
-              key={column[0]?.key ?? index}
-              className={cn('w-45 shrink-0', plain ? 'space-y-0.5' : 'space-y-4')}
-            >
-              {column.map((group) => (
-                <div key={group.continued ? `${group.key}-more` : group.key}>
-                  <Link
-                    href={group.head.entry.href}
-                    onClick={onNavigate}
-                    className={cn(
-                      'flex items-center gap-1.5 rounded-lg text-[13px] transition-colors hover:text-brand-600 dark:hover:text-brand-400',
-                      plain
-                        ? 'py-1 text-muted'
-                        : group.head.entry.children.length
-                          ? 'font-bold text-foreground'
-                          : 'text-muted',
-                    )}
-                  >
-                    <BranchMark entry={group.head.entry} />
-                    <span className="truncate">{group.head.entry.label}</span>
+            /* خط جداکننده ته هر گروه، مرز شاخه‌ها را بدون خواندن عنوان‌ها نشان می‌دهد */
+            <div key={column[0]?.key ?? index} className="w-48 shrink-0 divide-y divide-border">
+              {column.map((group) => {
+                const head = group.head.entry
+                const title = (
+                  <>
+                    <BranchMark on />
+                    <span className="truncate">{head.label}</span>
                     {/* گروهی که بین دو ستون شکسته، عنوانش را دوباره می‌گیرد تا معلوم باشد زیرِ چیست */}
                     {group.continued && <span className="shrink-0 text-[11px] font-normal text-muted">ادامه</span>}
-                  </Link>
+                  </>
+                )
 
-                  {group.items.length > 0 && (
-                    <ul className="mt-2 space-y-1">
-                      {group.items.map((link) => (
-                        <li key={link.entry.href}>
-                          <Link
-                            href={link.entry.href}
-                            onClick={onNavigate}
-                            style={{ paddingInlineStart: link.depth * 10 }}
-                            className={cn(
-                              'flex items-center gap-1.5 rounded-lg py-0.5 text-[12.5px] transition-colors hover:text-brand-600 dark:hover:text-brand-400',
-                              link.entry.children.length ? 'font-semibold text-foreground' : 'text-muted',
-                            )}
-                          >
-                            <BranchMark entry={link.entry} />
-                            <span className="truncate">{link.entry.label}</span>
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              ))}
+                return (
+                  <div key={group.continued ? `${group.key}-more` : group.key} className="py-3 first:pt-0 last:pb-0">
+                    {/* «سایر» دسته‌ی واقعی نیست، پس لینک نمی‌شود */}
+                    {head.href ? (
+                      <Link
+                        href={head.href}
+                        onClick={onNavigate}
+                        className="flex items-center gap-1.5 rounded-lg text-[13px] font-bold text-foreground transition-colors hover:text-brand-600 dark:hover:text-brand-400"
+                      >
+                        {title}
+                      </Link>
+                    ) : (
+                      <span className="flex items-center gap-1.5 text-[13px] font-bold text-foreground">{title}</span>
+                    )}
+
+                    {group.items.length > 0 && (
+                      <ul className="mt-2 space-y-1">
+                        {group.items.map((link) => (
+                          <li key={link.entry.href}>
+                            <Link
+                              href={link.entry.href}
+                              onClick={onNavigate}
+                              /* هر پله تو رفتگی می‌گیرد تا زیرمجموعه زیرِ مادر خودش دیده شود */
+                              style={{ paddingInlineStart: HEAD_INDENT + link.depth * 12 }}
+                              className={cn(
+                                'flex items-center gap-1.5 rounded-lg py-0.5 text-[12.5px] transition-colors hover:text-brand-600 dark:hover:text-brand-400',
+                                link.entry.children.length ? 'font-semibold text-foreground' : 'text-muted',
+                              )}
+                            >
+                              <BranchMark on={link.entry.children.length > 0} />
+                              <span className="truncate">{link.entry.label}</span>
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )
+              })}
             </div>
           ))}
         </div>
@@ -465,10 +488,10 @@ function MegaPanel({ item, onNavigate }: { item: NavEntry; onNavigate: () => voi
  * برای دسته‌ی ته‌خط هم جای همان خط خالی می‌ماند، وگرنه عنوان‌های یک ستون
  * نسبت به هم جابه‌جا می‌شدند.
  */
-function BranchMark({ entry }: { entry: NavEntry }) {
+function BranchMark({ on }: { on: boolean }) {
   return (
     <span aria-hidden className="w-2 shrink-0 text-center text-blue-500 dark:text-blue-400">
-      {entry.children.length > 0 ? '—' : ''}
+      {on ? '—' : ''}
     </span>
   )
 }
@@ -497,7 +520,7 @@ function MobileNavItem({ item, depth = 0 }: { item: NavEntry; depth?: number }) 
           )}
         >
           {item.highlight && <Wrench className="size-4" />}
-          {depth > 0 && <BranchMark entry={item} />}
+          {depth > 0 && <BranchMark on={item.children.length > 0} />}
           {item.label}
         </Link>
         {hasChildren && (
