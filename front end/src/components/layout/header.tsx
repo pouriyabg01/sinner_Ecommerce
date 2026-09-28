@@ -414,19 +414,25 @@ function MegaPanel({ item, onNavigate }: { item: NavEntry; onNavigate: () => voi
             >
               {column.map((group) => {
                 const Icon = getIcon(group.head.entry.icon ?? '')
+                /*
+                 * دسته‌ای که خودش زیرمجموعه دارد سرِ شاخه است و پررنگ‌تر از
+                 * دسته‌ای دیده می‌شود که ته خط است — وگرنه در یک ستون، عنوانِ
+                 * یک شاخه و یک لینک ساده از هم فرقی نداشتند.
+                 */
+                const branch = group.head.entry.children.length > 0
                 return (
                   <div key={group.continued ? `${group.key}-more` : group.key}>
                     <Link
                       href={group.head.entry.href}
                       onClick={onNavigate}
                       className={cn(
-                        'flex items-center gap-2 rounded-lg text-[13px] transition-colors',
-                        plain
-                          ? 'py-1 text-muted hover:text-brand-600 dark:hover:text-brand-400'
-                          : 'font-bold text-foreground hover:text-brand-600 dark:hover:text-brand-400',
+                        'flex items-center gap-2 rounded-lg text-[13px] transition-colors hover:text-brand-600 dark:hover:text-brand-400',
+                        plain ? 'py-1 text-muted' : branch ? 'font-bold text-foreground' : 'text-muted',
                       )}
                     >
-                      {!plain && <Icon className="size-3.5 shrink-0 text-brand-500" />}
+                      {!plain && (
+                        <Icon className={cn('size-3.5 shrink-0', branch ? 'text-brand-500' : 'text-muted/50')} />
+                      )}
                       <span className="truncate">{group.head.entry.label}</span>
                       {/* گروهی که بین دو ستون شکسته، عنوانش را دوباره می‌گیرد تا معلوم باشد زیرِ چیست */}
                       {group.continued && <span className="shrink-0 text-[11px] font-normal text-muted">ادامه</span>}
@@ -434,18 +440,26 @@ function MegaPanel({ item, onNavigate }: { item: NavEntry; onNavigate: () => voi
 
                     {group.items.length > 0 && (
                       <ul className="mt-2 space-y-1">
-                        {group.items.map((link) => (
-                          <li key={link.entry.href}>
-                            <Link
-                              href={link.entry.href}
-                              onClick={onNavigate}
-                              style={{ paddingInlineStart: link.depth * 10 }}
-                              className="block truncate rounded-lg py-0.5 text-[12.5px] text-muted transition-colors hover:text-brand-600 dark:hover:text-brand-400"
-                            >
-                              {link.entry.label}
-                            </Link>
-                          </li>
-                        ))}
+                        {group.items.map((link) => {
+                          const hasBranch = link.entry.children.length > 0
+                          return (
+                            <li key={link.entry.href}>
+                              <Link
+                                href={link.entry.href}
+                                onClick={onNavigate}
+                                style={{ paddingInlineStart: link.depth * 10 }}
+                                className={cn(
+                                  'flex items-center gap-1.5 rounded-lg py-0.5 text-[12.5px] transition-colors hover:text-brand-600 dark:hover:text-brand-400',
+                                  hasBranch ? 'font-semibold text-foreground' : 'text-muted',
+                                )}
+                              >
+                                {/* نشانِ کوچک، سرِ شاخه را در میان لینک‌های ساده پیدا می‌کند */}
+                                {hasBranch && <span className="size-1 shrink-0 rounded-full bg-brand-500" />}
+                                <span className="truncate">{link.entry.label}</span>
+                              </Link>
+                            </li>
+                          )
+                        })}
                       </ul>
                     )}
                   </div>
@@ -476,7 +490,9 @@ function MobileNavItem({ item, depth = 0 }: { item: NavEntry; depth?: number }) 
           href={item.href}
           className={cn(
             'flex flex-1 items-center gap-2 rounded-xl px-3 transition-colors',
-            depth === 0 ? 'py-3 text-sm font-medium' : 'py-2.5 text-[13px] text-muted hover:text-foreground',
+            depth === 0 ? 'py-3 text-sm font-medium' : 'py-2.5 text-[13px] hover:text-foreground',
+            // سرِ شاخه پررنگ‌تر از ته خط، همان‌طور که در تابلوی دسکتاپ
+            depth > 0 && (hasChildren ? 'font-semibold text-foreground' : 'text-muted'),
             item.highlight ? 'bg-ember-500/10 text-ember-600 dark:text-ember-400' : 'hover:bg-surface-2',
           )}
         >
