@@ -154,11 +154,9 @@ class ProductQuery
 
         $priceScope = (clone $base(['minPrice' => null, 'maxPrice' => null]))->get();
 
-        // زیردسته اگر کلید مشخصات خودش را نداشته باشد، از مادرش می‌گیرد
-        $filterCategory = $f['category'] ? Category::with('parent')->where('slug', $f['category'])->first() : null;
-        $specKeys = $filterCategory
-            ? (($filterCategory->spec_keys ?: null) ?? $filterCategory->parent?->spec_keys ?? [])
-            : [];
+        // زیردسته کلیدهای مادرهایش را هم به ارث می‌برد، در هر عمقی
+        $filterCategory = $f['category'] ? Category::where('slug', $f['category'])->first() : null;
+        $specKeys = $filterCategory ? Category::specKeyTrail($filterCategory) : [];
 
         $specFacets = [];
         foreach ($specKeys as $key) {

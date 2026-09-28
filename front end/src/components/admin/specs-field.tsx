@@ -1,10 +1,11 @@
 'use client'
 
-import { ListPlus, Plus, X } from 'lucide-react'
+import { Plus, X } from 'lucide-react'
 import type { CategorySlug, ProductSpec } from '@/types/catalog'
-import { getCategory, specLabel } from '@/mocks/data/taxonomy'
-import { Input, Select } from '@/components/ui/input'
+import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { useCategories } from '@/lib/api/queries'
+import { specKeysFor, specLabel } from '@/lib/specs'
 import { toEnDigits } from '@/lib/format'
 
 /** نسخه‌ی قابل‌ویرایش ProductSpec؛ score رشته می‌ماند تا تایپ کردن در input طبیعی باشد */
@@ -40,6 +41,14 @@ export function fromSpecDrafts(drafts: SpecDraft[]): ProductSpec[] {
     })
 }
 
+/**
+ * مشخصات فنی کالا، در دو بخش.
+ *
+ * بالا کلیدهایی که خودِ دسته‌بندی (و مادرهایش) تعریف کرده‌اند، آماده و
+ * ردیف‌به‌ردیف، تا فقط مقدارشان نوشته شود. پیش از این باید هر کلید را از یک
+ * فهرست بازشونده پیدا می‌کردی و آن فهرست هم از داده‌ی واقعی پر نمی‌شد، پس
+ * عملاً همیشه «سایر» می‌ماند.
+ */
 export function SpecsField({
   categorySlug,
   value,
@@ -51,11 +60,36 @@ export function SpecsField({
   onChange: (specs: SpecDraft[]) => void
   error?: string
 }) {
-  const categoryKeys = getCategory(categorySlug)?.specKeys ?? []
+  const { data: categories } = useCategories()
+  const keys = specKeysFor(categories ?? [], categorySlug)
 
-  // کلیدهای دسته + کلیدهایی که محصول از قبل دارد (مثلاً بعد از عوض شدن دسته)
-  // تا هیچ کلیدی از لیست انتخاب بیرون نیفتد و داده‌ی موجود گم نشود.
-  const options = [...categoryKeys, ...value.map((s) => s.key).filter((k) => k && !categoryKeys.includes(k))]
+  /** ردیف یک کلیدِ دسته را می‌سازد یا به‌روز می‌کند */
+  const setFor = (key: string, part: Partial<SpecDraft>) => {
+    const index = value.findIndex((spec) => spec.key === key)
+    if (index >= 0) return onChange(value.map((spec, i) => (i === index ? { ...spec, ...part } : spec)))
+
+    /*
+     * ردیف تازه سرِ جای خودش می‌نشیند نه ته فهرست، تا ترتیب مشخصاتِ ذخیره‌شده
+     * همان ترتیب کلیدهای دسته بماند — جدول صفحه‌ی کالا و ستون‌های مقایسه از
+     * همین ترتیب می‌آیند.
+     */
+    const order = keys.indexOf(key)
+    const at = value.findIndex((spec) => {
+      const other = keys.indexOf(spec.key)
+      return other === -1 || other > order
+    })
+
+    const row: SpecDraft = { key, label: specLabel(key), value: '', score: '', ...part }
+    const next = [...value]
+    if (at === -1) next.push(row)
+    else next.splice(at, 0, row)
+    onChange(next)
+  }
+
+  // هر چه کلیدِ این دسته نیست: مشخصه‌ی دستی، یا بازمانده‌ی دسته‌ی قبلیِ کالا
+  const extras = value
+    .map((spec, index) => ({ spec, index }))
+    .filter(({ spec }) => !keys.includes(spec.key))
 
   const patch = (index: number, part: Partial<SpecDraft>) =>
     onChange(value.map((spec, i) => (i === index ? { ...spec, ...part } : spec)))
@@ -64,86 +98,96 @@ export function SpecsField({
 
   const addRow = () => onChange([...value, { key: '', label: '', value: '', score: '' }])
 
-  const addCategoryKeys = () => {
-    const missing = categoryKeys.filter((key) => !value.some((s) => s.key === key))
-    onChange([...value, ...missing.map((key) => ({ key, label: specLabel(key), value: '', score: '' }))])
-  }
-
-  const missingCount = categoryKeys.filter((key) => !value.some((s) => s.key === key)).length
-
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       <span className="block text-[13px] font-medium">مشخصات فنی</span>
 
-      {value.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-border p-5 text-center text-xs text-muted">
-          هنوز مشخصه‌ای ثبت نشده.
-        </p>
+      {keys.length > 0 ? (
+        <div className="space-y-2 rounded-2xl border border-border bg-surface-2/40 p-3">
+          <p className="text-[11px] text-muted">
+            مشخصه‌های این دسته‌بندی. هرکدام را خالی بگذاری، برای این کالا ثبت نمی‌شود.
+          </p>
+          <ul className="space-y-2.5">
+            {keys.map((key) => {
+              const row = value.find((spec) => spec.key === key)
+              const label = specLabel(key)
+              return (
+                /* برچسب بالای کادر، نه کنارش: کلیدهای دسته‌ها عبارت‌های بلندی‌اند و در یک خط بریده می‌شدند */
+                <li key={key} className="space-y-1">
+                  <span className="block text-[12px] leading-5 text-muted">{label}</span>
+                  <div className="flex gap-2">
+                    <Input
+                      value={row?.value ?? ''}
+                      onChange={(e) => setFor(key, { value: e.target.value })}
+                      placeholder="مقدار"
+                      aria-label={label}
+                      className="h-9 flex-1 text-[12.5px]"
+                    />
+                    <Input
+                      value={row?.score ?? ''}
+                      onChange={(e) => setFor(key, { score: e.target.value })}
+                      placeholder="امتیاز"
+                      aria-label={`امتیاز عددی ${label}`}
+                      inputMode="numeric"
+                      className="num h-9 w-16 shrink-0 text-[12.5px]"
+                    />
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
       ) : (
+        <p className="rounded-2xl border border-dashed border-border p-4 text-center text-xs leading-6 text-muted">
+          {categorySlug
+            ? 'برای این دسته‌بندی کلید مشخصاتی تعریف نشده. در «دسته‌بندی و برند» کلیدها را برای دسته بنویس تا اینجا آماده بیایند.'
+            : 'اول دسته‌بندی کالا را انتخاب کن تا مشخصه‌های همان دسته اینجا بیایند.'}
+        </p>
+      )}
+
+      {extras.length > 0 && (
         <ul className="space-y-2">
-          {value.map((spec, i) => (
-            <li key={i} className="space-y-2 rounded-2xl border border-border bg-surface-2/40 p-3">
+          {extras.map(({ spec, index }) => (
+            <li key={index} className="space-y-2 rounded-2xl border border-border p-3">
               <div className="flex gap-2">
-                <Select
-                  value={options.includes(spec.key) ? spec.key : ''}
-                  onChange={(e) => {
-                    const key = e.target.value
-                    // برچسب فقط وقتی بازنویسی می‌شود که دست‌کاری نشده باشد
-                    const keepLabel = spec.label && spec.label !== specLabel(spec.key)
-                    patch(i, { key, label: keepLabel ? spec.label : key ? specLabel(key) : '' })
-                  }}
+                <Input
+                  value={spec.key}
+                  onChange={(e) => patch(index, { key: e.target.value })}
+                  placeholder="کلید"
                   aria-label="کلید مشخصه"
                   className="h-9 flex-1 text-[12.5px]"
-                >
-                  <option value="">سایر…</option>
-                  {options.map((key) => (
-                    <option key={key} value={key}>
-                      {specLabel(key)} ({key})
-                    </option>
-                  ))}
-                </Select>
-
+                />
                 <button
                   type="button"
                   aria-label="حذف مشخصه"
-                  onClick={() => removeAt(i)}
+                  onClick={() => removeAt(index)}
                   className="grid size-9 shrink-0 place-items-center rounded-xl border border-border text-muted transition-colors hover:border-red-400 hover:text-red-500"
                 >
                   <X className="size-4" />
                 </button>
               </div>
 
-              {!options.includes(spec.key) && (
-                <Input
-                  value={spec.key}
-                  onChange={(e) => patch(i, { key: e.target.value })}
-                  placeholder="کلید دلخواه (انگلیسی)"
-                  dir="ltr"
-                  className="h-9 text-[12.5px]"
-                />
-              )}
-
               <div className="flex gap-2">
                 <Input
                   value={spec.label}
-                  onChange={(e) => patch(i, { label: e.target.value })}
-                  placeholder="برچسب فارسی"
+                  onChange={(e) => patch(index, { label: e.target.value })}
+                  placeholder="برچسب نمایشی"
                   className="h-9 flex-1 text-[12.5px]"
                 />
                 <Input
                   value={spec.score}
-                  onChange={(e) => patch(i, { score: e.target.value })}
+                  onChange={(e) => patch(index, { score: e.target.value })}
                   placeholder="امتیاز"
                   aria-label="مقدار عددی برای رتبه‌بندی در مقایسه"
                   inputMode="numeric"
-                  className="num h-9 w-20 shrink-0 text-[12.5px]"
+                  className="num h-9 w-16 shrink-0 text-[12.5px]"
                 />
               </div>
 
               <Input
                 value={spec.value}
-                onChange={(e) => patch(i, { value: e.target.value })}
-                placeholder="مقدار — مثلاً «۸ گیگابایت»"
+                onChange={(e) => patch(index, { value: e.target.value })}
+                placeholder="مقدار"
                 className="h-9 text-[12.5px]"
               />
             </li>
@@ -151,25 +195,17 @@ export function SpecsField({
         </ul>
       )}
 
-      <div className="flex flex-wrap gap-2">
-        <Button type="button" variant="outline" size="sm" onClick={addRow}>
-          <Plus className="size-4" />
-          افزودن مشخصه
-        </Button>
-        {missingCount > 0 && (
-          <Button type="button" variant="soft" size="sm" onClick={addCategoryKeys}>
-            <ListPlus className="size-4" />
-            افزودن مشخصه‌های این دسته
-          </Button>
-        )}
-      </div>
+      <Button type="button" variant="outline" size="sm" onClick={addRow}>
+        <Plus className="size-4" />
+        مشخصه‌ی دلخواه
+      </Button>
 
       {error ? (
         <span className="block text-xs text-red-500">{error}</span>
       ) : (
-        <span className="block text-xs text-muted">
-          کلیدها از روی دسته‌بندی پیشنهاد می‌شوند و ستون‌های صفحه‌ی مقایسه از روی همین کلیدها ساخته می‌شود. «امتیاز»
-          اختیاری است و فقط برای رتبه‌بندی عددی در مقایسه به کار می‌رود.
+        <span className="block text-xs leading-6 text-muted">
+          کلیدهای بالا از دسته‌بندی کالا و مادرهایش می‌آیند و ستون‌های صفحه‌ی مقایسه از روی همین‌ها ساخته می‌شود.
+          «امتیاز» اختیاری است و فقط برای رتبه‌بندی عددی در مقایسه به کار می‌رود.
         </span>
       )}
     </div>

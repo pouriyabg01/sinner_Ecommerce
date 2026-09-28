@@ -61,37 +61,6 @@ export const tags: Tag[] = [
   { id: 'tg_warranty', title: 'گارانتی طلایی' },
 ]
 
-/**
- * برچسب فارسی پیش‌فرض هر کلید مشخصات فنی.
- * کلیدها در Category.specKeys تعریف می‌شوند و صفحه‌ی مقایسه ستون‌هایش را
- * از روی همین کلیدها می‌سازد؛ این نگاشت فقط برای پیش‌پرکردن فرم ادمین است
- * تا برچسب‌ها بین محصول‌های یک دسته یک‌دست بماند.
- */
-export const SPEC_LABELS: Record<string, string> = {
-  display: 'نمایشگر',
-  chipset: 'پردازنده',
-  cpu: 'پردازنده',
-  gpu: 'گرافیک',
-  ram: 'حافظه رم',
-  storage: 'حافظه',
-  battery: 'باتری',
-  camera: 'دوربین اصلی',
-  weight: 'وزن',
-  resolution: 'رزولوشن',
-  fps: 'نرخ فریم',
-  controllers: 'دسته همراه',
-  platform: 'پلتفرم',
-  genre: 'سبک',
-  players: 'تعداد بازیکن',
-  language: 'زبان',
-  type: 'نوع',
-  connection: 'اتصال',
-}
-
-export function specLabel(key: string) {
-  return SPEC_LABELS[key] ?? key
-}
-
 export function getCategory(slug: string) {
   return categories.find((c) => c.slug === slug)
 }

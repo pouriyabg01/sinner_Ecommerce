@@ -186,9 +186,14 @@ export const imageSourceSchema = z
 
 /**
  * ردیف‌های مشخصات فنی محصول.
+ *
  * ردیف کاملاً خالی نادیده گرفته می‌شود (کاربر افزوده و هنوز پر نکرده) ولی ردیف
- * نیمه‌پر، کلید بدفرم یا کلید تکراری باید قبل از ذخیره اصلاح شود؛ صفحه‌ی مقایسه
- * ستون‌هایش را از روی همین کلیدها می‌سازد و کلید تکراری آن را خراب می‌کند.
+ * نیمه‌پر یا کلید تکراری باید قبل از ذخیره اصلاح شود؛ صفحه‌ی مقایسه ستون‌هایش
+ * را از روی همین کلیدها می‌سازد و کلید تکراری آن را خراب می‌کند.
+ *
+ * کلید شکل ثابتی ندارد: ادمین کلیدها را در «دسته‌بندی و برند» خودش می‌نویسد و
+ * معمولاً فارسی‌اند. قانون قبلی فقط حروف کوچک انگلیسی می‌پذیرفت و عملاً هیچ
+ * مشخصه‌ای ذخیره نمی‌شد.
  */
 export const productSpecsSchema = z
   .array(z.object({ key: z.string(), label: z.string(), value: z.string(), score: z.string() }))
@@ -201,9 +206,7 @@ export const productSpecsSchema = z
       const at = `ردیف ${toFaDigits(i + 1)}`
 
       if (!key && !value) return
-      if (!key) return ctx.addIssue({ code: 'custom', message: `${at}: کلید مشخصه انتخاب نشده است` })
-      if (!/^[a-z][a-z0-9_-]*$/.test(key))
-        return ctx.addIssue({ code: 'custom', message: `${at}: کلید باید با حروف کوچک انگلیسی باشد — مانند ram` })
+      if (!key) return ctx.addIssue({ code: 'custom', message: `${at}: کلید مشخصه نوشته نشده است` })
       if (!value) return ctx.addIssue({ code: 'custom', message: `${at}: مقدار مشخصه خالی است` })
       if (seen.has(key)) return ctx.addIssue({ code: 'custom', message: `${at}: کلید «${key}» تکراری است` })
       seen.add(key)

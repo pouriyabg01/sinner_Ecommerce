@@ -28,6 +28,34 @@ class Category extends Model
     }
 
     /**
+     * کلیدهای مشخصات دسته، به‌همراه آنچه از مادرهایش به ارث می‌برد.
+     *
+     * کلیدها معمولاً بالای شاخه تعریف می‌شوند؛ بدون ارث، زیرشاخه‌ی عمیق در
+     * نوار فیلتر هیچ مشخصه‌ای نشان نمی‌داد. ترتیب از ریشه به پایین است —
+     * عمومی‌ها اول — و کلید تکراری یک بار می‌آید. همین ترتیب در فرم کالای
+     * پنل هم ساخته می‌شود تا دو جا یکی باشند.
+     */
+    public static function specKeyTrail(self $category): array
+    {
+        $keys = [];
+        $seen = [];
+
+        for ($node = $category; $node && ! in_array($node->id, $seen, true); $node = $node->parent) {
+            $seen[] = $node->id;
+            array_unshift($keys, $node->spec_keys ?? []);
+        }
+
+        $flat = [];
+        foreach (array_merge(...$keys ?: [[]]) as $key) {
+            if ($key !== '' && ! in_array($key, $flat, true)) {
+                $flat[] = $key;
+            }
+        }
+
+        return $flat;
+    }
+
+    /**
      * شناسه‌ی خودِ دسته به‌همراه همه‌ی زیرشاخه‌هایش، در هر عمقی.
      *
      * فیلتر فروشگاه روی دسته‌ی مادر باید کالای زیردسته‌ها را هم بیاورد، وگرنه

@@ -1,7 +1,8 @@
 import type { FacetBucket, Paginated, Product, ProductFacets, ProductQuery, SpecFacet } from '@/types/catalog'
 import { SPEC_PARAM_PREFIX } from '@/types/catalog'
 import { discountPercent } from '@/lib/format'
-import { brands as allBrands, specLabel } from './data/taxonomy'
+import { brands as allBrands } from './data/taxonomy'
+import { specLabel } from '@/lib/specs'
 
 export function filterProducts(all: Product[], q: ProductQuery): Product[] {
   let list = [...all]
