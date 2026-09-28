@@ -743,27 +743,24 @@ class AdminController extends Controller
     /**
      * قاعده‌های مادر شدن.
      *
-     * دو سطح بیشتر نداریم: منوی سایت یک کشوی بازشونده دارد، نه درخت تودرتو.
-     * دسته‌ای هم که خودش زیرمجموعه دارد نمی‌تواند زیر دسته‌ی دیگری برود، وگرنه
-     * سطح سوم از راه پشتی ساخته می‌شد.
+     * درخت سقف سطح ندارد — هر زیرمجموعه‌ای خودش می‌تواند مادر باشد و منوی سایت
+     * همین را ستون‌بندی می‌کند. تنها چیزی که ممنوع است حلقه است: دسته نه مادر
+     * خودش می‌شود و نه زیر یکی از زیرشاخه‌های خودش می‌رود، وگرنه آن شاخه از
+     * ریشه جدا می‌افتاد و هیچ‌جای سایت دیده نمی‌شد.
      */
     private function assertCategoryParent(?string $parentId, ?Category $category = null): void
     {
-        if (! $parentId) {
+        if (! $parentId || ! $category) {
             return;
         }
 
-        if ($category && (string) $category->id === (string) $parentId) {
+        if ((string) $category->id === (string) $parentId) {
             throw ValidationException::withMessages(['parentId' => 'یک دسته نمی‌تواند مادر خودش باشد']);
         }
 
-        $parent = Category::find($parentId);
-        if ($parent?->parent_id) {
-            throw ValidationException::withMessages(['parentId' => 'این دسته خودش زیرمجموعه است؛ فقط دسته‌های اصلی می‌توانند مادر باشند']);
-        }
-
-        if ($category && Category::where('parent_id', $category->id)->exists()) {
-            throw ValidationException::withMessages(['parentId' => 'این دسته خودش زیرمجموعه دارد و نمی‌تواند زیر دسته‌ی دیگری برود']);
+        $branch = array_map('strval', Category::branchIds($category));
+        if (in_array((string) $parentId, $branch, true)) {
+            throw ValidationException::withMessages(['parentId' => 'این دسته خودش زیرِ همین شاخه است و نمی‌تواند مادرش شود']);
         }
     }
 

@@ -1,10 +1,11 @@
 'use client'
 
-import { Suspense } from 'react'
+import { Fragment, Suspense } from 'react'
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight, PackageSearch, SlidersHorizontal } from 'lucide-react'
 import { useProducts, useCategories } from '@/lib/api/queries'
 import { useProductFilters } from '@/lib/use-product-filters'
+import { buildCategoryTree } from '@/lib/category-tree'
 import { FiltersPanel } from '@/components/product/filters-panel'
 import { ProductCard, ProductCardSkeleton } from '@/components/product/product-card'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -33,21 +34,57 @@ function ProductsView() {
   const category = categories?.find((c) => c.slug === query.category)
 
   const all = categories ?? []
-  const ids = new Set(all.map((c) => c.id))
-  const roots = all.filter((c) => !c.parentId || !ids.has(c.parentId))
-  // اگر زیردسته انتخاب شده، دسته‌ی اصلی‌اش هم باید روشن بماند
-  const activeRoot = category?.parentId ? all.find((c) => c.id === category.parentId) : category
-  const siblings = activeRoot ? all.filter((c) => c.parentId === activeRoot.id) : []
+  const roots = buildCategoryTree(all).map((node) => node.item)
+  const byId = new Map(all.map((c) => [c.id, c]))
+
+  /*
+   * زنجیره‌ی دسته از ریشه تا خودش. درخت سقف سطح ندارد، پس «مادرِ مستقیم» برای
+   * روشن نگه داشتن ریشه کافی نیست و باید تا بالا رفت. `seen` جلوی حلقه را
+   * می‌گیرد تا یک ردیف خراب صفحه را قفل نکند.
+   */
+  const trail: typeof all = []
+  const seen = new Set<string>()
+  for (let step = category; step && !seen.has(step.id); step = step.parentId ? byId.get(step.parentId) : undefined) {
+    seen.add(step.id)
+    trail.unshift(step)
+  }
+
+  /*
+   * ردیف دوم، یک پله پایین‌تر از دسته‌ی انتخاب‌شده را نشان می‌دهد تا بشود در
+   * درخت جلو رفت؛ دسته‌ای که خودش ته شاخه است هم‌ردیف‌هایش را نشان می‌دهد تا
+   * جابه‌جایی بین آن‌ها ممکن بماند.
+   */
+  const children = category ? all.filter((c) => c.parentId === category.id) : []
+  const siblings = children.length
+    ? children
+    : all.filter((c) => Boolean(category?.parentId) && c.parentId === category?.parentId)
   const items = data?.items ?? []
 
   return (
     <div className="container-page py-8">
-      <nav className="mb-5 flex items-center gap-2 text-xs text-muted">
+      <nav className="mb-5 flex flex-wrap items-center gap-2 text-xs text-muted">
         <Link href="/" className="hover:text-brand-600">
           خانه
         </Link>
-        <span>/</span>
-        <span className="text-foreground">{category?.title ?? 'همه محصولات'}</span>
+        {trail.length === 0 && (
+          <>
+            <span>/</span>
+            <span className="text-foreground">همه محصولات</span>
+          </>
+        )}
+        {/* هر پله‌ی مسیر جز آخری، خودش راهِ برگشت یک سطح بالاتر است */}
+        {trail.map((step, index) => (
+          <Fragment key={step.id}>
+            <span>/</span>
+            {index === trail.length - 1 ? (
+              <span className="text-foreground">{step.title}</span>
+            ) : (
+              <button onClick={() => setFilters({ category: step.slug })} className="hover:text-brand-600">
+                {step.title}
+              </button>
+            )}
+          </Fragment>
+        ))}
       </nav>
 
       <div className="mb-7 space-y-2">
@@ -74,7 +111,7 @@ function ProductsView() {
             onClick={() => setFilters({ category: c.slug })}
             className={cn(
               'shrink-0 rounded-full border px-4 py-2 text-[13px] transition-all',
-              query.category === c.slug || c.id === activeRoot?.id
+              trail.some((step) => step.id === c.id)
                 ? 'border-brand-500 bg-brand-500 text-white'
                 : 'border-border text-muted hover:border-brand-400',
             )}
@@ -85,8 +122,8 @@ function ProductsView() {
       </div>
 
       {/*
-       * ردیف دوم فقط وقتی می‌آید که دسته‌ی اصلیِ انتخاب‌شده زیرمجموعه داشته باشد؛
-       * نشان دادن همیشگی همه‌ی زیردسته‌ها این نوار را غیرقابل استفاده می‌کرد.
+       * ردیف دوم فقط وقتی می‌آید که چیزی برای رفتن باشد؛ نشان دادن همیشگی
+       * همه‌ی زیردسته‌ها این نوار را غیرقابل استفاده می‌کرد.
        */}
       {siblings.length > 0 && (
         <div className="mb-6 -mt-3 flex gap-2 overflow-x-auto pb-1 no-scrollbar">

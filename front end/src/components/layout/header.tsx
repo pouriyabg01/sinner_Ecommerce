@@ -27,6 +27,8 @@ import { MOCKING_ENABLED } from '@/lib/api/config'
 import { useHydrated } from '@/lib/use-hydrated'
 import { useCategories, useSiteSettings, useWishlist } from '@/lib/api/queries'
 import type { CategoryWithCount } from '@/lib/api/endpoints'
+import { buildCategoryTree, packColumns, type CategoryNode, type MenuGroup } from '@/lib/category-tree'
+import { getIcon } from '@/lib/icons'
 import { toFaDigits } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
@@ -189,11 +191,7 @@ export function Header() {
 
           <SearchBox className="pb-3 md:hidden" />
 
-          <nav className="hidden items-center gap-1 border-t border-border py-1.5 lg:flex">
-            {nav.map((item) => (
-              <NavItem key={item.href} item={item} />
-            ))}
-          </nav>
+          <DesktopNav items={nav} />
         </div>
       </header>
 
@@ -249,128 +247,223 @@ export function Header() {
   )
 }
 
-/** یک خانه‌ی منو؛ دسته‌ی مادر زیرمجموعه دارد و بقیه ندارند */
+/** سقف سطرهای هر ستون در تابلوی دسته‌ها؛ بیشتر که شد، ستون بعدی ساخته می‌شود */
+const COLUMN_LIMIT = 15
+
+/** یک خانه‌ی منو؛ هر خانه خودش می‌تواند زیرمجموعه داشته باشد، در هر عمقی */
 interface NavEntry {
   href: string
   label: string
   highlight: boolean
-  children?: { href: string; label: string }[]
+  icon?: string
+  children: NavEntry[]
+}
+
+/** یک لینک داخل ستون، به‌همراه فاصله‌ای که عمقش در درخت می‌خواهد */
+interface NavLink {
+  entry: NavEntry
+  depth: number
 }
 
 /**
  * منو از خود دسته‌بندی‌ها ساخته می‌شود تا با ساختن و حذف دسته همگام بماند.
  *
- * فقط دسته‌ای می‌آید که کالای قابل نمایش دارد — شمار دسته‌ی مادر شامل
- * زیرمجموعه‌هایش هم هست، پس مادرِ پرکالا حتی اگر کالای مستقیم نداشته باشد می‌ماند.
+ * فقط ریشه‌ی بی‌کالا می‌افتد؛ شمار هر دسته کلِ شاخه‌اش را می‌شمارد، پس ریشه
+ * وقتی صفر است که هیچ‌جای شاخه‌اش کالایی نباشد و چیزی از دست نمی‌رود.
+ * زیرمجموعه‌ی خالی اما می‌ماند: ساختار کاتالوگ از همین تابلو فهمیده می‌شود و
+ * دسته‌ی تازه‌ساخته باید بلافاصله دیده شود — صفحه‌اش هم لینک مرده نیست،
+ * «کالایی پیدا نشد» می‌گوید، مثل نوار فیلتر کالاها.
  */
 function buildNav(categories: CategoryWithCount[] | undefined): NavEntry[] {
-  const all = categories ?? []
-  const withProducts = all.filter((c) => c.productCount > 0)
-  const roots = withProducts.filter((c) => !c.parentId)
-
-  /*
-   * زیردسته‌ای که مادرش کالا ندارد (و از منو افتاده) یتیم می‌شود؛ آن را در سطح
-   * اول می‌آوریم تا لینکش گم نشود.
-   */
-  const shownRootIds = new Set(roots.map((c) => c.id))
-  const orphans = withProducts.filter((c) => c.parentId && !shownRootIds.has(c.parentId))
-
-  const entries: NavEntry[] = [...roots, ...orphans].map((root) => {
-    /*
-     * برخلاف سطح اول، زیرمجموعه‌ی خالی هم نشان داده می‌شود: ساختار کاتالوگ از
-     * همین کشو فهمیده می‌شود و دسته‌ی تازه‌ساخته باید بلافاصله دیده شود. صفحه‌اش
-     * هم لینک مرده نیست، «کالایی پیدا نشد» می‌گوید — مثل نوار فیلتر کالاها.
-     */
-    const children = all
-      .filter((c) => c.parentId === root.id)
-      .map((c) => ({ href: `/products?category=${c.slug}`, label: c.title }))
-
-    return {
-      href: `/products?category=${root.slug}`,
-      label: root.title,
-      highlight: false,
-      ...(children.length ? { children } : {}),
-    }
+  const toEntry = (node: CategoryNode<CategoryWithCount>): NavEntry => ({
+    href: `/products?category=${node.item.slug}`,
+    label: node.item.title,
+    icon: node.item.icon,
+    highlight: false,
+    children: node.children.map(toEntry),
   })
 
-  return [...entries, ...staticNav]
+  const entries = buildCategoryTree(categories ?? [])
+    .filter((node) => node.item.productCount > 0)
+    .map(toEntry)
+
+  return [...entries, ...staticNav.map((item) => ({ ...item, children: [] }))]
 }
 
-/** خانه‌ی منوی دسکتاپ؛ با زیرمجموعه، کشو باز می‌شود */
-function NavItem({ item }: { item: NavEntry }) {
-  const [open, setOpen] = useState(false)
+/** درخت زیر یک ستون، تخت‌شده؛ عمق برای تورفتگی نگه داشته می‌شود */
+function flattenEntries(entries: NavEntry[], depth = 0): NavLink[] {
+  return entries.flatMap((entry) => [{ entry, depth }, ...flattenEntries(entry.children, depth + 1)])
+}
 
-  const link = (
+/**
+ * نوار دسته‌ها روی دسکتاپ.
+ *
+ * «کدام تابلو باز است» اینجا نگه داشته می‌شود نه داخل خودِ خانه‌ها، چون تابلو
+ * عرض کل نوار را می‌گیرد؛ اگر داخل خانه بود، برای خانه‌های انتهای نوار از لبه‌ی
+ * صفحه بیرون می‌زد. تابلو هم فرزند همین نوار است، پس بردن ماوس از عنوان به
+ * داخل تابلو آن را نمی‌بندد.
+ */
+function DesktopNav({ items }: { items: NavEntry[] }) {
+  const [openHref, setOpenHref] = useState<string | null>(null)
+  const open = items.find((item) => item.href === openHref && item.children.length > 0)
+
+  return (
+    <nav
+      className="relative hidden items-center gap-1 border-t border-border py-1.5 lg:flex"
+      onMouseLeave={() => setOpenHref(null)}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node)) setOpenHref(null)
+      }}
+      onKeyDown={(event) => {
+        if (event.key === 'Escape') setOpenHref(null)
+      }}
+    >
+      {items.map((item) => (
+        <NavItem key={item.href} item={item} open={open?.href === item.href} onEnter={() => setOpenHref(item.href)} />
+      ))}
+
+      <AnimatePresence>
+        {open && <MegaPanel item={open} onNavigate={() => setOpenHref(null)} />}
+      </AnimatePresence>
+    </nav>
+  )
+}
+
+/** عنوان یک دسته در نوار؛ رفتن ماوس یا فوکوس روی آن تابلو را عوض می‌کند */
+function NavItem({ item, open, onEnter }: { item: NavEntry; open: boolean; onEnter: () => void }) {
+  const hasChildren = item.children.length > 0
+
+  return (
     <Link
       href={item.href}
+      onMouseEnter={onEnter}
+      onFocus={onEnter}
+      aria-expanded={hasChildren ? open : undefined}
       className={cn(
         'group relative flex items-center gap-1.5 rounded-lg px-3 py-2 text-[13.5px] font-medium transition-colors',
         item.highlight ? 'text-ember-600 hover:bg-ember-500/10 dark:text-ember-400' : 'text-muted hover:text-foreground',
+        open && !item.highlight && 'text-foreground',
       )}
     >
       {item.highlight && <Wrench className="size-3.5" />}
       {item.label}
-      {item.children && <ChevronDown className={cn('size-3.5 transition-transform', open && 'rotate-180')} />}
-      <span className="absolute inset-x-3 -bottom-1.5 h-0.5 scale-x-0 rounded-full bg-brand-500 transition-transform duration-300 group-hover:scale-x-100" />
-    </Link>
-  )
-
-  if (!item.children) return link
-
-  return (
-    /*
-     * باز شدن با ماوس و با تب هر دو کار می‌کند: کشو داخل همین ظرف است، پس
-     * حرکت ماوس از عنوان به زیرمجموعه‌ها آن را نمی‌بندد.
-     */
-    <div
-      className="relative"
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-      onFocus={() => setOpen(true)}
-      onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget as Node)) setOpen(false)
-      }}
-    >
-      {link}
-      <AnimatePresence>
-        {open && (
-          <motion.ul
-            initial={{ opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.15 }}
-            className="absolute start-0 top-full z-50 min-w-52 overflow-hidden rounded-2xl border border-border bg-surface p-1.5 shadow-lift"
-          >
-            <li>
-              <Link
-                href={item.href}
-                onClick={() => setOpen(false)}
-                className="block rounded-xl px-3 py-2 text-[13px] font-bold transition-colors hover:bg-surface-2"
-              >
-                همه‌ی {item.label}
-              </Link>
-            </li>
-            {item.children.map((child) => (
-              <li key={child.href}>
-                <Link
-                  href={child.href}
-                  onClick={() => setOpen(false)}
-                  className="block rounded-xl px-3 py-2 text-[13px] text-muted transition-colors hover:bg-surface-2 hover:text-foreground"
-                >
-                  {child.label}
-                </Link>
-              </li>
-            ))}
-          </motion.ul>
+      {hasChildren && <ChevronDown className={cn('size-3.5 transition-transform', open && 'rotate-180')} />}
+      <span
+        className={cn(
+          'absolute inset-x-3 -bottom-1.5 h-0.5 rounded-full bg-brand-500 transition-transform duration-300',
+          open ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100',
         )}
-      </AnimatePresence>
-    </div>
+      />
+    </Link>
   )
 }
 
-/** خانه‌ی منوی گوشی؛ زیرمجموعه‌ها با زدن فلش باز می‌شوند، نه با رفتن به صفحه */
-function MobileNavItem({ item }: { item: NavEntry }) {
+/**
+ * تابلوی بازشونده‌ی یک دسته‌ی اصلی.
+ *
+ * هر زیرمجموعه سرِ یک گروه است و شاخه‌ی زیرش — در هر عمقی — لینک‌های همان
+ * گروه. گروه‌ها پشت سر هم در ستون‌ها می‌نشینند و هیچ ستونی از COLUMN_LIMIT سطر
+ * بلندتر نمی‌شود.
+ */
+function MegaPanel({ item, onNavigate }: { item: NavEntry; onNavigate: () => void }) {
+  const groups: MenuGroup<NavLink>[] = item.children.map((child) => ({
+    key: child.href,
+    head: { entry: child, depth: 0 },
+    continued: false,
+    items: flattenEntries(child.children),
+  }))
+
+  /*
+   * دسته‌ای که زیرمجموعه‌هایش خودشان شاخه ندارند، گروهِ بی‌لینک می‌سازد؛ آن‌وقت
+   * تابلو یک فهرست ساده‌ی ستون‌بندی‌شده است و عنوان‌های درشت و فاصله‌های گروهی
+   * فقط شلوغش می‌کردند.
+   */
+  const plain = groups.every((group) => group.items.length === 0)
+  const columns = packColumns(groups, COLUMN_LIMIT)
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -6 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -6 }}
+      transition={{ duration: 0.15 }}
+      /* بالشتک بالا جزو خود تابلو است تا ماوس در فاصله‌ی بین نوار و تابلو نیفتد */
+      className="absolute inset-x-0 top-full z-50 pt-1.5"
+    >
+      <div className="max-h-[75vh] overflow-y-auto rounded-2xl border border-border bg-surface p-5 shadow-lift">
+        <div className="mb-4 flex items-center justify-between gap-3 border-b border-border pb-3">
+          <span className="text-[13px] font-bold">{item.label}</span>
+          <Link
+            href={item.href}
+            onClick={onNavigate}
+            className="text-[12.5px] font-medium text-brand-600 transition-opacity hover:opacity-75 dark:text-brand-400"
+          >
+            همه‌ی {item.label} ←
+          </Link>
+        </div>
+
+        <div className="flex flex-wrap gap-x-8 gap-y-6">
+          {columns.map((column, index) => (
+            <div
+              key={column[0]?.key ?? index}
+              className={cn('w-45 shrink-0', plain ? 'space-y-0.5' : 'space-y-5')}
+            >
+              {column.map((group) => {
+                const Icon = getIcon(group.head.entry.icon ?? '')
+                return (
+                  <div key={group.continued ? `${group.key}-more` : group.key}>
+                    <Link
+                      href={group.head.entry.href}
+                      onClick={onNavigate}
+                      className={cn(
+                        'flex items-center gap-2 rounded-lg text-[13px] transition-colors',
+                        plain
+                          ? 'py-1 text-muted hover:text-brand-600 dark:hover:text-brand-400'
+                          : 'font-bold text-foreground hover:text-brand-600 dark:hover:text-brand-400',
+                      )}
+                    >
+                      {!plain && <Icon className="size-3.5 shrink-0 text-brand-500" />}
+                      <span className="truncate">{group.head.entry.label}</span>
+                      {/* گروهی که بین دو ستون شکسته، عنوانش را دوباره می‌گیرد تا معلوم باشد زیرِ چیست */}
+                      {group.continued && <span className="shrink-0 text-[11px] font-normal text-muted">ادامه</span>}
+                    </Link>
+
+                    {group.items.length > 0 && (
+                      <ul className="mt-2 space-y-1">
+                        {group.items.map((link) => (
+                          <li key={link.entry.href}>
+                            <Link
+                              href={link.entry.href}
+                              onClick={onNavigate}
+                              style={{ paddingInlineStart: link.depth * 10 }}
+                              className="block truncate rounded-lg py-0.5 text-[12.5px] text-muted transition-colors hover:text-brand-600 dark:hover:text-brand-400"
+                            >
+                              {link.entry.label}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
+/**
+ * خانه‌ی منوی گوشی؛ زیرمجموعه‌ها با زدن فلش باز می‌شوند، نه با رفتن به صفحه.
+ *
+ * خودش را برای شاخه‌های پایین‌تر دوباره صدا می‌زند، پس درخت هر چقدر هم عمیق
+ * باشد روی گوشی کامل باز می‌شود.
+ */
+function MobileNavItem({ item, depth = 0 }: { item: NavEntry; depth?: number }) {
   const [open, setOpen] = useState(false)
+  const hasChildren = item.children.length > 0
 
   return (
     <li>
@@ -378,14 +471,15 @@ function MobileNavItem({ item }: { item: NavEntry }) {
         <Link
           href={item.href}
           className={cn(
-            'flex flex-1 items-center gap-2 rounded-xl px-3 py-3 text-sm font-medium transition-colors',
+            'flex flex-1 items-center gap-2 rounded-xl px-3 transition-colors',
+            depth === 0 ? 'py-3 text-sm font-medium' : 'py-2.5 text-[13px] text-muted hover:text-foreground',
             item.highlight ? 'bg-ember-500/10 text-ember-600 dark:text-ember-400' : 'hover:bg-surface-2',
           )}
         >
           {item.highlight && <Wrench className="size-4" />}
           {item.label}
         </Link>
-        {item.children && (
+        {hasChildren && (
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
@@ -398,14 +492,10 @@ function MobileNavItem({ item }: { item: NavEntry }) {
         )}
       </div>
 
-      {item.children && open && (
+      {hasChildren && open && (
         <ul className="mt-0.5 space-y-0.5 border-e-2 border-border pe-3 ms-3">
           {item.children.map((child) => (
-            <li key={child.href}>
-              <Link href={child.href} className="block rounded-xl px-3 py-2.5 text-[13px] text-muted transition-colors hover:bg-surface-2 hover:text-foreground">
-                {child.label}
-              </Link>
-            </li>
+            <MobileNavItem key={child.href} item={child} depth={depth + 1} />
           ))}
         </ul>
       )}

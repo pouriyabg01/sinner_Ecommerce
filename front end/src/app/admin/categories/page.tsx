@@ -27,6 +27,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast'
 import { getIcon } from '@/lib/icons'
 import { toFaDigits } from '@/lib/format'
+import { buildCategoryTree, flattenCategoryTree } from '@/lib/category-tree'
 import { cn } from '@/lib/utils'
 
 export default function AdminTaxonomyPage() {
@@ -118,9 +119,13 @@ export default function AdminTaxonomyPage() {
                   <tr key={category.id} className="transition-colors hover:bg-surface-2/40">
                     <SelectCell selection={categorySelection} id={category.id} label={category.title} />
                     <td className="p-3.5">
-                      <div className={cn('flex items-center gap-3', category.parentId && 'ps-6')}>
+                      <div
+                        className="flex items-center gap-3"
+                        /* تورفتگی به اندازه‌ی عمق، تا سطح سوم و پایین‌تر هم از هم جدا دیده شوند */
+                        style={{ paddingInlineStart: category.depth * 24 }}
+                      >
                         {/* خط کوچک، زیرمجموعه بودن را بدون خواندن ستون مادر نشان می‌دهد */}
-                        {category.parentId && <span className="-ms-4 h-px w-3 shrink-0 bg-border" />}
+                        {category.depth > 0 && <span className="-ms-4 h-px w-3 shrink-0 bg-border" />}
                         <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400">
                           <Icon className="size-4" />
                         </span>
@@ -550,12 +555,9 @@ function BulkDeleteCategoriesDrawer({
 }
 
 /**
- * مرتب‌سازی درختی: هر مادر، و بلافاصله زیرش بچه‌هایش.
- * دسته‌ای که مادرش در فهرست نیست، خودش در سطح اول می‌آید تا گم نشود.
+ * مرتب‌سازی درختی: هر مادر، و بلافاصله زیرش کلِ شاخه‌اش — در هر عمقی.
+ * `depth` برای تورفتگی ردیف می‌ماند تا جای هر دسته در درخت از خود جدول پیدا باشد.
  */
-function orderByTree(categories: CategoryWithCount[]): CategoryWithCount[] {
-  const ids = new Set(categories.map((c) => c.id))
-  const roots = categories.filter((c) => !c.parentId || !ids.has(c.parentId))
-
-  return roots.flatMap((root) => [root, ...categories.filter((c) => c.parentId === root.id)])
+function orderByTree(categories: CategoryWithCount[]): (CategoryWithCount & { depth: number })[] {
+  return flattenCategoryTree(buildCategoryTree(categories)).map((node) => ({ ...node.item, depth: node.depth }))
 }

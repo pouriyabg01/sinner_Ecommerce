@@ -10,7 +10,7 @@ export type ProductCondition = 'new' | 'stock' | 'used'
 
 export interface Category {
   id: string
-  /** شناسه‌ی دسته‌ی مادر؛ null یعنی خودش دسته‌ی اصلی است. بیشتر از دو سطح نداریم */
+  /** شناسه‌ی دسته‌ی مادر؛ null یعنی خودش دسته‌ی اصلی است. درخت سقف سطح ندارد */
   parentId?: string | null
   slug: CategorySlug
   title: string

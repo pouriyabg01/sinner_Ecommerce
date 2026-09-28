@@ -10,6 +10,7 @@ import { Field, Input, Select, Textarea } from '@/components/ui/input'
 import { toast } from '@/components/ui/toast'
 import { IconPicker } from '@/components/admin/editor-bits'
 import { SingleImageField } from '@/components/admin/image-field'
+import { branchIds, buildCategoryTree, flattenCategoryTree } from '@/lib/category-tree'
 import { useForm } from '@/lib/use-form'
 import { imageSourceSchema, optionalText, requiredText, slugSchema } from '@/lib/validation'
 import { latinSlug } from '@/lib/utils'
@@ -78,13 +79,14 @@ export function CategoryDrawer({
   }
 
   /*
-   * بیشتر از دو سطح نداریم: مادر فقط می‌تواند دسته‌ی اصلی باشد. دسته‌ای هم که
-   * خودش زیرمجموعه دارد، در فهرست مادرهای ممکنِ خودش نمی‌آید.
+   * درخت سقف سطح ندارد: هر دسته‌ای می‌تواند مادر باشد. فقط خودِ دسته و
+   * زیرشاخه‌هایش از فهرست می‌افتند، وگرنه آن شاخه از ریشه جدا می‌شد و هیچ‌جای
+   * سایت دیده نمی‌شد.
    */
-  const hasChildren = categories.some((category) => category.parentId === editing?.id)
-  const parentOptions = hasChildren
-    ? []
-    : categories.filter((category) => !category.parentId && category.id !== editing?.id)
+  const ownBranch = editing ? branchIds(categories, editing.id) : new Set<string>()
+  const parentOptions = flattenCategoryTree(buildCategoryTree(categories)).filter(
+    (node) => !ownBranch.has(node.item.id),
+  )
 
   const submit = () => {
     const clean = form.validate(draft)
@@ -153,13 +155,16 @@ export function CategoryDrawer({
         <Field
           label="دسته‌ی مادر"
           error={form.errors.parentId}
-          hint="خالی یعنی خودش یک دسته‌ی اصلی است و در منوی سایت جای خودش را دارد"
+          hint="خالی یعنی خودش یک دسته‌ی اصلی است و در منوی سایت جای خودش را دارد. هر زیرمجموعه‌ای هم می‌تواند مادرِ زیرمجموعه‌های بعدی باشد."
         >
           <Select value={draft.parentId} onChange={(e) => update({ parentId: e.target.value })}>
             <option value="">— دسته‌ی اصلی —</option>
-            {parentOptions.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.title}
+            {parentOptions.map((node) => (
+              <option key={node.item.id} value={node.item.id}>
+                {/* فاصله‌ی ابتدای عنوان، جای دسته را در درخت نشان می‌دهد */}
+                {'\u00a0\u00a0'.repeat(node.depth)}
+                {node.depth > 0 && '↳ '}
+                {node.item.title}
               </option>
             ))}
           </Select>

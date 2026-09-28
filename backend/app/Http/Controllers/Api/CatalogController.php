@@ -207,14 +207,15 @@ class CatalogController extends Controller
         $categories = Category::withCount(['products' => fn ($q) => $q->where('status', 'active')])->get();
 
         /*
-         * شمار کالای دسته‌ی مادر، کالاهای زیردسته‌هایش را هم می‌شمارد. بدون این،
-         * مادرِ بی‌کالای مستقیم در منوی سایت «خالی» دیده می‌شد و حذف می‌شد، در
-         * حالی که زیرمجموعه‌هایش پر بودند.
+         * شمار کالای دسته‌ی مادر، کالاهای کلِ زیرشاخه‌اش را هم می‌شمارد — نه فقط
+         * یک پله پایین‌تر. بدون این، مادرِ بی‌کالای مستقیم در منوی سایت «خالی»
+         * دیده می‌شد و حذف می‌شد، در حالی که نوه‌هایش پر بودند.
          */
-        $childCount = $categories
-            ->filter(fn (Category $c) => $c->parent_id)
-            ->groupBy('parent_id')
-            ->map(fn ($group) => $group->sum('products_count'));
+        $byParent = $categories->groupBy('parent_id');
+        $branchCount = function (Category $c) use (&$branchCount, $byParent): int {
+            return $c->products_count
+                + $byParent->get($c->id, collect())->sum(fn (Category $child) => $branchCount($child));
+        };
 
         return response()->json(
             $categories->map(fn (Category $c) => [
@@ -225,7 +226,7 @@ class CatalogController extends Controller
                 'icon' => $c->icon,
                 'description' => $c->description,
                 'specKeys' => $c->spec_keys ?? [],
-                'productCount' => $c->products_count + ($childCount[$c->id] ?? 0),
+                'productCount' => $branchCount($c),
                 /** فقط کالاهای خودِ دسته، بدون زیرمجموعه */
                 'ownProductCount' => $c->products_count,
             ])
