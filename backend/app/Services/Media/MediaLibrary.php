@@ -21,7 +21,6 @@ class MediaLibrary
     private const USED_IN = [
         ['products', 'images', 'json'],
         ['brands', 'logo', 'text'],
-        ['categories', 'icon', 'text'],
         ['repair_issues', 'icon', 'text'],
         ['order_items', 'image', 'text'],
         ['site_documents', 'payload', 'json'],

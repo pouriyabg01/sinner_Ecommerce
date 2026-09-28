@@ -14,7 +14,6 @@ export interface Category {
   parentId?: string | null
   slug: CategorySlug
   title: string
-  icon: string
   description: string
   /** ویژگی‌هایی که در فیلتر و صفحه مقایسه‌ی این دسته نمایش داده می‌شوند */
   specKeys: string[]

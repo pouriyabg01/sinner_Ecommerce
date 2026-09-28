@@ -58,7 +58,6 @@ class DatabaseSeeder extends Seeder
             $category = Category::create([
                 'slug' => $row['slug'],
                 'title' => $row['title'],
-                'icon' => $row['icon'] ?? '',
                 'description' => $row['description'] ?? '',
                 'spec_keys' => $row['specKeys'] ?? [],
             ]);

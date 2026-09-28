@@ -675,7 +675,6 @@ class AdminController extends Controller
             'parentId' => $c->parent_id ? (string) $c->parent_id : null,
             'slug' => $c->slug,
             'title' => $c->title,
-            'icon' => $c->icon,
             'description' => $c->description,
             'specKeys' => $c->spec_keys ?? [],
             'productCount' => $c->products_count,
@@ -687,7 +686,6 @@ class AdminController extends Controller
         $data = $request->validate([
             'slug' => ['required', 'string', 'unique:categories,slug'],
             'title' => ['required', 'string', 'max:80'],
-            'icon' => ['nullable', 'string', 'max:60'],
             'description' => ['nullable', 'string', 'max:400'],
             'specKeys' => ['array'],
             'parentId' => ['nullable', 'exists:categories,id'],
@@ -699,7 +697,6 @@ class AdminController extends Controller
             'parent_id' => $data['parentId'] ?? null,
             'slug' => $data['slug'],
             'title' => $data['title'],
-            'icon' => $data['icon'] ?? '',
             'description' => $data['description'] ?? '',
             'spec_keys' => $data['specKeys'] ?? [],
         ]);
@@ -712,7 +709,6 @@ class AdminController extends Controller
         $data = $request->validate([
             'slug' => ['sometimes', 'string', Rule::unique('categories', 'slug')->ignore($category->id)],
             'title' => ['sometimes', 'string', 'max:80'],
-            'icon' => ['sometimes', 'nullable', 'string', 'max:60'],
             'description' => ['sometimes', 'nullable', 'string', 'max:400'],
             'specKeys' => ['sometimes', 'array'],
             'parentId' => ['sometimes', 'nullable', 'exists:categories,id'],
@@ -722,7 +718,7 @@ class AdminController extends Controller
             $this->assertCategoryParent($data['parentId'], $category);
         }
 
-        $data = $this->blankNulls($data, ['icon', 'description']);
+        $data = $this->blankNulls($data, ['description']);
 
         // مادرِ null معنی‌دار است («دیگر زیرمجموعه نباشد») و نباید با array_filter بیفتد
         if (array_key_exists('parentId', $data)) {
@@ -732,7 +728,6 @@ class AdminController extends Controller
         $category->update(array_filter([
             'slug' => $data['slug'] ?? null,
             'title' => $data['title'] ?? null,
-            'icon' => $data['icon'] ?? null,
             'description' => $data['description'] ?? null,
             'spec_keys' => $data['specKeys'] ?? null,
         ], fn ($v) => $v !== null));

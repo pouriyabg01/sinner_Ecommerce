@@ -8,7 +8,6 @@ import { Drawer } from '@/components/ui/drawer'
 import { Button } from '@/components/ui/button'
 import { Field, Input, Select, Textarea } from '@/components/ui/input'
 import { toast } from '@/components/ui/toast'
-import { IconPicker } from '@/components/admin/editor-bits'
 import { SingleImageField } from '@/components/admin/image-field'
 import { branchIds, buildCategoryTree, flattenCategoryTree } from '@/lib/category-tree'
 import { useForm } from '@/lib/use-form'
@@ -30,9 +29,9 @@ const brandSchema = z.object({
   logo: imageSourceSchema,
 })
 
-type CategoryDraft = { title: string; slug: string; description: string; icon: string; specKeys: string; parentId: string }
+type CategoryDraft = { title: string; slug: string; description: string; specKeys: string; parentId: string }
 
-const EMPTY_CATEGORY: CategoryDraft = { title: '', slug: '', description: '', icon: 'package', specKeys: '', parentId: '' }
+const EMPTY_CATEGORY: CategoryDraft = { title: '', slug: '', description: '', specKeys: '', parentId: '' }
 
 export function CategoryDrawer({
   open,
@@ -63,7 +62,6 @@ export function CategoryDrawer({
             title: editing.title,
             slug: editing.slug,
             description: editing.description,
-            icon: editing.icon,
             specKeys: editing.specKeys.join('، '),
             parentId: editing.parentId ?? '',
           }
@@ -95,7 +93,6 @@ export function CategoryDrawer({
     onSubmit(
       {
         ...clean,
-        icon: draft.icon,
         // رشته‌ی خالی یعنی «دسته‌ی اصلی»؛ سرور null می‌خواهد نه ''
         parentId: draft.parentId || null,
         // «رم، حافظه» → ['رم','حافظه'] — کلیدهایی که در فیلتر و مقایسه ستون می‌شوند
@@ -169,8 +166,6 @@ export function CategoryDrawer({
             ))}
           </Select>
         </Field>
-
-        <IconPicker value={draft.icon} onChange={(icon) => update({ icon })} />
 
         <Field label="توضیح کوتاه" error={form.errors.description} hint="زیر عنوان دسته در صفحه‌ی اصلی نمایش داده می‌شود">
           <Textarea

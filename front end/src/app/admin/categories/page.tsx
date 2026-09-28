@@ -25,7 +25,6 @@ import { Drawer } from '@/components/ui/drawer'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast'
-import { getIcon } from '@/lib/icons'
 import { toFaDigits } from '@/lib/format'
 import { buildCategoryTree, flattenCategoryTree } from '@/lib/category-tree'
 import { cn } from '@/lib/utils'
@@ -114,7 +113,8 @@ export default function AdminTaxonomyPage() {
             </BulkBar>
             <Table selection={categorySelection} head={['دسته', 'مادر', 'اسلاگ', 'کلیدهای مشخصات', 'تعداد کالا', '']}>
               {categoryRows.map((category) => {
-                const Icon = getIcon(category.icon)
+                // دسته‌ای که خودش شاخه دارد، مثل منوی سایت نشانِ آبی می‌گیرد
+                const branch = categoryRows.some((c) => c.parentId === category.id)
                 return (
                   <tr key={category.id} className="transition-colors hover:bg-surface-2/40">
                     <SelectCell selection={categorySelection} id={category.id} label={category.title} />
@@ -126,11 +126,11 @@ export default function AdminTaxonomyPage() {
                       >
                         {/* خط کوچک، زیرمجموعه بودن را بدون خواندن ستون مادر نشان می‌دهد */}
                         {category.depth > 0 && <span className="-ms-4 h-px w-3 shrink-0 bg-border" />}
-                        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400">
-                          <Icon className="size-4" />
-                        </span>
                         <div className="min-w-0">
-                          <p className="font-bold">{category.title}</p>
+                          <p className="flex items-center gap-1.5 font-bold">
+                            {branch && <span className="text-blue-500 dark:text-blue-400">—</span>}
+                            {category.title}
+                          </p>
                           <p className="truncate text-[11px] text-muted">{category.description || '—'}</p>
                         </div>
                       </div>

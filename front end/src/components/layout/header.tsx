@@ -28,7 +28,6 @@ import { useHydrated } from '@/lib/use-hydrated'
 import { useCategories, useSiteSettings, useWishlist } from '@/lib/api/queries'
 import type { CategoryWithCount } from '@/lib/api/endpoints'
 import { buildCategoryTree, packColumns, type CategoryNode, type MenuGroup } from '@/lib/category-tree'
-import { getIcon } from '@/lib/icons'
 import { toFaDigits } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
@@ -255,7 +254,6 @@ interface NavEntry {
   href: string
   label: string
   highlight: boolean
-  icon?: string
   children: NavEntry[]
 }
 
@@ -278,7 +276,6 @@ function buildNav(categories: CategoryWithCount[] | undefined): NavEntry[] {
   const toEntry = (node: CategoryNode<CategoryWithCount>): NavEntry => ({
     href: `/products?category=${node.item.slug}`,
     label: node.item.title,
-    icon: node.item.icon,
     highlight: false,
     children: node.children.map(toEntry),
   })
@@ -412,64 +409,67 @@ function MegaPanel({ item, onNavigate }: { item: NavEntry; onNavigate: () => voi
               key={column[0]?.key ?? index}
               className={cn('w-45 shrink-0', plain ? 'space-y-0.5' : 'space-y-4')}
             >
-              {column.map((group) => {
-                const Icon = getIcon(group.head.entry.icon ?? '')
-                /*
-                 * دسته‌ای که خودش زیرمجموعه دارد سرِ شاخه است و پررنگ‌تر از
-                 * دسته‌ای دیده می‌شود که ته خط است — وگرنه در یک ستون، عنوانِ
-                 * یک شاخه و یک لینک ساده از هم فرقی نداشتند.
-                 */
-                const branch = group.head.entry.children.length > 0
-                return (
-                  <div key={group.continued ? `${group.key}-more` : group.key}>
-                    <Link
-                      href={group.head.entry.href}
-                      onClick={onNavigate}
-                      className={cn(
-                        'flex items-center gap-2 rounded-lg text-[13px] transition-colors hover:text-brand-600 dark:hover:text-brand-400',
-                        plain ? 'py-1 text-muted' : branch ? 'font-bold text-foreground' : 'text-muted',
-                      )}
-                    >
-                      {!plain && (
-                        <Icon className={cn('size-3.5 shrink-0', branch ? 'text-brand-500' : 'text-muted/50')} />
-                      )}
-                      <span className="truncate">{group.head.entry.label}</span>
-                      {/* گروهی که بین دو ستون شکسته، عنوانش را دوباره می‌گیرد تا معلوم باشد زیرِ چیست */}
-                      {group.continued && <span className="shrink-0 text-[11px] font-normal text-muted">ادامه</span>}
-                    </Link>
-
-                    {group.items.length > 0 && (
-                      <ul className="mt-2 space-y-1">
-                        {group.items.map((link) => {
-                          const hasBranch = link.entry.children.length > 0
-                          return (
-                            <li key={link.entry.href}>
-                              <Link
-                                href={link.entry.href}
-                                onClick={onNavigate}
-                                style={{ paddingInlineStart: link.depth * 10 }}
-                                className={cn(
-                                  'flex items-center gap-1.5 rounded-lg py-0.5 text-[12.5px] transition-colors hover:text-brand-600 dark:hover:text-brand-400',
-                                  hasBranch ? 'font-semibold text-foreground' : 'text-muted',
-                                )}
-                              >
-                                {/* نشانِ کوچک، سرِ شاخه را در میان لینک‌های ساده پیدا می‌کند */}
-                                {hasBranch && <span className="size-1 shrink-0 rounded-full bg-brand-500" />}
-                                <span className="truncate">{link.entry.label}</span>
-                              </Link>
-                            </li>
-                          )
-                        })}
-                      </ul>
+              {column.map((group) => (
+                <div key={group.continued ? `${group.key}-more` : group.key}>
+                  <Link
+                    href={group.head.entry.href}
+                    onClick={onNavigate}
+                    className={cn(
+                      'flex items-center gap-1.5 rounded-lg text-[13px] transition-colors hover:text-brand-600 dark:hover:text-brand-400',
+                      plain
+                        ? 'py-1 text-muted'
+                        : group.head.entry.children.length
+                          ? 'font-bold text-foreground'
+                          : 'text-muted',
                     )}
-                  </div>
-                )
-              })}
+                  >
+                    <BranchMark entry={group.head.entry} />
+                    <span className="truncate">{group.head.entry.label}</span>
+                    {/* گروهی که بین دو ستون شکسته، عنوانش را دوباره می‌گیرد تا معلوم باشد زیرِ چیست */}
+                    {group.continued && <span className="shrink-0 text-[11px] font-normal text-muted">ادامه</span>}
+                  </Link>
+
+                  {group.items.length > 0 && (
+                    <ul className="mt-2 space-y-1">
+                      {group.items.map((link) => (
+                        <li key={link.entry.href}>
+                          <Link
+                            href={link.entry.href}
+                            onClick={onNavigate}
+                            style={{ paddingInlineStart: link.depth * 10 }}
+                            className={cn(
+                              'flex items-center gap-1.5 rounded-lg py-0.5 text-[12.5px] transition-colors hover:text-brand-600 dark:hover:text-brand-400',
+                              link.entry.children.length ? 'font-semibold text-foreground' : 'text-muted',
+                            )}
+                          >
+                            <BranchMark entry={link.entry} />
+                            <span className="truncate">{link.entry.label}</span>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))}
             </div>
           ))}
         </div>
       </div>
     </motion.div>
+  )
+}
+
+/**
+ * نشانِ «این دسته خودش شاخه دارد»: یک خط تیره‌ی آبی پیش از عنوان.
+ *
+ * برای دسته‌ی ته‌خط هم جای همان خط خالی می‌ماند، وگرنه عنوان‌های یک ستون
+ * نسبت به هم جابه‌جا می‌شدند.
+ */
+function BranchMark({ entry }: { entry: NavEntry }) {
+  return (
+    <span aria-hidden className="w-2 shrink-0 text-center text-blue-500 dark:text-blue-400">
+      {entry.children.length > 0 ? '—' : ''}
+    </span>
   )
 }
 
@@ -497,6 +497,7 @@ function MobileNavItem({ item, depth = 0 }: { item: NavEntry; depth?: number }) 
           )}
         >
           {item.highlight && <Wrench className="size-4" />}
+          {depth > 0 && <BranchMark entry={item} />}
           {item.label}
         </Link>
         {hasChildren && (

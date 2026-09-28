@@ -223,7 +223,6 @@ class CatalogController extends Controller
                 'parentId' => $c->parent_id ? (string) $c->parent_id : null,
                 'slug' => $c->slug,
                 'title' => $c->title,
-                'icon' => $c->icon,
                 'description' => $c->description,
                 'specKeys' => $c->spec_keys ?? [],
                 'productCount' => $branchCount($c),
