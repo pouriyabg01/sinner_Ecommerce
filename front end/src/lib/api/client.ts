@@ -59,6 +59,12 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
       ...rest,
       headers: {
         Accept: 'application/json',
+        /*
+         * پیش‌بارگذاری روی سرور: پاسخِ فشرده‌ی nginx را لایه‌ی fetch نکست باز
+         * نمی‌کند و به‌جای JSON یک رشته‌ی بایت تحویل می‌دهد — منو و فوتر آن‌وقت
+         * از HTML سرور می‌افتند. درخواست داخلی است و فشرده‌سازی سودی ندارد.
+         */
+        ...(typeof window === 'undefined' ? { 'Accept-Encoding': 'identity' } : {}),
         // FormData مرز خودش را می‌سازد؛ ست‌کردن دستی Content-Type خرابش می‌کند
         ...(body && !isFormData ? { 'Content-Type': 'application/json' } : {}),
         // بک‌اند واقعی کاربر را از روی همین می‌شناسد؛ در حالت mock توکنی نیست
@@ -76,8 +82,19 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
     throw error
   }
 
-  const isJson = response.headers.get('content-type')?.includes('application/json')
-  const payload = isJson ? await response.json() : await response.text()
+  /*
+   * نوع پاسخ از خود متن فهمیده می‌شود نه از سرآیند: نکست پاسخِ پیش‌بارگذاری را
+   * کش می‌کند و نسخه‌ی کش‌شده سرآیند ندارد، پس شرطِ content-type روی سرور
+   * می‌شکست و JSON به‌شکل یک رشته‌ی خام برمی‌گشت — منو و فوتر از HTML سرور
+   * می‌افتادند. پاسخی که JSON نیست، مثل قبل به‌صورت متن برمی‌گردد.
+   */
+  const raw = await response.text()
+  let payload: unknown = raw
+  try {
+    payload = raw ? JSON.parse(raw) : null
+  } catch {
+    payload = raw
+  }
 
   if (!response.ok) {
     const message =

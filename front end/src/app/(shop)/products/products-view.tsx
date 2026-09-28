@@ -55,9 +55,9 @@ function ProductsView() {
    * جابه‌جایی بین آن‌ها ممکن بماند.
    */
   const children = category ? all.filter((c) => c.parentId === category.id) : []
-  const siblings = children.length
-    ? children
-    : all.filter((c) => Boolean(category?.parentId) && c.parentId === category?.parentId)
+  const cousins = category?.parentId ? all.filter((c) => c.parentId === category.parentId) : []
+  // ته شاخه هم‌ردیف‌هایش را نشان می‌دهد، مگر تنها فرزند باشد که ردیف یک دکمه‌ی همیشه‌روشن می‌شد
+  const siblings = children.length ? children : cousins.length > 1 ? cousins : []
   const items = data?.items ?? []
 
   return (

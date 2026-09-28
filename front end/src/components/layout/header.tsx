@@ -387,8 +387,12 @@ function MegaPanel({ item, onNavigate }: { item: NavEntry; onNavigate: () => voi
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -6 }}
       transition={{ duration: 0.15 }}
-      /* بالشتک بالا جزو خود تابلو است تا ماوس در فاصله‌ی بین نوار و تابلو نیفتد */
-      className="absolute inset-x-0 top-full z-50 pt-1.5"
+      /*
+       * بالشتک بالا جزو خود تابلو است تا ماوس در فاصله‌ی بین نوار و تابلو نیفتد.
+       * عرض به اندازه‌ی ستون‌هاست نه تمام نوار — کاتالوگ کوچک تابلوی نیمه‌خالی
+       * نمی‌سازد — ولی از لبه‌ی نوار جلوتر نمی‌رود و ستون‌های بیشتر می‌شکنند.
+       */
+      className="absolute start-0 top-full z-50 w-max max-w-full pt-1.5"
     >
       <div className="max-h-[75vh] overflow-y-auto rounded-2xl border border-border bg-surface p-5 shadow-lift">
         <div className="mb-4 flex items-center justify-between gap-3 border-b border-border pb-3">
@@ -406,7 +410,7 @@ function MegaPanel({ item, onNavigate }: { item: NavEntry; onNavigate: () => voi
           {columns.map((column, index) => (
             <div
               key={column[0]?.key ?? index}
-              className={cn('w-45 shrink-0', plain ? 'space-y-0.5' : 'space-y-5')}
+              className={cn('w-45 shrink-0', plain ? 'space-y-0.5' : 'space-y-4')}
             >
               {column.map((group) => {
                 const Icon = getIcon(group.head.entry.icon ?? '')
