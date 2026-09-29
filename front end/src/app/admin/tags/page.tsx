@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast'
+import { confirmDelete } from '@/components/ui/confirm'
 import { toFaDigits } from '@/lib/format'
 
 export default function AdminTagsPage() {
@@ -46,13 +47,16 @@ export default function AdminTagsPage() {
   const removeSelected = async () => {
     const removable = selection.selected.filter((id) => !all.find((t) => t.id === id)?.productCount)
     if (!removable.length) return
-    if (!confirm(`آیا ${toFaDigits(removable.length)} برچسب حذف شوند؟`)) return
+    const how = await confirmDelete({ kind: 'برچسب', count: removable.length })
+    if (!how) return
 
     setBulkBusy(true)
-    const { done, failed, firstError } = await runBulk(removable, (id) => deleteTag.mutateAsync(id))
+    const { done, failed, firstError } = await runBulk(removable, (id) =>
+      deleteTag.mutateAsync({ id, permanent: how === 'permanent' }),
+    )
     setBulkBusy(false)
     selection.clear()
-    if (done) toast.success(`${toFaDigits(done)} برچسب حذف شد`)
+    if (done) toast.success(`${toFaDigits(done)} برچسب ${how === 'permanent' ? 'برای همیشه حذف شد' : 'به سطل زباله رفت'}`)
     if (failed) toast.error(firstError ?? `${toFaDigits(failed)} برچسب حذف نشد`)
   }
 
@@ -146,12 +150,18 @@ export default function AdminTagsPage() {
                         // برچسبی که روی کالا نشسته حذف نمی‌شود؛ دکمه هم نباید امیدوارکننده باشد
                         disabled={tag.productCount > 0}
                         title={tag.productCount > 0 ? 'ابتدا این برچسب را از کالاها بردارید' : undefined}
-                        onClick={() =>
-                          deleteTag.mutate(tag.id, {
-                            onSuccess: () => toast.success('برچسب حذف شد'),
-                            onError: fail,
-                          })
-                        }
+                        onClick={async () => {
+                          const how = await confirmDelete({ what: tag.title, kind: 'برچسب' })
+                          if (!how) return
+                          deleteTag.mutate(
+                            { id: tag.id, permanent: how === 'permanent' },
+                            {
+                              onSuccess: () =>
+                                toast.success(how === 'permanent' ? 'برچسب برای همیشه حذف شد' : 'برچسب به سطل زباله رفت'),
+                              onError: fail,
+                            },
+                          )
+                        }}
                       >
                         <Trash2 className="size-3.5" />
                       </Button>

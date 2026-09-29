@@ -7,6 +7,7 @@ use App\Models\StockAlert;
 use App\Services\StockAlerts;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 /** «موجود شد خبرم کن» از دید مشتری */
 class StockAlertController extends Controller
@@ -24,7 +25,7 @@ class StockAlertController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'productId' => ['bail', 'required', 'integer', 'exists:products,id'],
+            'productId' => ['bail', 'required', 'integer', Rule::exists('products', 'id')->whereNull('deleted_at')],
             'variantTitle' => ['nullable', 'string', 'max:120'],
         ]);
         $user = $request->user();

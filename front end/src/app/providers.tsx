@@ -5,6 +5,7 @@ import { HydrationBoundary, QueryClient, QueryClientProvider, type DehydratedSta
 import { MockProvider } from '@/mocks/mock-provider'
 import { FaviconSync } from '@/components/layout/favicon-sync'
 import { Toaster } from '@/components/ui/toast'
+import { ConfirmHost } from '@/components/ui/confirm'
 import { applyTheme, useUi } from '@/store/ui'
 
 function ThemeSync() {
@@ -47,6 +48,7 @@ export function Providers({ children, state }: { children: React.ReactNode; stat
           <FaviconSync />
           {children}
           <Toaster />
+          <ConfirmHost />
         </MockProvider>
       </HydrationBoundary>
     </QueryClientProvider>

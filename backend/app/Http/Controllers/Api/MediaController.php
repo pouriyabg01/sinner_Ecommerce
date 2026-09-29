@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Media;
 use App\Services\Media\MediaLibrary;
+use App\Services\Trash;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -92,7 +93,7 @@ class MediaController extends Controller
         return response()->json($this->row($medium));
     }
 
-    public function destroy(Request $request, Media $medium, MediaLibrary $library): JsonResponse
+    public function destroy(Request $request, Media $medium, MediaLibrary $library, Trash $trash): JsonResponse
     {
         $force = $request->boolean('force');
         $usage = $library->usageCount($medium);
@@ -108,7 +109,8 @@ class MediaController extends Controller
             ], 409);
         }
 
-        $library->delete($medium);
+        // «permanent» یعنی بدون گذشتن از سطل زباله؛ فایل هم همان‌جا از دیسک می‌رود
+        $request->boolean('permanent') ? $trash->forget($medium) : $library->delete($medium);
 
         return response()->json(['ok' => true]);
     }

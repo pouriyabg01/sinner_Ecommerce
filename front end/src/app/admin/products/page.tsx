@@ -40,6 +40,7 @@ import { Drawer } from '@/components/ui/drawer'
 import { Field, Input, PriceInput, Select, Textarea } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast'
+import { confirmDelete } from '@/components/ui/confirm'
 import { useForm } from '@/lib/use-form'
 import {
   amountSchema,
@@ -238,13 +239,16 @@ function ProductsView() {
   const removeSelected = async () => {
     const ids = selection.selected
     if (!ids.length) return
-    if (!confirm(`آیا ${toFaDigits(ids.length)} کالا حذف شوند؟ این کار برگشت‌پذیر نیست.`)) return
+    const how = await confirmDelete({ kind: 'کالا', count: ids.length })
+    if (!how) return
 
     setBulkBusy(true)
-    const { done, failed, firstError } = await runBulk(ids, (id) => deleteProduct.mutateAsync(id))
+    const { done, failed, firstError } = await runBulk(ids, (id) =>
+      deleteProduct.mutateAsync({ id, permanent: how === 'permanent' }),
+    )
     setBulkBusy(false)
     selection.clear()
-    if (done) toast.success(`${toFaDigits(done)} کالا حذف شد`)
+    if (done) toast.success(`${toFaDigits(done)} کالا ${how === 'permanent' ? 'برای همیشه حذف شد' : 'به سطل زباله رفت'}`)
     if (failed) toast.error(firstError ?? `${toFaDigits(failed)} کالا حذف نشد`)
   }
 
@@ -465,9 +469,16 @@ function ProductsView() {
                         size="icon-sm"
                         aria-label="حذف"
                         className="text-muted hover:text-red-500"
-                        onClick={() => {
-                          if (confirm(`آیا «${product.title}» حذف شود؟`))
-                            deleteProduct.mutate(product.id, { onSuccess: () => toast.success('محصول حذف شد') })
+                        onClick={async () => {
+                          const how = await confirmDelete({ what: product.title, kind: 'کالا' })
+                          if (!how) return
+                          deleteProduct.mutate(
+                            { id: product.id, permanent: how === 'permanent' },
+                            {
+                              onSuccess: () =>
+                                toast.success(how === 'permanent' ? 'کالا برای همیشه حذف شد' : 'کالا به سطل زباله رفت'),
+                            },
+                          )
                         }}
                       >
                         <Trash2 className="size-3.5" />

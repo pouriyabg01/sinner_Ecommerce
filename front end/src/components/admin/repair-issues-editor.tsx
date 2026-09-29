@@ -20,6 +20,7 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { Field, Input, PriceInput, Textarea } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast'
+import { confirmDelete } from '@/components/ui/confirm'
 import { useForm } from '@/lib/use-form'
 import { amountSchema, optionalText, requiredText } from '@/lib/validation'
 import { getIcon } from '@/lib/icons'
@@ -226,12 +227,17 @@ export function RepairIssuesEditor() {
                         size="icon-sm"
                         aria-label="حذف"
                         className="text-muted hover:text-red-500"
-                        onClick={() => {
-                          if (confirm(`آیا «${issue.title}» از فرم تعمیر حذف شود؟`))
-                            deleteIssue.mutate(issue.id, {
-                              onSuccess: () => toast.success('مشکل حذف شد'),
+                        onClick={async () => {
+                          const how = await confirmDelete({ what: issue.title, kind: 'مشکل تعمیر' })
+                          if (!how) return
+                          deleteIssue.mutate(
+                            { id: issue.id, permanent: how === 'permanent' },
+                            {
+                              onSuccess: () =>
+                                toast.success(how === 'permanent' ? 'مشکل برای همیشه حذف شد' : 'مشکل به سطل زباله رفت'),
                               onError: fail,
-                            })
+                            },
+                          )
                         }}
                       >
                         <Trash2 className="size-3.5" />

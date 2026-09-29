@@ -20,6 +20,7 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { Field, Input, Select, Textarea } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast'
+import { confirmDelete } from '@/components/ui/confirm'
 import { MAX_UPLOAD_BYTES } from '@/lib/file'
 import { formatDateTime, toFaDigits } from '@/lib/format'
 import { cn } from '@/lib/utils'
@@ -288,16 +289,26 @@ export function MediaDetails({
   const remove = useDeleteMedia()
   const [draft, setDraft] = useState({ title: item.title, alt: item.alt, caption: item.caption })
   const [confirmUsage, setConfirmUsage] = useState(0)
+  // انتخابِ «سطل زباله یا برای همیشه» نگه داشته می‌شود، چون اگر تصویر جایی
+  // استفاده شده باشد یک پرسش دیگر هم وسط می‌آید و باید همان انتخاب ادامه یابد
+  const [permanent, setPermanent] = useState(false)
   const [editing, setEditing] = useState(false)
 
   const dirty = draft.title !== item.title || draft.alt !== item.alt || draft.caption !== item.caption
 
-  const del = (force: boolean) =>
+  const askDelete = async () => {
+    const how = await confirmDelete({ what: item.title || item.name, kind: 'تصویر' })
+    if (!how) return
+    setPermanent(how === 'permanent')
+    del(false, how === 'permanent')
+  }
+
+  const del = (force: boolean, forever: boolean) =>
     remove.mutate(
-      { id: item.id, force },
+      { id: item.id, force, permanent: forever },
       {
         onSuccess: () => {
-          toast.success('تصویر حذف شد')
+          toast.success(forever ? 'تصویر برای همیشه حذف شد' : 'تصویر به سطل زباله رفت')
           setConfirmUsage(0)
           onDeleted?.()
         },
@@ -376,7 +387,7 @@ export function MediaDetails({
           <Scissors className="size-3.5" />
           برش و تغییر اندازه
         </Button>
-        <Button size="sm" variant="danger" loading={remove.isPending} onClick={() => del(false)}>
+        <Button size="sm" variant="danger" loading={remove.isPending} onClick={() => void askDelete()}>
           <Trash2 className="size-3.5" />
           حذف از کتابخانه
         </Button>
@@ -390,7 +401,7 @@ export function MediaDetails({
             این تصویر در {toFaDigits(confirmUsage)} جای سایت استفاده شده است. با حذفش، آن‌جاها بدون تصویر می‌مانند.
           </p>
           <div className="flex gap-2">
-            <Button size="sm" variant="danger" onClick={() => del(true)}>
+            <Button size="sm" variant="danger" onClick={() => del(true, permanent)}>
               با این حال حذف کن
             </Button>
             <Button size="sm" variant="ghost" onClick={() => setConfirmUsage(0)}>

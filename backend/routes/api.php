@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\RepairController;
 use App\Http\Controllers\Api\SmsController;
 use App\Http\Controllers\Api\StatsController;
 use App\Http\Controllers\Api\StockAlertController;
+use App\Http\Controllers\Api\TrashController;
 use App\Http\Controllers\Api\UploadController;
 use Illuminate\Support\Facades\Route;
 
@@ -224,6 +225,15 @@ Route::prefix('v1')->group(function () {
             Route::post('tags', [AdminController::class, 'storeTag']);
             Route::patch('tags/{tag}', [AdminController::class, 'updateTag']);
             Route::delete('tags/{tag}', [AdminController::class, 'destroyTag']);
+
+            /*
+             * سطل زباله. حذف در پنل چیزی را نمی‌برد، فقط اینجا می‌گذارد؛ از
+             * همین‌جا یا برمی‌گردد یا برای همیشه می‌رود.
+             */
+            Route::get('trash', [TrashController::class, 'index']);
+            Route::delete('trash', [TrashController::class, 'clear']);
+            Route::post('trash/{type}/{id}/restore', [TrashController::class, 'restore'])->whereNumber('id');
+            Route::delete('trash/{type}/{id}', [TrashController::class, 'destroy'])->whereNumber('id');
         });
     });
 

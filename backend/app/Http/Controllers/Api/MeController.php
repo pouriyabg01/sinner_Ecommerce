@@ -124,7 +124,7 @@ class MeController extends Controller
     public function addToWishlist(Request $request): JsonResponse
     {
         // bail: شناسه‌ی غیرعددی نباید به کوئری exists برسد، پستگرس رویش خطا می‌دهد
-        $data = $request->validate(['productId' => ['bail', 'required', 'integer', 'exists:products,id']]);
+        $data = $request->validate(['productId' => ['bail', 'required', 'integer', Rule::exists('products', 'id')->whereNull('deleted_at')]]);
 
         $request->user()->wishlist()->syncWithoutDetaching([$data['productId']]);
 

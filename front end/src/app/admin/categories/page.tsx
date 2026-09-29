@@ -25,6 +25,7 @@ import { Drawer } from '@/components/ui/drawer'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast'
+import { confirmDelete } from '@/components/ui/confirm'
 import { toFaDigits } from '@/lib/format'
 import { buildCategoryTree, flattenCategoryTree } from '@/lib/category-tree'
 import { cn } from '@/lib/utils'
@@ -61,13 +62,16 @@ export default function AdminTaxonomyPage() {
   const removeSelectedBrands = async () => {
     const ids = brandSelection.selected
     if (!ids.length) return
-    if (!confirm(`آیا ${toFaDigits(ids.length)} برند حذف شوند؟ این کار برگشت‌پذیر نیست.`)) return
+    const how = await confirmDelete({ kind: 'برند', count: ids.length })
+    if (!how) return
 
     setBrandBulkBusy(true)
-    const { done, failed, firstError } = await runBulk(ids, (id) => deleteBrand.mutateAsync(id))
+    const { done, failed, firstError } = await runBulk(ids, (id) =>
+      deleteBrand.mutateAsync({ id, permanent: how === 'permanent' }),
+    )
     setBrandBulkBusy(false)
     brandSelection.clear()
-    if (done) toast.success(`${toFaDigits(done)} برند حذف شد`)
+    if (done) toast.success(`${toFaDigits(done)} برند ${how === 'permanent' ? 'برای همیشه حذف شد' : 'به سطل زباله رفت'}`)
     if (failed) toast.error(firstError ?? `${toFaDigits(failed)} برند حذف نشد`)
   }
 
@@ -249,12 +253,18 @@ export default function AdminTaxonomyPage() {
                         className="text-muted hover:text-red-500"
                         disabled={brand.productCount > 0}
                         title={brand.productCount > 0 ? 'ابتدا برند کالاهای این برند را عوض کنید' : undefined}
-                        onClick={() =>
-                          deleteBrand.mutate(brand.id, {
-                            onSuccess: () => toast.success('برند حذف شد'),
-                            onError: fail,
-                          })
-                        }
+                        onClick={async () => {
+                          const how = await confirmDelete({ what: brand.title, kind: 'برند' })
+                          if (!how) return
+                          deleteBrand.mutate(
+                            { id: brand.id, permanent: how === 'permanent' },
+                            {
+                              onSuccess: () =>
+                                toast.success(how === 'permanent' ? 'برند برای همیشه حذف شد' : 'برند به سطل زباله رفت'),
+                              onError: fail,
+                            },
+                          )
+                        }}
                       >
                         <Trash2 className="size-3.5" />
                       </Button>
@@ -350,18 +360,21 @@ const DELETE_OPTIONS: { mode: CategoryDeleteMode; title: string; text: (count: s
 function DeleteCategoryDrawer({ category, onClose }: { category: CategoryWithCount | null; onClose: () => void }) {
   const deleteCategory = useDeleteCategory()
   const [mode, setMode] = useState<CategoryDeleteMode>('detach_products')
+  const [permanent, setPermanent] = useState(false)
   const count = category?.productCount ?? 0
   const countLabel = toFaDigits(count)
 
   const submit = () => {
     if (!category) return
     deleteCategory.mutate(
-      { id: category.id, mode: count ? mode : undefined },
+      { id: category.id, mode: count ? mode : undefined, permanent },
       {
         onSuccess: () => {
           toast.success(
             !count
-              ? 'دسته‌بندی حذف شد'
+              ? permanent
+                ? 'دسته‌بندی برای همیشه حذف شد'
+                : 'دسته‌بندی به سطل زباله رفت'
               : mode === 'delete_products'
                 ? `دسته‌بندی و ${countLabel} کالای آن حذف شدند`
                 : `دسته‌بندی حذف شد؛ ${countLabel} کالا بدون دسته و غیرفعال شدند`,
@@ -435,6 +448,7 @@ function DeleteCategoryDrawer({ category, onClose }: { category: CategoryWithCou
         <p className="rounded-xl bg-surface-2 px-3.5 py-2.5 text-xs text-muted">
           لینک این دسته از بخش دسته‌بندی‌های صفحه‌ی اصلی و ستون دسته‌بندی‌های فوتر هم خودکار برداشته می‌شود.
         </p>
+        <PermanentToggle value={permanent} onChange={setPermanent} />
       </div>
     </Drawer>
   )
@@ -458,6 +472,7 @@ function BulkDeleteCategoriesDrawer({
 }) {
   const deleteCategory = useDeleteCategory()
   const [mode, setMode] = useState<CategoryDeleteMode>('detach_products')
+  const [permanent, setPermanent] = useState(false)
   const [busy, setBusy] = useState(false)
 
   const rows = categories ?? []
@@ -472,7 +487,7 @@ function BulkDeleteCategoriesDrawer({
       rows.map((category) => category.id),
       (id) => {
         const row = rows.find((category) => category.id === id)
-        return deleteCategory.mutateAsync({ id, mode: row?.productCount ? mode : undefined })
+        return deleteCategory.mutateAsync({ id, mode: row?.productCount ? mode : undefined, permanent })
       },
     )
     setBusy(false)
@@ -549,8 +564,29 @@ function BulkDeleteCategoriesDrawer({
         ) : (
           <p>هیچ‌کدام از این دسته‌ها کالایی ندارند و حذفشان روی کالاها اثری نمی‌گذارد.</p>
         )}
+        <PermanentToggle value={permanent} onChange={setPermanent} />
       </div>
     </Drawer>
+  )
+}
+
+/** گزینه‌ی «بدون سطل زباله»، ته هر دو کشوی حذف دسته */
+function PermanentToggle({ value, onChange }: { value: boolean; onChange: (next: boolean) => void }) {
+  return (
+    <label className="flex cursor-pointer items-start gap-2.5 rounded-2xl border border-border p-3.5 transition-colors hover:border-red-400">
+      <input
+        type="checkbox"
+        checked={value}
+        onChange={(event) => onChange(event.target.checked)}
+        className="mt-1 size-4 shrink-0 accent-red-500"
+      />
+      <span className="min-w-0 flex-1 text-xs leading-6">
+        <span className="block font-bold">بدون سطل زباله، برای همیشه حذف شود</span>
+        <span className="block text-muted">
+          به‌صورت عادی به سطل زباله می‌رود و هر وقت خواستی برمی‌گردد.
+        </span>
+      </span>
+    </label>
   )
 }
 

@@ -21,6 +21,7 @@ import { Drawer } from '@/components/ui/drawer'
 import { Field, Input, PriceInput, Select } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast'
+import { confirmDelete } from '@/components/ui/confirm'
 import { useForm } from '@/lib/use-form'
 import { amountSchema, discountCodeSchema } from '@/lib/validation'
 import { formatDateTime, formatPrice, toFaDigits, toLocalDateTime } from '@/lib/format'
@@ -127,13 +128,16 @@ export default function AdminDiscountsPage() {
   const removeSelected = async () => {
     const ids = selection.selected
     if (!ids.length) return
-    if (!confirm(`آیا ${toFaDigits(ids.length)} کد تخفیف حذف شوند؟`)) return
+    const how = await confirmDelete({ kind: 'کد تخفیف', count: ids.length })
+    if (!how) return
 
     setBulkBusy(true)
-    const { done, failed, firstError } = await runBulk(ids, (id) => deleteDiscount.mutateAsync(id))
+    const { done, failed, firstError } = await runBulk(ids, (id) =>
+      deleteDiscount.mutateAsync({ id, permanent: how === 'permanent' }),
+    )
     setBulkBusy(false)
     selection.clear()
-    if (done) toast.success(`${toFaDigits(done)} کد حذف شد`)
+    if (done) toast.success(`${toFaDigits(done)} کد ${how === 'permanent' ? 'برای همیشه حذف شد' : 'به سطل زباله رفت'}`)
     if (failed) toast.error(firstError ?? `${toFaDigits(failed)} کد حذف نشد`)
   }
 
@@ -308,9 +312,17 @@ export default function AdminDiscountsPage() {
                       size="icon-sm"
                       aria-label="حذف"
                       className="text-muted hover:text-red-500"
-                      onClick={() =>
-                        deleteDiscount.mutate(discount.id, { onSuccess: () => toast.success('کد حذف شد') })
-                      }
+                      onClick={async () => {
+                        const how = await confirmDelete({ what: discount.code, kind: 'کد تخفیف' })
+                        if (!how) return
+                        deleteDiscount.mutate(
+                          { id: discount.id, permanent: how === 'permanent' },
+                          {
+                            onSuccess: () =>
+                              toast.success(how === 'permanent' ? 'کد برای همیشه حذف شد' : 'کد به سطل زباله رفت'),
+                          },
+                        )
+                      }}
                     >
                       <Trash2 className="size-3.5" />
                     </Button>

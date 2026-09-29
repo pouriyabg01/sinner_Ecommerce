@@ -16,7 +16,7 @@ import {
 } from './endpoints'
 import type { Product, ProductQuery } from '@/types/catalog'
 import { MOCKING_ENABLED } from './config'
-import { mailApi, mediaApi, newsletterApi, smsApi, stockAlertApi } from './endpoints'
+import { mailApi, mediaApi, newsletterApi, smsApi, stockAlertApi, trashApi } from './endpoints'
 import type { StockAlert } from '@/types/catalog'
 import type { MediaSort } from '@/types/media'
 import { useSession } from '@/store/session'
@@ -60,6 +60,7 @@ export const qk = {
   adminBrands: ['admin', 'brands'] as const,
   adminTags: ['admin', 'tags'] as const,
   adminAdmins: ['admin', 'admins'] as const,
+  adminTrash: ['admin', 'trash'] as const,
 }
 
 /* ---------------------------------- catalog --------------------------------- */
@@ -504,6 +505,27 @@ export const useMedia = (params: { search?: string; sort?: MediaSort; page?: num
     // فهرست با هر تایپ در جست‌وجو عوض می‌شود؛ نگه‌داشتن نتیجه‌ی قبلی از پرش چیدمان جلوگیری می‌کند
     placeholderData: (previous) => previous,
   })
+
+/* ----------------------------------- سطل زباله ---------------------------------- */
+
+/*
+ * برگشت یا حذف کاملِ چیزی از سطل، می‌تواند هر فهرستی از پنل و فروشگاه را
+ * عوض کند — کالا، دسته، برند، برچسب، تخفیف، تصویر. به‌جای شمردن دقیقِ
+ * تأثیرها، همه از نو خوانده می‌شوند؛ این کار در پنل به‌ندرت پیش می‌آید.
+ */
+const TRASH_KEYS = [
+  [...qk.adminTrash],
+  ...TAXONOMY_KEYS,
+  [...qk.adminDiscounts],
+  [...qk.adminRepairIssues],
+  ['repair', 'issues'],
+  ['admin', 'media'],
+]
+
+export const useTrash = () => useQuery({ queryKey: qk.adminTrash, queryFn: trashApi.list })
+export const useRestoreTrashed = () => useAdminMutation(trashApi.restore, TRASH_KEYS)
+export const usePurgeTrashed = () => useAdminMutation(trashApi.remove, TRASH_KEYS)
+export const useEmptyTrash = () => useAdminMutation(trashApi.clear, TRASH_KEYS)
 
 const MEDIA_KEY = [['admin', 'media']]
 

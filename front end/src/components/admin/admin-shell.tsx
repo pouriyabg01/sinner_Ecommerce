@@ -4,7 +4,7 @@ import { Fragment, useId } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { AnimatePresence, motion } from 'motion/react'
-import { ArrowRightLeft, BadgePercent, ChevronDown, Images, Layers, LayoutDashboard, Mail, Megaphone, MessageSquareText, Package, Palette, Settings, ShieldCheck, ShoppingCart, Smartphone, Tags, Users, Wrench } from 'lucide-react'
+import { ArrowRightLeft, BadgePercent, ChevronDown, Images, Layers, LayoutDashboard, Mail, Megaphone, MessageSquareText, Package, Palette, Settings, ShieldCheck, ShoppingCart, Smartphone, Tags, Trash2, Users, Wrench } from 'lucide-react'
 import type { Permission } from '@/types/user'
 import { useCan } from '@/lib/use-can'
 import { useSession } from '@/store/session'
@@ -68,6 +68,7 @@ const menu: { title?: string; items: MenuItem[] }[] = [
       { href: '/admin/settings', label: 'تنظیمات', icon: Settings, permission: 'settings.manage' },
       { href: '/admin/sms', label: 'پیامک', icon: Smartphone, permission: 'settings.manage' },
       { href: '/admin/email', label: 'ایمیل', icon: Mail, permission: 'settings.manage' },
+      { href: '/admin/trash', label: 'سطل زباله', icon: Trash2, permission: 'dashboard.view' },
     ],
   },
 ]

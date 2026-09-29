@@ -305,7 +305,8 @@ export const adminApi = {
   createProduct: (body: Partial<Product>) => apiFetch<Product>('/admin/products', { method: 'POST', body }),
   updateProduct: (id: string, body: Partial<Product>) =>
     apiFetch<Product>(`/admin/products/${id}`, { method: 'PATCH', body }),
-  deleteProduct: (id: string) => apiFetch<{ ok: true }>(`/admin/products/${id}`, { method: 'DELETE' }),
+  deleteProduct: ({ id, permanent }: DeleteArg) =>
+    apiFetch<{ ok: true }>(`/admin/products/${id}`, { method: 'DELETE', params: { permanent } }),
 
   orders: () => apiFetch<AdminOrder[]>('/admin/orders'),
   updateOrder: (id: string, body: { status?: OrderStatus; trackingCode?: string | null }) =>
@@ -324,27 +325,33 @@ export const adminApi = {
   createDiscount: (body: Omit<Discount, 'id'>) => apiFetch<Discount>('/admin/discounts', { method: 'POST', body }),
   updateDiscount: (id: string, body: Partial<Discount>) =>
     apiFetch<Discount>(`/admin/discounts/${id}`, { method: 'PATCH', body }),
-  deleteDiscount: (id: string) => apiFetch<{ ok: true }>(`/admin/discounts/${id}`, { method: 'DELETE' }),
+  deleteDiscount: ({ id, permanent }: DeleteArg) =>
+    apiFetch<{ ok: true }>(`/admin/discounts/${id}`, { method: 'DELETE', params: { permanent } }),
 
   categories: () => apiFetch<CategoryWithCount[]>('/admin/categories'),
   createCategory: (body: Omit<Category, 'id'>) => apiFetch<Category>('/admin/categories', { method: 'POST', body }),
   updateCategory: (id: string, body: Partial<Category>) =>
     apiFetch<Category>(`/admin/categories/${id}`, { method: 'PATCH', body }),
   /** دسته‌ی دارای کالا بدون `mode` حذف نمی‌شود — سرور ۴۲۲ برمی‌گرداند */
-  deleteCategory: ({ id, mode }: { id: string; mode?: CategoryDeleteMode }) =>
-    apiFetch<{ ok: true; affected: number }>(`/admin/categories/${id}`, { method: 'DELETE', params: { mode } }),
+  deleteCategory: ({ id, mode, permanent }: DeleteArg & { mode?: CategoryDeleteMode }) =>
+    apiFetch<{ ok: true; affected: number }>(`/admin/categories/${id}`, {
+      method: 'DELETE',
+      params: { mode, permanent },
+    }),
 
   brands: () => apiFetch<BrandWithCount[]>('/admin/brands'),
   createBrand: (body: Omit<Brand, 'id'>) => apiFetch<Brand>('/admin/brands', { method: 'POST', body }),
   updateBrand: (id: string, body: Partial<Brand>) =>
     apiFetch<Brand>(`/admin/brands/${id}`, { method: 'PATCH', body }),
-  deleteBrand: (id: string) => apiFetch<{ ok: true }>(`/admin/brands/${id}`, { method: 'DELETE' }),
+  deleteBrand: ({ id, permanent }: DeleteArg) =>
+    apiFetch<{ ok: true }>(`/admin/brands/${id}`, { method: 'DELETE', params: { permanent } }),
 
   tags: () => apiFetch<TagWithCount[]>('/admin/tags'),
   createTag: (body: Omit<Tag, 'id'>) => apiFetch<Tag>('/admin/tags', { method: 'POST', body }),
   updateTag: (id: string, body: Partial<Tag>) =>
     apiFetch<Tag>(`/admin/tags/${id}`, { method: 'PATCH', body }),
-  deleteTag: (id: string) => apiFetch<{ ok: true }>(`/admin/tags/${id}`, { method: 'DELETE' }),
+  deleteTag: ({ id, permanent }: DeleteArg) =>
+    apiFetch<{ ok: true }>(`/admin/tags/${id}`, { method: 'DELETE', params: { permanent } }),
 
   users: () => apiFetch<User[]>('/admin/users'),
   user: (id: string) => apiFetch<UserRecord>(`/admin/users/${id}`),
@@ -358,8 +365,8 @@ export const adminApi = {
     apiFetch<CommonIssue>('/admin/repair-issues', { method: 'POST', body }),
   updateRepairIssue: (id: string, body: Partial<CommonIssue>) =>
     apiFetch<CommonIssue>(`/admin/repair-issues/${id}`, { method: 'PATCH', body }),
-  deleteRepairIssue: (id: string) =>
-    apiFetch<{ ok: true }>(`/admin/repair-issues/${id}`, { method: 'DELETE' }),
+  deleteRepairIssue: ({ id, permanent }: DeleteArg) =>
+    apiFetch<{ ok: true }>(`/admin/repair-issues/${id}`, { method: 'DELETE', params: { permanent } }),
 
   admins: () => apiFetch<User[]>('/admin/admins'),
   createAdmin: (body: { fullName: string; adminTitle: string; phone: string; email: string; permissions: Permission[] }) =>
@@ -468,6 +475,31 @@ export const newsletterApi = {
 }
 
 /* ------------------------------ کتابخانه‌ی تصویر ----------------------------- */
+/**
+ * ورودی هر حذفی در پنل. بدون `permanent` چیز به سطل زباله می‌رود و
+ * برگشت‌پذیر است؛ با آن، همان‌جا و برای همیشه می‌رود.
+ */
+export type DeleteArg = { id: string; permanent?: boolean }
+
+/** یک چیزِ داخل سطل زباله، هر نوعی که باشد */
+export interface TrashedItem {
+  type: string
+  typeLabel: string
+  id: string
+  title: string
+  deletedAt: string | null
+  thumbnail: string | null
+}
+
+export const trashApi = {
+  list: () => apiFetch<TrashedItem[]>('/admin/trash'),
+  restore: ({ type, id }: { type: string; id: string }) =>
+    apiFetch<{ ok: true }>(`/admin/trash/${type}/${id}/restore`, { method: 'POST' }),
+  remove: ({ type, id }: { type: string; id: string }) =>
+    apiFetch<{ ok: true }>(`/admin/trash/${type}/${id}`, { method: 'DELETE' }),
+  clear: () => apiFetch<{ ok: true; removed: number }>('/admin/trash', { method: 'DELETE' }),
+}
+
 export const mediaApi = {
   list: (params: { search?: string; sort?: MediaSort; page?: number }) =>
     apiFetch<MediaPage>('/admin/media', { params }),
@@ -490,6 +522,6 @@ export const mediaApi = {
     })
   },
   /** `force` فقط وقتی لازم است که تصویر جایی استفاده شده و مدیر باز هم بخواهد */
-  remove: ({ id, force }: { id: string; force?: boolean }) =>
-    apiFetch<{ ok: true }>(`/admin/media/${id}`, { method: 'DELETE', params: { force } }),
+  remove: ({ id, force, permanent }: DeleteArg & { force?: boolean }) =>
+    apiFetch<{ ok: true }>(`/admin/media/${id}`, { method: 'DELETE', params: { force, permanent } }),
 }

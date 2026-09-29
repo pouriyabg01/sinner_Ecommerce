@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Media extends Model
 {
+    use SoftDeletes;
+
     // جمعِ media خودش media است و لاراول «medias» می‌سازد
     protected $table = 'media';
 

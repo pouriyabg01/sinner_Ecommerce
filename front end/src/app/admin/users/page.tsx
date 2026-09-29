@@ -18,6 +18,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast'
+import { confirmAction } from '@/components/ui/confirm'
 import { useSession } from '@/store/session'
 import { formatDate, formatPhone, toFaDigits } from '@/lib/format'
 import { cn } from '@/lib/utils'
@@ -82,9 +83,14 @@ function UsersView() {
       ? toast.success(`«${name}» سابقه‌ی سفارش دارد؛ به‌جای حذف مسدود شد`)
       : toast.success(`«${name}» حذف شد`)
 
-  const removeUser = (user: User) => {
+  const removeUser = async (user: User) => {
     if (locked(user)) return
-    if (!confirm(`آیا «${user.fullName}» حذف شود؟ اگر سفارش یا تعمیری داشته باشد، به‌جای حذف مسدود می‌شود.`)) return
+    const ok = await confirmAction({
+      title: `«${user.fullName}» حذف شود؟`,
+      body: 'اگر سفارش یا تعمیری داشته باشد به‌جای حذف مسدود می‌شود. این کار برگشت‌پذیر نیست.',
+      confirmLabel: 'حذف کاربر',
+    })
+    if (!ok) return
     deleteUser.mutate(user.id, {
       onSuccess: (result) => afterDelete(user.fullName, result),
       onError: (error: Error) => toast.error(error.message),
@@ -97,7 +103,12 @@ function UsersView() {
       return user && !locked(user)
     })
     if (!ids.length) return
-    if (!confirm(`آیا ${toFaDigits(ids.length)} کاربر حذف شوند؟ حساب‌های دارای سفارش به‌جای حذف مسدود می‌شوند.`)) return
+    const ok = await confirmAction({
+      title: `${toFaDigits(ids.length)} کاربر حذف شوند؟`,
+      body: 'حساب‌های دارای سفارش به‌جای حذف مسدود می‌شوند. این کار برگشت‌پذیر نیست.',
+      confirmLabel: 'حذف کاربران',
+    })
+    if (!ok) return
 
     setBulkBusy(true)
     const { done, failed, firstError } = await runBulk(ids, (id) => deleteUser.mutateAsync(id))

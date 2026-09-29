@@ -12,6 +12,7 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { LoadError } from '@/components/ui/load-error'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast'
+import { confirmAction } from '@/components/ui/confirm'
 import { formatPhone, toFaDigits } from '@/lib/format'
 
 export default function AddressesPage() {
@@ -50,8 +51,9 @@ export default function AddressesPage() {
       },
     )
 
-  const deleteAddress = (address: Address) => {
-    if (!window.confirm(`آدرس «${address.title}» حذف شود؟`)) return
+  const deleteAddress = async (address: Address) => {
+    const ok = await confirmAction({ title: `آدرس «${address.title}» حذف شود؟`, confirmLabel: 'حذف آدرس' })
+    if (!ok) return
     remove.mutate(address.id, {
       onSuccess: () => toast.success('آدرس حذف شد'),
       onError: (error) => toast.error(error.message),

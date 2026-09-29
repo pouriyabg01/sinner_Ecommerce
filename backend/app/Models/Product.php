@@ -7,9 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'slug', 'title', 'title_en', 'category_id', 'brand_id', 'compare_at_price',
         'images', 'short_description', 'description', 'specs', 'is_new', 'is_featured', 'status', 'condition', 'variant_label',

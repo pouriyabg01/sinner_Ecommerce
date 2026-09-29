@@ -26,6 +26,7 @@ use App\Services\StockAlerts;
 use App\Support\Digits;
 use App\Support\OrderStatusFlow;
 use App\Support\RepairStatusFlow;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -85,13 +86,22 @@ class AdminController extends Controller
         return response()->json((new ProductResource($this->loadProduct($product)))->resolve());
     }
 
-    public function destroyProduct(Product $product): JsonResponse
+    public function destroyProduct(Request $request, Product $product): JsonResponse
     {
         $discountIds = DB::table('discount_product')->where('product_id', $product->id)->pluck('discount_id');
-        $product->delete();
+        $this->removeOrTrash($product, $request);
         Discount::deactivateUnscoped($discountIds);
 
         return response()->json(['ok' => true]);
+    }
+
+    /**
+     * حذف عادی چیزی را به سطل زباله می‌برد و از فروشگاه و فهرست‌ها پنهانش
+     * می‌کند؛ «permanent» یعنی همان‌جا و برای همیشه، بدون گذشتن از سطل.
+     */
+    private function removeOrTrash(Model $row, Request $request): void
+    {
+        $request->boolean('permanent') ? $row->forceDelete() : $row->delete();
     }
 
     private function loadProduct(Product $product): Product
@@ -105,9 +115,9 @@ class AdminController extends Controller
             'title' => ['sometimes', 'string', 'max:120'],
             'titleEn' => ['sometimes', 'nullable', 'string', 'max:120'],
             // خالی یعنی «خودت بساز»؛ پیش‌تر نامک خالی با خطای «نامک باید متن باشد» کل ثبت را رد می‌کرد
-            'slug' => ['sometimes', 'nullable', 'string', 'max:120', 'regex:/^[a-z0-9]+(-[a-z0-9]+)*$/', Rule::unique('products', 'slug')->ignore($existing?->id)],
-            'categorySlug' => ['sometimes', 'string', 'exists:categories,slug'],
-            'brandSlug' => ['sometimes', 'string', 'exists:brands,slug'],
+            'slug' => ['sometimes', 'nullable', 'string', 'max:120', 'regex:/^[a-z0-9]+(-[a-z0-9]+)*$/', Rule::unique('products', 'slug')->whereNull('deleted_at')->ignore($existing?->id)],
+            'categorySlug' => ['sometimes', 'string', Rule::exists('categories', 'slug')->whereNull('deleted_at')],
+            'brandSlug' => ['sometimes', 'string', Rule::exists('brands', 'slug')->whereNull('deleted_at')],
             'compareAtPrice' => ['sometimes', 'nullable', 'integer', 'min:0'],
             'images' => ['sometimes', 'array'],
             'shortDescription' => ['sometimes', 'nullable', 'string', 'max:400'],
@@ -377,9 +387,9 @@ class AdminController extends Controller
         return response()->json(['id' => (string) $repairIssue->id] + $request->all());
     }
 
-    public function destroyRepairIssue(RepairIssue $repairIssue): JsonResponse
+    public function destroyRepairIssue(Request $request, RepairIssue $repairIssue): JsonResponse
     {
-        $repairIssue->delete();
+        $this->removeOrTrash($repairIssue, $request);
 
         return response()->json(['ok' => true]);
     }
@@ -439,13 +449,13 @@ class AdminController extends Controller
     public function storeDiscount(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'code' => ['required', 'string', 'max:20', 'unique:discounts,code'],
+            'code' => ['required', 'string', 'max:20', Rule::unique('discounts', 'code')->whereNull('deleted_at')],
             'type' => ['required', 'in:percent,amount'],
             'value' => ['required', 'integer', 'min:1'],
             'productIds' => ['array'],
             'categoryIds' => ['array'],
             // bail: شناسه‌ی غیرعددی نباید به کوئری روی ستون bigint برسد
-            'categoryIds.*' => ['bail', 'integer', 'exists:categories,id'],
+            'categoryIds.*' => ['bail', 'integer', Rule::exists('categories', 'id')->whereNull('deleted_at')],
             'userIds' => ['array'],
             'userIds.*' => ['bail', 'integer', 'exists:users,id'],
             'startsAt' => ['required', 'date'],
@@ -479,7 +489,7 @@ class AdminController extends Controller
             'active' => ['sometimes', 'boolean'],
             'productIds' => ['sometimes', 'array'],
             'categoryIds' => ['sometimes', 'array'],
-            'categoryIds.*' => ['bail', 'integer', 'exists:categories,id'],
+            'categoryIds.*' => ['bail', 'integer', Rule::exists('categories', 'id')->whereNull('deleted_at')],
             'userIds' => ['sometimes', 'array'],
             'userIds.*' => ['bail', 'integer', 'exists:users,id'],
             'usageLimit' => ['sometimes', 'integer', 'min:0'],
@@ -505,9 +515,9 @@ class AdminController extends Controller
         return response()->json(['id' => (string) $discount->id] + $request->all());
     }
 
-    public function destroyDiscount(Discount $discount): JsonResponse
+    public function destroyDiscount(Request $request, Discount $discount): JsonResponse
     {
-        $discount->delete();
+        $this->removeOrTrash($discount, $request);
 
         return response()->json(['ok' => true]);
     }
@@ -684,11 +694,11 @@ class AdminController extends Controller
     public function storeCategory(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'slug' => ['required', 'string', 'unique:categories,slug'],
+            'slug' => ['required', 'string', Rule::unique('categories', 'slug')->whereNull('deleted_at')],
             'title' => ['required', 'string', 'max:80'],
             'description' => ['nullable', 'string', 'max:400'],
             'specKeys' => ['array'],
-            'parentId' => ['nullable', 'exists:categories,id'],
+            'parentId' => ['nullable', Rule::exists('categories', 'id')->whereNull('deleted_at')],
         ]);
 
         $this->assertCategoryParent($data['parentId'] ?? null);
@@ -707,11 +717,11 @@ class AdminController extends Controller
     public function updateCategory(Request $request, Category $category): JsonResponse
     {
         $data = $request->validate([
-            'slug' => ['sometimes', 'string', Rule::unique('categories', 'slug')->ignore($category->id)],
+            'slug' => ['sometimes', 'string', Rule::unique('categories', 'slug')->whereNull('deleted_at')->ignore($category->id)],
             'title' => ['sometimes', 'string', 'max:80'],
             'description' => ['sometimes', 'nullable', 'string', 'max:400'],
             'specKeys' => ['sometimes', 'array'],
-            'parentId' => ['sometimes', 'nullable', 'exists:categories,id'],
+            'parentId' => ['sometimes', 'nullable', Rule::exists('categories', 'id')->whereNull('deleted_at')],
         ]);
 
         if (array_key_exists('parentId', $data)) {
@@ -787,7 +797,7 @@ class AdminController extends Controller
             );
         }
 
-        DB::transaction(function () use ($category, $data, $discountIds) {
+        DB::transaction(function () use ($category, $data, $discountIds, $request) {
             if (($data['mode'] ?? null) === 'delete_products') {
                 $category->products()->delete();
             } else {
@@ -796,7 +806,7 @@ class AdminController extends Controller
             }
 
             $this->forgetCategoryInHome($category->slug);
-            $category->delete();
+            $this->removeOrTrash($category, $request);
             Discount::deactivateUnscoped($discountIds);
         });
 
@@ -844,7 +854,7 @@ class AdminController extends Controller
     public function storeBrand(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'slug' => ['required', 'string', 'unique:brands,slug'],
+            'slug' => ['required', 'string', Rule::unique('brands', 'slug')->whereNull('deleted_at')],
             'title' => ['required', 'string', 'max:80'],
             'logo' => ['nullable', 'string'],
         ]);
@@ -857,7 +867,7 @@ class AdminController extends Controller
     public function updateBrand(Request $request, Brand $brand): JsonResponse
     {
         $data = $request->validate([
-            'slug' => ['sometimes', 'string', Rule::unique('brands', 'slug')->ignore($brand->id)],
+            'slug' => ['sometimes', 'string', Rule::unique('brands', 'slug')->whereNull('deleted_at')->ignore($brand->id)],
             'title' => ['sometimes', 'string', 'max:80'],
             'logo' => ['sometimes', 'nullable', 'string'],
         ]);
@@ -867,13 +877,13 @@ class AdminController extends Controller
         return response()->json(['id' => (string) $brand->id] + $request->all());
     }
 
-    public function destroyBrand(Brand $brand): JsonResponse
+    public function destroyBrand(Request $request, Brand $brand): JsonResponse
     {
         if ($brand->products()->exists()) {
             return response()->json(['message' => 'این برند کالا دارد و حذف نمی‌شود'], 409);
         }
 
-        $brand->delete();
+        $this->removeOrTrash($brand, $request);
 
         return response()->json(['ok' => true]);
     }
@@ -889,7 +899,7 @@ class AdminController extends Controller
 
     public function storeTag(Request $request): JsonResponse
     {
-        $data = $request->validate(['title' => ['required', 'string', 'max:40', 'unique:tags,title']]);
+        $data = $request->validate(['title' => ['required', 'string', 'max:40', Rule::unique('tags', 'title')->whereNull('deleted_at')]]);
         $tag = Tag::create($data);
 
         return response()->json(['id' => (string) $tag->id, 'title' => $tag->title], 201);
@@ -898,7 +908,7 @@ class AdminController extends Controller
     public function updateTag(Request $request, Tag $tag): JsonResponse
     {
         $data = $request->validate([
-            'title' => ['required', 'string', 'max:40', Rule::unique('tags', 'title')->ignore($tag->id)],
+            'title' => ['required', 'string', 'max:40', Rule::unique('tags', 'title')->whereNull('deleted_at')->ignore($tag->id)],
         ]);
 
         $tag->update($data);
@@ -906,9 +916,9 @@ class AdminController extends Controller
         return response()->json(['id' => (string) $tag->id, 'title' => $tag->title]);
     }
 
-    public function destroyTag(Tag $tag): JsonResponse
+    public function destroyTag(Request $request, Tag $tag): JsonResponse
     {
-        $tag->delete();
+        $this->removeOrTrash($tag, $request);
 
         return response()->json(['ok' => true]);
     }

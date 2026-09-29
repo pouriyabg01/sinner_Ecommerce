@@ -28,6 +28,7 @@ import { Drawer } from '@/components/ui/drawer'
 import { Field, Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/toast'
+import { confirmAction } from '@/components/ui/confirm'
 import { useForm } from '@/lib/use-form'
 import { mobileSchema, optionalEmailSchema, optionalText, requiredText } from '@/lib/validation'
 import { formatDate, formatPhone, toFaDigits } from '@/lib/format'
@@ -100,7 +101,12 @@ export default function AdminAdminsPage() {
       return admin && !locked(admin)
     })
     if (!ids.length) return
-    if (!confirm(`آیا دسترسی ${toFaDigits(ids.length)} ادمین حذف شود؟`)) return
+    const ok = await confirmAction({
+      title: `دسترسی ${toFaDigits(ids.length)} ادمین به پنل گرفته شود؟`,
+      body: 'حسابشان می‌ماند ولی دیگر به پنل راه ندارند. هر وقت خواستی دوباره اضافه‌شان کن.',
+      confirmLabel: 'گرفتن دسترسی',
+    })
+    if (!ok) return
 
     setBulkBusy(true)
     const { done, failed, firstError } = await runBulk(ids, (id) => deleteAdmin.mutateAsync(id))
@@ -265,12 +271,17 @@ export default function AdminAdminsPage() {
                           className="text-muted hover:text-red-500"
                           disabled={Boolean(locked(admin))}
                           title={locked(admin) ? `${locked(admin)} حذف نمی‌شود` : undefined}
-                          onClick={() => {
-                            if (confirm(`آیا دسترسی «${admin.fullName}» به پنل حذف شود؟`))
-                              deleteAdmin.mutate(admin.id, {
-                                onSuccess: () => toast.success('ادمین حذف شد'),
-                                onError: (error: Error) => toast.error(error.message),
-                              })
+                          onClick={async () => {
+                            const ok = await confirmAction({
+                              title: `دسترسی «${admin.fullName}» به پنل گرفته شود؟`,
+                              body: 'حسابش می‌ماند ولی دیگر به پنل راه ندارد.',
+                              confirmLabel: 'گرفتن دسترسی',
+                            })
+                            if (!ok) return
+                            deleteAdmin.mutate(admin.id, {
+                              onSuccess: () => toast.success('دسترسی گرفته شد'),
+                              onError: (error: Error) => toast.error(error.message),
+                            })
                           }}
                         >
                           <Trash2 className="size-3.5" />
