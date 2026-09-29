@@ -38,8 +38,13 @@ type SpecSource = Pick<Category, 'id' | 'slug' | 'specKeys'> & { parentId?: stri
  * کلیدهای مشخصات یک دسته، به‌همراه آنچه از مادرهایش به ارث می‌برد.
  *
  * درخت چند سطحی است و کلیدها معمولاً بالای شاخه تعریف می‌شوند؛ بدون ارث،
- * کالای یک زیرشاخه‌ی عمیق هیچ مشخصه‌ی آماده‌ای نمی‌گرفت. ترتیب از ریشه به
- * پایین است — عمومی‌ها اول — و کلید تکراری یک بار می‌آید.
+ * کالای یک زیرشاخه‌ی عمیق هیچ مشخصه‌ی آماده‌ای نمی‌گرفت.
+ *
+ * ترتیب: هرچه دسته به خودِ کالا نزدیک‌تر، بالاتر. یعنی اول مشخصه‌های خاصِ
+ * همین دسته و بعد عمومی‌های مادر — «نوع شارژر» پیش از «رنگ». پیش از این
+ * عکسش بود و ویژگی‌های عمومی سرِ جدول می‌نشستند. ترتیب درونِ هر دسته همان
+ * است که ادمین در فرم دسته نوشته، و کلید تکراری فقط یک بار و در نزدیک‌ترین
+ * جایگاهش می‌آید.
  */
 export function specKeysFor(categories: SpecSource[], slug: string): string[] {
   const byId = new Map(categories.map((category) => [category.id, category]))
@@ -52,7 +57,7 @@ export function specKeysFor(categories: SpecSource[], slug: string): string[] {
     node = node.parentId ? byId.get(node.parentId) : undefined
   ) {
     seen.add(node.id)
-    trail.unshift(node)
+    trail.push(node)
   }
 
   const keys: string[] = []
