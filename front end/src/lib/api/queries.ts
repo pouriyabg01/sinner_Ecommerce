@@ -26,6 +26,7 @@ export const qk = {
   products: (query: ProductQuery) => ['products', query] as const,
   product: (slug: string) => ['product', slug] as const,
   reviews: (slug: string) => ['product-reviews', slug] as const,
+  topReviews: (limit: number) => ['reviews', 'top', limit] as const,
   compare: (ids: string[]) => ['compare', ids] as const,
   categories: ['categories'] as const,
   brands: ['brands'] as const,
@@ -77,6 +78,9 @@ export const useProduct = (slug: string) =>
 
 export const useProductReviews = (slug: string) =>
   useQuery({ queryKey: qk.reviews(slug), queryFn: () => catalogApi.reviews(slug), enabled: Boolean(slug) })
+
+export const useTopReviews = (limit: number) =>
+  useQuery({ queryKey: qk.topReviews(limit), queryFn: () => catalogApi.topReviews(limit) })
 
 export const useCompare = (ids: string[]) =>
   useQuery({ queryKey: qk.compare(ids), queryFn: () => catalogApi.compare(ids), enabled: ids.length > 0 })

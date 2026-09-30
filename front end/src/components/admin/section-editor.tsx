@@ -467,51 +467,27 @@ export function SectionEditor({ section, onChange }: { section: Section; onChang
 
     case 'testimonials': {
       const props = section.props
+
+      /*
+       * متن دست‌نویس ندارد: نظرها از نظرهای واقعیِ تأییدشده‌ی کالاها خوانده
+       * می‌شوند. تا وقتی نظری ثبت نشده باشد، این بخش روی سایت کشیده نمی‌شود.
+       */
       return (
-        <div className="space-y-3">
+        <div className="space-y-4">
           <Field label="عنوان بخش">
             <Input value={props.title} onChange={(e) => onChange({ ...props, title: e.target.value })} />
           </Field>
-          {props.items.map((item) => (
-            <div key={item.id} className="space-y-3 rounded-2xl border border-border p-4">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <Field label="نام">
-                  <Input
-                    value={item.name}
-                    onChange={(e) =>
-                      onChange({
-                        ...props,
-                        items: props.items.map((x) => (x.id === item.id ? { ...x, name: e.target.value } : x)),
-                      })
-                    }
-                  />
-                </Field>
-                <Field label="عنوان شغلی">
-                  <Input
-                    value={item.role}
-                    onChange={(e) =>
-                      onChange({
-                        ...props,
-                        items: props.items.map((x) => (x.id === item.id ? { ...x, role: e.target.value } : x)),
-                      })
-                    }
-                  />
-                </Field>
-              </div>
-              <Field label="متن نظر">
-                <Textarea
-                  value={item.body}
-                  onChange={(e) =>
-                    onChange({
-                      ...props,
-                      items: props.items.map((x) => (x.id === item.id ? { ...x, body: e.target.value } : x)),
-                    })
-                  }
-                  className="min-h-20"
-                />
-              </Field>
-            </div>
-          ))}
+          <Field
+            label="چند نظر نمایش داده شود"
+            hint="از نظرهای تأییدشده‌ی کالاها: چهار ستاره به بالا، متن‌دار، پرامتیازترین و تازه‌ترین اول. حداکثر ۱۲."
+          >
+            <Input
+              value={String(props.limit ?? 6)}
+              onChange={(e) => onChange({ ...props, limit: Math.min(12, Math.max(1, Number(e.target.value) || 1)) })}
+              inputMode="numeric"
+              className="num"
+            />
+          </Field>
         </div>
       )
     }

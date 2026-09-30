@@ -61,13 +61,18 @@ export interface FeatureItem {
   subtitle: string
 }
 
-export interface TestimonialItem {
+/**
+ * نظر برگزیده‌ی صفحه‌ی اصلی — از نظرهای واقعی کالاها می‌آید، نه از متن دستی.
+ */
+export interface TopReview {
   id: string
-  name: string
-  role: string
-  avatar: string | null
-  body: string
+  userName: string
   rating: number
+  body: string
+  createdAt: string
+  verifiedPurchase: boolean
+  productSlug: string | null
+  productTitle: string | null
 }
 
 export type SectionProps = {
@@ -87,7 +92,8 @@ export type SectionProps = {
   countdown_deal: { title: string; productId: string; endsAt: string; note: string }
   repair_cta: { title: string; subtitle: string; bullets: string[]; ctaLabel: string; ctaHref: string; image: string }
   brand_strip: { title: string; brandSlugs: string[] }
-  testimonials: { title: string; items: TestimonialItem[] }
+  /** متنِ دستی ندارد؛ فقط عنوان بخش و اینکه چند نظر نشان داده شود */
+  testimonials: { title: string; limit?: number }
   rich_text: { title: string; html: string }
   newsletter: { title: string; subtitle: string; placeholder: string; ctaLabel: string }
 }

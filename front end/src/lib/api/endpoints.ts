@@ -9,7 +9,7 @@ import type { Brand, Category, Discount, Paginated, Product, ProductFacets, Prod
 import { SPEC_PARAM_PREFIX } from '@/types/catalog'
 import type { AdminOrder, Order, OrderStatus, PaymentMethodId, PaymentStatus } from '@/types/order'
 import type { AdminRepairRequest, RepairTracking, CommonIssue, DeviceKind, RepairRequest, RepairStatus } from '@/types/repair'
-import type { AboutPageConfig, DemoOutcome, HomePageConfig, SiteSettings } from '@/types/cms'
+import type { AboutPageConfig, DemoOutcome, HomePageConfig, SiteSettings, TopReview } from '@/types/cms'
 import type { PaymentGatewayInput, PaymentGatewaySettings } from '@/types/payment-gateway'
 import type { Address, Permission, User } from '@/types/user'
 
@@ -140,6 +140,8 @@ export const catalogApi = {
     }),
   detail: (slug: string) => apiFetch<{ product: Product; related: Product[] }>(`/products/${slug}`),
   reviews: (slug: string) => apiFetch<ReviewsResponse>(`/products/${slug}/reviews`),
+  /** نظرهای برگزیده برای صفحه‌ی اصلی؛ تأییدشده، چهار ستاره به بالا و متن‌دار */
+  topReviews: (limit: number) => apiFetch<{ items: TopReview[] }>('/reviews/top', { params: { limit } }),
   addReview: (slug: string, body: Partial<Review>) =>
     apiFetch<{ review: Review; message: string }>(`/products/${slug}/reviews`, { method: 'POST', body }),
   /** پسند یا ناپسند؛ همان رأی دوباره یعنی پس گرفتنش و رأی مخالف یعنی برگرداندنش */

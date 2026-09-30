@@ -82,6 +82,45 @@ class CatalogController extends Controller
     }
 
     /**
+     * نظرهای برگزیده برای صفحه‌ی اصلی.
+     *
+     * پیش‌تر این بخش متن‌های دست‌نویسِ داخل تنظیمات را نشان می‌داد. حالا از
+     * نظرهای واقعی خوانده می‌شود: فقط تأییدشده‌ها، فقط چهار ستاره به بالا، و
+     * فقط آن‌هایی که متن دارند — امتیازِ بی‌متن کارتِ خالی می‌ساخت.
+     *
+     * ترتیب: پرامتیازترین بالا، و میان هم‌امتیازها تازه‌ترین.
+     */
+    public function topReviews(Request $request): JsonResponse
+    {
+        $limit = min(12, max(1, (int) $request->query('limit', 6)));
+
+        $items = Review::query()
+            ->where('status', 'approved')
+            ->where('rating', '>=', 4)
+            ->whereRaw("coalesce(btrim(body), '') <> ''")
+            // کالای غیرفعال یا حذف‌شده نظرش هم در فروشگاه دیده نمی‌شود
+            ->whereHas('product', fn ($q) => $q->published())
+            ->with('product:id,slug,title')
+            ->orderByDesc('rating')
+            ->orderByDesc('created_at')
+            ->limit($limit)
+            ->get();
+
+        return response()->json([
+            'items' => $items->map(fn (Review $review) => [
+                'id' => (string) $review->id,
+                'userName' => $review->user_name,
+                'rating' => (int) $review->rating,
+                'body' => $review->body,
+                'createdAt' => $review->created_at?->toIso8601String(),
+                'verifiedPurchase' => (bool) $review->verified_purchase,
+                'productSlug' => $review->product?->slug,
+                'productTitle' => $review->product?->title,
+            ])->values(),
+        ]);
+    }
+
+    /**
      * رأی پسند/ناپسند روی یک نظر.
      *
      * هر رأی‌دهنده روی هر نظر یک رأی دارد: زدن همان دکمه رأی را پس می‌گیرد و

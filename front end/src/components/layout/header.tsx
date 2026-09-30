@@ -309,6 +309,16 @@ function flattenEntries(entries: NavEntry[], depth = 0): NavLink[] {
 function DesktopNav({ items }: { items: NavEntry[] }) {
   const [openHref, setOpenHref] = useState<string | null>(null)
   const open = items.find((item) => item.href === openHref && item.children.length > 0)
+  const pathname = usePathname()
+
+  /*
+   * با رفتن به صفحه‌ی تازه، تابلو و خط زیر عنوان باید بسته شوند.
+   *
+   * بدون این، کلیک روی یک عنوان آن را فوکوس می‌کرد و فوکوس هم مثل ماوس تابلو
+   * را باز نگه می‌داشت؛ اگر ماوس پیش از پایان ناوبری از نوار بیرون رفته بود
+   * رویداد خروج هم نمی‌آمد و خطِ آبی زیر همان عنوان روشن می‌ماند.
+   */
+  useEffect(() => setOpenHref(null), [pathname])
 
   return (
     <nav
@@ -322,7 +332,14 @@ function DesktopNav({ items }: { items: NavEntry[] }) {
       }}
     >
       {items.map((item) => (
-        <NavItem key={item.href} item={item} open={open?.href === item.href} onEnter={() => setOpenHref(item.href)} />
+        <NavItem
+          key={item.href}
+          item={item}
+          open={open?.href === item.href}
+          onEnter={() => setOpenHref(item.href)}
+          // کلیک روی همان صفحه‌ی فعلی مسیر را عوض نمی‌کند، پس اثر بالا اجرا نمی‌شود
+          onLeave={() => setOpenHref(null)}
+        />
       ))}
 
       <AnimatePresence>
@@ -333,7 +350,17 @@ function DesktopNav({ items }: { items: NavEntry[] }) {
 }
 
 /** عنوان یک دسته در نوار؛ رفتن ماوس یا فوکوس روی آن تابلو را عوض می‌کند */
-function NavItem({ item, open, onEnter }: { item: NavEntry; open: boolean; onEnter: () => void }) {
+function NavItem({
+  item,
+  open,
+  onEnter,
+  onLeave,
+}: {
+  item: NavEntry
+  open: boolean
+  onEnter: () => void
+  onLeave: () => void
+}) {
   const hasChildren = item.children.length > 0
 
   return (
@@ -341,6 +368,7 @@ function NavItem({ item, open, onEnter }: { item: NavEntry; open: boolean; onEnt
       href={item.href}
       onMouseEnter={onEnter}
       onFocus={onEnter}
+      onClick={onLeave}
       aria-expanded={hasChildren ? open : undefined}
       className={cn(
         'group relative flex items-center gap-1.5 rounded-lg px-3 py-2 text-[13.5px] font-medium transition-colors',

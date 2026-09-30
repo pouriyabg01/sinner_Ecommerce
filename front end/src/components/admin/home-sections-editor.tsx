@@ -146,7 +146,7 @@ const templates: Record<SectionType, () => Section> = {
     background: 'default',
     props: {
       title: 'نظرات مشتریان',
-      items: [{ id: uid('t'), name: 'نام مشتری', role: 'شغل', avatar: null, body: 'متن نظر', rating: 5 }],
+      limit: 6,
     },
   }),
   rich_text: () => ({

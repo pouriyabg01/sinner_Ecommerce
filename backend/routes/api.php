@@ -49,6 +49,7 @@ Route::prefix('v1')->group(function () {
     Route::post('products/{slug}/reviews', [CatalogController::class, 'storeReview']);
     Route::post('products/{slug}/reviews/{review}/vote', [CatalogController::class, 'voteReview'])
         ->middleware('throttle:lookup');
+    Route::get('reviews/top', [CatalogController::class, 'topReviews']);
     Route::get('compare', [CatalogController::class, 'compare']);
     Route::get('categories', [CatalogController::class, 'categories']);
     Route::get('brands', [CatalogController::class, 'brands']);

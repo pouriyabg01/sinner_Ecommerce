@@ -254,6 +254,30 @@ export const handlers = [
     return HttpResponse.json({ product, related })
   }),
 
+  // نظرهای برگزیده‌ی صفحه‌ی اصلی؛ همان قاعده‌ی سرور
+  http.get(api('/reviews/top'), async ({ request }) => {
+    await lag()
+    const limit = Math.min(12, Math.max(1, Number(new URL(request.url).searchParams.get('limit')) || 6))
+    const items = db.reviews
+      .filter((r) => r.status === 'approved' && r.rating >= 4 && r.body.trim() !== '')
+      .sort((a, b) => b.rating - a.rating || Date.parse(b.createdAt) - Date.parse(a.createdAt))
+      .slice(0, limit)
+      .map((r) => {
+        const product = db.products.find((p) => p.id === r.productId)
+        return {
+          id: r.id,
+          userName: r.userName,
+          rating: r.rating,
+          body: r.body,
+          createdAt: r.createdAt,
+          verifiedPurchase: r.verifiedPurchase,
+          productSlug: product?.slug ?? null,
+          productTitle: product?.title ?? null,
+        }
+      })
+    return HttpResponse.json({ items })
+  }),
+
   http.get(api('/products/:slug/reviews'), async ({ params }) => {
     await lag()
     const product = db.products.find((p) => p.slug === params.slug)
