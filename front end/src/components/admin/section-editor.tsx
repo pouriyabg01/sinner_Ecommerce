@@ -73,15 +73,14 @@ export function SectionEditor({ section, onChange }: { section: Section; onChang
                     <Trash2 className="size-3.5" />
                   </Button>
                 </div>
-                <Field label="عنوان">
+                {/*
+                  عنوان و زیرعنوان دیگر روی اسلاید نوشته نمی‌شوند؛ تنها چیزی که
+                  روی تصویر می‌نشیند دکمه است. عنوان مانده چون توصیف تصویر
+                  (alt) از آن ساخته می‌شود — چیزی که موتور جست‌وجو و صفحه‌خوان
+                  می‌خوانند و وقتی تصویر بالا نیامد، همان نمایش داده می‌شود.
+                */}
+                <Field label="توصیف تصویر" hint="روی اسلاید نوشته نمی‌شود؛ برای موتور جست‌وجو و صفحه‌خوان است.">
                   <Input value={slide.title} onChange={(e) => patchSlide(slide.id, { title: e.target.value })} />
-                </Field>
-                <Field label="زیرعنوان">
-                  <Textarea
-                    value={slide.subtitle}
-                    onChange={(e) => patchSlide(slide.id, { subtitle: e.target.value })}
-                    className="min-h-16"
-                  />
                 </Field>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <Field label="متن دکمه">

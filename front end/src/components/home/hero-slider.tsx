@@ -67,13 +67,15 @@ export function HeroSlider({ slides, autoplayMs, showThumbnails }: SectionProps[
             {slides.map((slide, i) => (
               <div key={slide.id} className="relative min-w-0 flex-[0_0_100%]">
                 {/*
-                  در موبایل نسبت ۱۶:۱۰ حدود ۲۲۰ پیکسل ارتفاع می‌داد و کپشن (تیتر
-                  دو خطی + توضیح + دکمه) از قاب بیرون می‌زد و روی نقطه‌ها می‌افتاد.
-                  min-height کف ارتفاع را تضمین می‌کند و تصویر با object-cover پر می‌شود.
+                  در موبایل نسبت ۱۶:۱۰ حدود ۲۲۰ پیکسل ارتفاع می‌دهد که برای تصویر
+                  تقریباً مربعِ گوشی کم است و از بالا و پایین می‌بُرد؛ min-height کف
+                  ارتفاع را تضمین می‌کند و تصویر با object-cover پر می‌شود.
+
+                  تصویر بدون پرده‌ی تیره نمایش داده می‌شود: متنی رویش نیست که
+                  بخواهد خوانا بماند، پس هر چه ادمین آپلود کرده همان دیده می‌شود.
                 */}
                 <div className="relative min-h-96 aspect-[16/10] sm:min-h-0 sm:aspect-[21/9]">
                   <SlideImage slide={slide} first={i === 0} />
-                  <div className="absolute inset-0 bg-gradient-to-l from-ink-950/10 via-ink-950/55 to-ink-950/90" />
                 </div>
               </div>
             ))}
@@ -81,12 +83,12 @@ export function HeroSlider({ slides, autoplayMs, showThumbnails }: SectionProps[
         </div>
 
         {/*
-          متن بیرون از ریل کروسل است تا با ترنسفورم embla درگیر نشود؛
-          تصویر اسلاید می‌خورد و متن سر جای خودش کراس‌فید می‌شود.
+          دکمه بیرون از ریل کروسل است تا با ترنسفورم embla درگیر نشود؛
+          تصویر اسلاید می‌خورد و دکمه سر جای خودش کراس‌فید می‌شود.
         */}
         <div className="pointer-events-none absolute inset-0 flex items-center">
           {/*
-            از sm به بالا فلش‌ها ظاهر می‌شوند؛ ps بیشتر می‌دهیم تا روی متن نیفتند.
+            از sm به بالا فلش‌ها ظاهر می‌شوند؛ ps بیشتر می‌دهیم تا دکمه زیرشان نرود.
             pb در موبایل جای نقطه‌های پایین را خالی نگه می‌دارد تا دکمه رویشان ننشیند.
           */}
           <div className="w-full max-w-2xl px-6 pb-12 sm:ps-24 sm:pe-12 sm:pb-0">
@@ -97,16 +99,11 @@ export function HeroSlider({ slides, autoplayMs, showThumbnails }: SectionProps[
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -12 }}
                 transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
-                className="pointer-events-auto space-y-4"
+                className="pointer-events-auto"
               >
-                <span className="block h-1 w-14 rounded-full" style={{ backgroundColor: active.accent }} />
-                <h2 className="text-balance text-2xl font-bold leading-[1.7] text-white sm:text-4xl">
-                  {active.title}
-                </h2>
-                <p className="max-w-lg text-[13px] leading-8 text-white/75 sm:text-[15px]">{active.subtitle}</p>
                 <Link
                   href={active.ctaHref}
-                  className={cn(buttonVariants({ size: 'lg' }), 'group mt-2 shadow-none hover:brightness-110')}
+                  className={cn(buttonVariants({ size: 'lg' }), 'group shadow-none hover:brightness-110')}
                   // سایه از رنگ همان اسلاید ساخته می‌شود، نه رنگ ثابت برند
                   style={{
                     backgroundColor: active.accent,
@@ -186,7 +183,8 @@ function SlideImage({ slide, first }: { slide: SlideItem; first: boolean }) {
   const imageProps = (src: string) =>
     getImageProps({
       src,
-      alt: '',
+      // عنوان اسلاید دیگر روی تصویر نوشته نمی‌شود؛ اینجا توصیف تصویر می‌شود
+      alt: slide.title,
       fill: true,
       sizes: '100vw',
       className: 'object-cover',
