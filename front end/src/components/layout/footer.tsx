@@ -87,6 +87,13 @@ function EnamadSeal({ enamad }: { enamad: EnamadSettings }) {
 export function Footer() {
   const { data: settings } = useSiteSettings()
   const footer = settings?.footer
+  /*
+   * ردیفی که عنوان یا لینکش خالی است کشیده نمی‌شود.
+   *
+   * پیش از این هر ردیفی که در پنل ساخته شده بود در فوتر می‌نشست، حتی نیمه‌کاره:
+   * یک دکمه‌ی بی‌نشانی که به هیچ‌جا نمی‌برد.
+   */
+  const socials = (settings?.socials ?? []).filter((s) => s.label.trim() !== '' && s.href.trim() !== '')
   // تا وقتی ادمین در «تنظیمات» مقدار خودش را ذخیره نکرده، همان نشان قبلی می‌ماند
   const enamad = settings?.enamad ?? ENAMAD_FALLBACK
   const linksOf = useFooterLinks()
@@ -165,15 +172,15 @@ export function Footer() {
             © {toFaDigits(new Date().getFullYear())} — تمام حقوق برای {settings?.siteName ?? 'سینر'} محفوظ است.
           </p>
           <div className="flex items-center gap-2">
-            {settings?.socials.map((s) => (
+            {socials.map((s) => (
               <a
                 key={s.id}
-                href={s.href}
+                href={s.href.trim()}
                 target="_blank"
                 rel="noreferrer"
                 className="rounded-lg border border-border px-3 py-1.5 text-xs text-muted transition-colors hover:border-brand-400 hover:text-brand-600 dark:hover:text-brand-400"
               >
-                {s.label}
+                {s.label.trim()}
               </a>
             ))}
           </div>

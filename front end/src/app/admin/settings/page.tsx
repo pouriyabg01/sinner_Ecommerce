@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { z } from 'zod'
-import { Save } from 'lucide-react'
+import { Plus, Save, Trash2 } from 'lucide-react'
 import type { SiteSettings } from '@/types/cms'
 import { useSaveSettings, useSiteSettings } from '@/lib/api/queries'
 import { PermissionGate } from '@/components/admin/admin-shell'
@@ -20,6 +20,7 @@ import { GatewaySettingsCard } from '@/components/admin/gateway-settings'
 import { RepairPickupCard } from '@/components/admin/repair-pickup-settings'
 import { DEFAULT_PAYMENT_SETTINGS } from '@/lib/payment'
 import { repairSettings } from '@/lib/repair-pickup'
+import { uid } from '@/lib/utils'
 import { ENAMAD_FALLBACK, enamadReady, parseEnamad, type EnamadSettings } from '@/lib/enamad'
 
 const amountRule = z
@@ -337,12 +338,23 @@ export default function AdminSettingsPage() {
 
         <AdminCard title="شبکه‌های اجتماعی">
           <div className="space-y-3 p-5">
+            <p className="text-[13px] leading-7 text-muted">
+              هر شبکه‌ای که عنوان یا لینکش خالی بماند، در فوتر سایت نشان داده نمی‌شود.
+            </p>
+
+            {draft.socials.length === 0 && (
+              <p className="rounded-2xl border border-dashed border-border p-5 text-center text-xs text-muted">
+                هنوز شبکه‌ای اضافه نشده است.
+              </p>
+            )}
+
             {draft.socials.map((social, i) => (
-              <div key={social.id} className="grid gap-3 sm:grid-cols-2">
+              <div key={social.id} className="grid items-start gap-3 sm:grid-cols-[1fr_1fr_auto]">
                 <Field label="عنوان" error={form.errors[`socials.${i}.label`]}>
                   <Input
                     value={social.label}
                     invalid={Boolean(form.errors[`socials.${i}.label`])}
+                    placeholder="اینستاگرام"
                     onChange={(e) =>
                       update({
                         ...draft,
@@ -356,6 +368,7 @@ export default function AdminSettingsPage() {
                     value={social.href}
                     dir="ltr"
                     invalid={Boolean(form.errors[`socials.${i}.href`])}
+                    placeholder="https://instagram.com/…"
                     onChange={(e) =>
                       update({
                         ...draft,
@@ -364,8 +377,27 @@ export default function AdminSettingsPage() {
                     }
                   />
                 </Field>
+                {/* ردیف دو فیلدِ برچسب‌دار است، پس دکمه با فاصله‌ی بالا هم‌تراز کادرها می‌نشیند */}
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={`حذف ${social.label || 'شبکه'}`}
+                  className="mt-7 text-muted hover:text-red-500"
+                  onClick={() => update({ ...draft, socials: draft.socials.filter((s) => s.id !== social.id) })}
+                >
+                  <Trash2 className="size-3.5" />
+                </Button>
               </div>
             ))}
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => update({ ...draft, socials: [...draft.socials, { id: uid('social'), label: '', href: '' }] })}
+            >
+              <Plus className="size-4" />
+              افزودن شبکه
+            </Button>
           </div>
         </AdminCard>
         <AdminCard title="هزینه ارسال">

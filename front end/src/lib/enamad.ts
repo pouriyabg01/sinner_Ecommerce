@@ -25,16 +25,27 @@ export const ENAMAD_FALLBACK: EnamadSettings = {
 const ID_RULE = /^\d{4,12}$/
 const CODE_RULE = /^[A-Za-z0-9]{8,64}$/
 
+/*
+ * `amp;` هم پذیرفته می‌شود: متنی که از یک صفحه‌ی رندرشده کپی شود `&` را
+ * به‌صورت `&amp;` دارد و بدون این، مقدار دومِ نشانی از دست می‌رفت.
+ */
+const FROM_URL = (key: string) => new RegExp(`[?&](?:amp;)?${key}=([A-Za-z0-9]+)`, 'i')
+
+/*
+ * ویژگی `code` روی تگ تصویر، چه با تک‌کوتیشن چه دوتایی چه بدون کوتیشن.
+ * قطعه کدی که سامانه‌ی نماد می‌دهد تک‌کوتیشن است.
+ */
+const FROM_ATTR = /\bcode\s*=\s*["']?([A-Za-z0-9]{8,})["']?/i
+
 /** شناسه و کد را از هر متنی که ادمین چسبانده بیرون می‌کشد */
 export function parseEnamad(text: string): Partial<EnamadSettings> {
   const found: Partial<EnamadSettings> = {}
   const trimmed = text.trim()
 
-  // قطعه کد کامل یا نشانی: ?id=7899252&Code=XXXX
-  const id = trimmed.match(/[?&]id=(\d+)/i)?.[1]
-  const code = trimmed.match(/[?&]code=([A-Za-z0-9]+)/i)?.[1] ?? trimmed.match(/\scode="([A-Za-z0-9]+)"/i)?.[1]
+  const id = trimmed.match(FROM_URL('id'))?.[1]
+  const code = trimmed.match(FROM_URL('code'))?.[1] ?? trimmed.match(FROM_ATTR)?.[1]
 
-  if (id) found.id = id
+  if (id && /^\d+$/.test(id)) found.id = id
   if (code) found.code = code
 
   return found
