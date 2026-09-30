@@ -4,6 +4,7 @@ import { DEFAULT_REPAIR_SETTINGS } from '@/lib/repair-pickup'
 
 export const siteSettings: SiteSettings = {
   siteName: 'سینر',
+  enamad: { id: '7899252', code: '1OQmy8ahl2OtwIv4ie9gdR2akSNEdL3B' },
   tagline: 'فروشگاه و تعمیرگاه تخصصی دیجیتال',
   brand: { mark: '', favicon: '', wordmark: 'SINNER', caption: 'فروشگاه و تعمیرگاه' },
   phone: '021-91008080',

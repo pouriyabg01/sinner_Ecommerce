@@ -6,6 +6,7 @@ import { Logo } from './logo'
 import { useCategories, useRepairIssues, useSiteSettings } from '@/lib/api/queries'
 import type { FooterColumn, FooterLink } from '@/types/cms'
 import { DEVICE_KIND_LABEL, type DeviceKind } from '@/types/repair'
+import { ENAMAD_FALLBACK, enamadReady, type EnamadSettings } from '@/lib/enamad'
 import { getIcon } from '@/lib/icons'
 import { toFaDigits } from '@/lib/format'
 
@@ -53,17 +54,16 @@ export function useFooterLinks() {
  * همین نام‌ها در متن خام صفحه می‌گردد، و ری‌اکت نام کملی را با حرف بزرگ چاپ می‌کند.
  * برای مرورگر فرقی ندارد، برای یک بررسیِ متنی ممکن است داشته باشد.
  */
-const SEAL_ID = '7899252'
-const SEAL_CODE = '1OQmy8ahl2OtwIv4ie9gdR2akSNEdL3B'
-
-function EnamadSeal() {
+function EnamadSeal({ enamad }: { enamad: EnamadSettings }) {
+  const id = enamad.id.trim()
+  const seal = enamad.code.trim()
   const rawAttrs: Record<string, string> = { referrerpolicy: 'origin' }
-  const imgAttrs: Record<string, string> = { ...rawAttrs, code: SEAL_CODE }
+  const imgAttrs: Record<string, string> = { ...rawAttrs, code: seal }
 
   return (
     <a
       {...rawAttrs}
-      href={`https://trustseal.enamad.ir/?id=${SEAL_ID}&Code=${SEAL_CODE}`}
+      href={`https://trustseal.enamad.ir/?id=${id}&Code=${seal}`}
       target="_blank"
       rel="noreferrer"
       /*
@@ -76,7 +76,7 @@ function EnamadSeal() {
     >
       <img
         {...imgAttrs}
-        src={`https://trustseal.enamad.ir/logo.aspx?id=${SEAL_ID}&Code=${SEAL_CODE}`}
+        src={`https://trustseal.enamad.ir/logo.aspx?id=${id}&Code=${seal}`}
         alt="نماد اعتماد الکترونیکی"
         className="h-auto w-20 cursor-pointer"
       />
@@ -87,6 +87,8 @@ function EnamadSeal() {
 export function Footer() {
   const { data: settings } = useSiteSettings()
   const footer = settings?.footer
+  // تا وقتی ادمین در «تنظیمات» مقدار خودش را ذخیره نکرده، همان نشان قبلی می‌ماند
+  const enamad = settings?.enamad ?? ENAMAD_FALLBACK
   const linksOf = useFooterLinks()
 
   return (
@@ -131,7 +133,7 @@ export function Footer() {
                 <span dir="ltr">{settings?.email}</span>
               </li>
             </ul>
-            <EnamadSeal />
+            {enamadReady(enamad) && <EnamadSeal enamad={enamad} />}
           </div>
 
           {footer?.columns.map((col) => {

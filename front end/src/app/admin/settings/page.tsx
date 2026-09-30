@@ -20,6 +20,7 @@ import { GatewaySettingsCard } from '@/components/admin/gateway-settings'
 import { RepairPickupCard } from '@/components/admin/repair-pickup-settings'
 import { DEFAULT_PAYMENT_SETTINGS } from '@/lib/payment'
 import { repairSettings } from '@/lib/repair-pickup'
+import { ENAMAD_FALLBACK, enamadReady, parseEnamad, type EnamadSettings } from '@/lib/enamad'
 
 const amountRule = z
   .number()
@@ -97,6 +98,24 @@ const repairRule = z
       ctx.addIssue({ code: 'custom', path: ['methods'], message: 'حداقل یک روش تحویل باید فعال باشد' })
   })
 
+/**
+ * نماد اعتماد: یا هر دو خالی (نشان نمایش داده نمی‌شود) یا هر دو پر.
+ * نیمه‌پر یعنی تصویرِ خطا در فوتر، پس همان‌جا جلویش گرفته می‌شود.
+ */
+const enamadRule = z
+  .object({
+    id: z.string().trim().regex(/^\d*$/, 'شناسه فقط رقم است'),
+    code: z.string().trim().regex(/^[A-Za-z0-9]*$/, 'کد فقط حرف انگلیسی و رقم است'),
+  })
+  .superRefine((enamad, ctx) => {
+    if (Boolean(enamad.id) === Boolean(enamad.code)) return
+    ctx.addIssue({
+      code: 'custom',
+      path: [enamad.id ? 'code' : 'id'],
+      message: 'برای نمایش نشان، هر دو مقدار لازم است',
+    })
+  })
+
 const settingsSchema = z.object({
   siteName: requiredText('نام سایت'),
   tagline: optionalText(120, 'شعار'),
@@ -104,10 +123,23 @@ const settingsSchema = z.object({
   email: emailSchema,
   address: optionalText(300, 'آدرس'),
   socials: z.array(z.object({ label: optionalText(40, 'عنوان'), href: linkSchema })),
+  enamad: enamadRule,
   shipping: shippingRule,
   payment: paymentRule,
   repair: repairRule,
 })
+
+/**
+ * ادمین معمولاً کل قطعه کدِ نماد را می‌چسباند، نه یک مقدار را. هر چه در کادر
+ * بیفتد اول خوانده می‌شود: اگر شناسه و کد داخلش بود، هر دو پر می‌شوند و اگر
+ * نه، همان متن در کادر خودش می‌نشیند.
+ */
+function nextEnamad(current: EnamadSettings | undefined, field: keyof EnamadSettings, value: string): EnamadSettings {
+  const base = current ?? { id: '', code: '' }
+  const found = parseEnamad(value)
+
+  return found.id || found.code ? { ...base, ...found } : { ...base, [field]: value.trim() }
+}
 
 export default function AdminSettingsPage() {
   const { data, isLoading, isError, refetch } = useSiteSettings()
@@ -138,7 +170,9 @@ export default function AdminSettingsPage() {
     const shipping = data.shipping ?? { freeThreshold: 0, cost: 0 }
     // بک‌اند یا تنظیمات قدیمیِ بدون بلوک repair نباید کارت روش‌های تحویل را خالی بگذارد
     const repair = repairSettings(data.repair)
-    setDraft({ ...structuredClone(data), payment, shipping, repair })
+    // تنظیمات ذخیره‌شده‌ی قدیمی این بلوک را ندارند؛ با همان نشانِ فعلی پر می‌شود
+    const enamad = data.enamad ?? ENAMAD_FALLBACK
+    setDraft({ ...structuredClone(data), payment, shipping, repair, enamad })
   }, [data, draft])
 
   if (isError) return <LoadError onRetry={() => refetch()} />
@@ -257,6 +291,47 @@ export default function AdminSettingsPage() {
                 </label>
               )
             })}
+          </div>
+        </AdminCard>
+
+        <AdminCard title="نماد اعتماد الکترونیکی">
+          <div className="space-y-4 p-5">
+            <p className="text-[13px] leading-7 text-muted">
+              سامانه‌ی نماد یک قطعه کد به شما می‌دهد. کل آن را کپی کنید و در یکی از دو کادر زیر بچسبانید —
+              شناسه و کد خودشان از داخلش بیرون کشیده می‌شوند. هر دو کادر را خالی بگذارید تا نشان نمایش داده نشود.
+            </p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="شناسه" hint="فقط رقم" error={form.errors['enamad.id']}>
+                <Input
+                  value={draft.enamad?.id ?? ''}
+                  onChange={(e) => update({ ...draft, enamad: nextEnamad(draft.enamad, 'id', e.target.value) })}
+                  invalid={Boolean(form.errors['enamad.id'])}
+                  dir="ltr"
+                  className="num"
+                />
+              </Field>
+              <Field label="کد" hint="رشته‌ی حروف و رقم" error={form.errors['enamad.code']}>
+                <Input
+                  value={draft.enamad?.code ?? ''}
+                  onChange={(e) => update({ ...draft, enamad: nextEnamad(draft.enamad, 'code', e.target.value) })}
+                  invalid={Boolean(form.errors['enamad.code'])}
+                  dir="ltr"
+                />
+              </Field>
+            </div>
+            {enamadReady(draft.enamad) && (
+              <p className="text-[12.5px] text-muted">
+                نشان در فوتر همه‌ی صفحه‌ها دیده می‌شود.{' '}
+                <a
+                  href={`https://trustseal.enamad.ir/?id=${draft.enamad.id.trim()}&Code=${draft.enamad.code.trim()}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-brand-600 hover:underline dark:text-brand-400"
+                >
+                  بررسی در سامانه‌ی نماد
+                </a>
+              </p>
+            )}
           </div>
         </AdminCard>
 

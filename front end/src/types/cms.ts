@@ -1,3 +1,4 @@
+import type { EnamadSettings } from '@/lib/enamad'
 import type { PaymentMethodId } from '@/types/order'
 import type { PickupMethod } from '@/types/repair'
 
@@ -257,6 +258,8 @@ export interface RepairSettings {
 export interface SiteSettings {
   siteName: string
   tagline: string
+  /** نماد اعتماد الکترونیکی؛ خالی یعنی نشان در فوتر کشیده نمی‌شود */
+  enamad?: EnamadSettings
   brand: BrandIdentity
   phone: string
   email: string
