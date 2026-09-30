@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'مقایسه محصولات',
   description: 'مشخصات فنی و قیمت چند کالا را کنار هم ببینید و بهترین را انتخاب کنید.',
+  alternates: { canonical: '/compare' },
 }
 
 export default function CompareLayout({ children }: { children: React.ReactNode }) {
