@@ -1,5 +1,5 @@
 import { API_BASE_URL } from './config'
-import { sessionToken } from '@/store/session'
+import { sessionToken, useSession } from '@/store/session'
 
 /**
  * سقفِ انتظار برای هر درخواست. بدون این، یک درخواستی که هیچ‌وقت جواب نمی‌گیرد
@@ -94,6 +94,23 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
     payload = raw ? JSON.parse(raw) : null
   } catch {
     payload = raw
+  }
+
+  /*
+   * توکنی که سرور نمی‌شناسد یعنی نشست تمام شده — رمز عوض شده، از دستگاه دیگری
+   * خارج شده، یا توکن‌ها روی سرور پاک شده‌اند. تا پیش از این چیزی این را
+   * نمی‌گرفت: مرورگر همچنان خودش را واردشده می‌دید و هر صفحه‌ی پنل یک فهرست
+   * خالی نشان می‌داد، انگار داده‌ای وجود ندارد. حالا نشست همان‌جا پاک می‌شود
+   * تا کاربر صفحه‌ی ورود را ببیند، نه جدول‌های خالی را.
+   */
+  if (response.status === 401 && typeof window !== 'undefined' && sessionToken()) {
+    useSession.getState().signOut()
+    /*
+     * از پنل با بارگذاری کامل به صفحه‌ی ورود می‌رویم، نه ناوبری داخلی: هم کشِ
+     * react-query پاک می‌شود (داده‌ی کاربر قبلی روی این مرورگر نمی‌ماند) و هم
+     * کاربر به‌جای صفحه‌ی «پیدا نشد»ِ نگهبانِ پنل، صفحه‌ی ورود را می‌بیند.
+     */
+    if (window.location.pathname.startsWith('/admin')) window.location.assign('/login')
   }
 
   if (!response.ok) {
