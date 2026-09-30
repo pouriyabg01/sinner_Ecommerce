@@ -140,7 +140,8 @@ export const homeConfig: HomePageConfig = {
       background: 'default',
       props: {
         title: 'دنبال چه چیزی می‌گردید؟',
-        categorySlugs: ['mobile', 'laptop', 'console', 'game', 'accessory'],
+        // خالی یعنی خودکار: پرکالاترین دسته‌های اصلی
+        categorySlugs: [],
       },
     },
     {

@@ -195,15 +195,26 @@ export function SectionEditor({ section, onChange }: { section: Section; onChang
 
     case 'category_grid': {
       const props = section.props
+      const auto = props.categorySlugs.length === 0
+
       return (
         <div className="space-y-4">
           <Field label="عنوان">
             <Input value={props.title} onChange={(e) => onChange({ ...props, title: e.target.value })} />
           </Field>
-          <Field label="دسته‌های نمایش‌داده‌شده">
+          <Field
+            label="دسته‌های نمایش‌داده‌شده"
+            hint={
+              auto
+                ? 'خودکار: چهار دسته‌ی اصلی که بیشترین کالا را دارند. دسته‌ی بدون کالا نمایش داده نمی‌شود.'
+                : 'حداکثر چهار تای اول نمایش داده می‌شود. برای برگشتن به حالت خودکار، همه را بردارید.'
+            }
+          >
             <div className="flex flex-wrap gap-2 pt-1">
               {categories.map((cat) => {
                 const active = props.categorySlugs.includes(cat.slug)
+                // انتخاب‌شده‌های بعد از چهارتای اول ذخیره می‌شوند ولی روی سایت نمی‌آیند
+                const shown = active && props.categorySlugs.indexOf(cat.slug) < 4
                 return (
                   <button
                     key={cat.slug}
@@ -216,9 +227,11 @@ export function SectionEditor({ section, onChange }: { section: Section; onChang
                       })
                     }
                     className={`rounded-full border px-3 py-1.5 text-[11.5px] transition-all ${
-                      active
+                      shown
                         ? 'border-brand-500 bg-brand-500/10 text-brand-700 dark:text-brand-300'
-                        : 'border-border text-muted hover:border-brand-400'
+                        : active
+                          ? 'border-border bg-surface-2 text-muted line-through'
+                          : 'border-border text-muted hover:border-brand-400'
                     }`}
                   >
                     {cat.title}
