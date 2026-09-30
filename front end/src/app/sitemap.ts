@@ -2,8 +2,17 @@ import type { MetadataRoute } from 'next'
 import type { Category, Product } from '@/types/catalog'
 import { SITE_URL, serverFetch } from '@/lib/api/server'
 
-/** هر ساعت از نو ساخته می‌شود تا کالا و دسته‌ی تازه به موتور جست‌وجو معرفی شود */
-export const revalidate = 3600
+/**
+ * درخواستی ساخته می‌شود، نه هنگام build.
+ *
+ * پیش از این نکست نقشه را موقع ساختِ ایمیج از پیش می‌ساخت؛ آنجا بک‌اند بالا
+ * نیست، پس هر دو درخواست خالی برمی‌گشت و نقشه فقط پنج صفحه‌ی ثابت داشت —
+ * بدون حتی یک کالا. با هر استقرار هم همان نسخه‌ی خالی از نو جا می‌افتاد.
+ *
+ * خودِ درخواست‌ها همچنان یک ساعت کش می‌شوند (`serverFetch`)، پس این تغییر
+ * بار اضافه‌ای روی بک‌اند نمی‌گذارد.
+ */
+export const dynamic = 'force-dynamic'
 
 type Page = { items: Product[]; totalPages: number }
 
