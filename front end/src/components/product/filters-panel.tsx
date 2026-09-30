@@ -101,12 +101,8 @@ export function FiltersPanel({ facets, onDone }: { facets?: ProductFacets; onDon
         )}
       </div>
 
+      {/* «فقط کالاهای موجود» برداشته شد: ناموجودها اصلاً فهرست نمی‌شوند */}
       <Group title="وضعیت">
-        <Check
-          checked={Boolean(query.inStockOnly)}
-          onChange={() => setFilters({ inStockOnly: !query.inStockOnly })}
-          label="فقط کالاهای موجود"
-        />
         <Check
           checked={Boolean(query.hasDiscount)}
           onChange={() => setFilters({ hasDiscount: !query.hasDiscount })}

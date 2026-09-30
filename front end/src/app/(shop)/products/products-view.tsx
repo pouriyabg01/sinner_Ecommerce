@@ -198,7 +198,7 @@ function ProductsView() {
                 title="کالایی با این مشخصات یافت نشد"
                 description="لطفاً فیلترها را تغییر دهید یا عبارت دیگری را جست‌وجو کنید."
                 action={
-                  <Button variant="soft" onClick={() => setFilters({ brands: [], tags: [], specs: {}, minPrice: undefined, maxPrice: undefined, inStockOnly: false, hasDiscount: false, minRating: undefined })}>
+                  <Button variant="soft" onClick={() => setFilters({ brands: [], tags: [], specs: {}, minPrice: undefined, maxPrice: undefined, hasDiscount: false, minRating: undefined })}>
                     حذف فیلترها
                   </Button>
                 }

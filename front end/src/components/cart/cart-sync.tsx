@@ -26,7 +26,8 @@ export function CartSync() {
   const { data, refetch } = useQuery({
     queryKey: [CART_SYNC_KEY, productIds],
     // فروشگاه فقط کالای قابل نمایش را برمی‌گرداند؛ کالای حذف‌شده، غیرفعال یا بی‌دسته در پاسخ نیست
-    queryFn: () => catalogApi.list({ ids: productIds, perPage: 100 }),
+    // کالای سبد حتی اگر ناموجود شده باشد باید پیدا شود، وگرنه بی‌صدا از سبد می‌افتد
+    queryFn: () => catalogApi.list({ ids: productIds, perPage: 100, includeOutOfStock: true }),
     enabled: hydrated && productIds.length > 0,
     staleTime: 0,
     refetchOnWindowFocus: true,

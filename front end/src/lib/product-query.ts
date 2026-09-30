@@ -26,7 +26,6 @@ export function parseProductQuery(params: ParamSource): ProductQuery {
     tags: list('tags'),
     minPrice: num('minPrice'),
     maxPrice: num('maxPrice'),
-    inStockOnly: params.get('inStockOnly') === 'true',
     hasDiscount: params.get('hasDiscount') === 'true',
     minRating: num('minRating'),
     specs,

@@ -160,7 +160,12 @@ export interface ProductQuery {
   brands?: string[]
   minPrice?: number
   maxPrice?: number
-  inStockOnly?: boolean
+  /**
+   * کالای ناموجود به‌صورت پیش‌فرض در فروشگاه فهرست نمی‌شود. این پرچم فقط جایی
+   * فرستاده می‌شود که کالا را خودِ کاربر پیش‌تر انتخاب کرده (سبد خرید) یا
+   * آدرسش باید در نقشه‌ی سایت بماند.
+   */
+  includeOutOfStock?: boolean
   hasDiscount?: boolean
   minRating?: number
   tags?: string[]

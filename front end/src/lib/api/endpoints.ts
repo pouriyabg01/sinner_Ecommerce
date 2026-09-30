@@ -125,7 +125,7 @@ export const catalogApi = {
         brands: query.brands,
         minPrice: query.minPrice,
         maxPrice: query.maxPrice,
-        inStockOnly: query.inStockOnly,
+        includeOutOfStock: query.includeOutOfStock ? 'true' : undefined,
         hasDiscount: query.hasDiscount,
         minRating: query.minRating,
         tags: query.tags,

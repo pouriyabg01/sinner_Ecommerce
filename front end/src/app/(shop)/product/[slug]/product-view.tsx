@@ -2,18 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import {
-  BadgeCheck,
-  GitCompareArrows,
-  Minus,
-  PackageX,
-  Plus,
-  RotateCcw,
-  ShieldCheck,
-  ShoppingBag,
-  Truck,
-  Wrench,
-} from 'lucide-react'
+import { BadgeCheck, GitCompareArrows, Minus, PackageX, Plus, ShoppingBag } from 'lucide-react'
 import { useProduct } from '@/lib/api/queries'
 import { usePageTitle } from '@/lib/use-page-title'
 import { Gallery } from '@/components/product/gallery'
@@ -41,13 +30,6 @@ const tabs = [
   { id: 'description', label: 'توضیحات' },
   { id: 'reviews', label: 'نظرات کاربران' },
 ] as const
-
-const guarantees = [
-  { icon: ShieldCheck, text: 'ضمانت اصالت و سلامت کالا' },
-  { icon: Truck, text: 'ارسال سریع؛ تهران زیر ۴ ساعت' },
-  { icon: RotateCcw, text: '۷ روز مهلت تعویض' },
-  { icon: Wrench, text: 'خدمات پس از فروش در تعمیرگاه خودمان' },
-]
 
 /** بخش تعاملی صفحه‌ی کالا؛ داده‌اش را صفحه‌ی سرور از پیش آورده است */
 export function ProductView({ slug }: { slug: string }) {
@@ -252,15 +234,6 @@ export function ProductView({ slug }: { slug: string }) {
                 <WishlistButton product={product} variant="page" />
               </div>
             </div>
-
-            <ul className="grid gap-2.5 sm:grid-cols-2">
-              {guarantees.map(({ icon: Icon, text }) => (
-                <li key={text} className="flex items-center gap-2.5 text-[12.5px] text-muted">
-                  <Icon className="size-4 shrink-0 text-brand-500" />
-                  {text}
-                </li>
-              ))}
-            </ul>
           </div>
         </div>
       </div>

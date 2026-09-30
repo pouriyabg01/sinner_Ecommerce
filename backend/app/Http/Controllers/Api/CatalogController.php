@@ -46,9 +46,11 @@ class CatalogController extends Controller
             return response()->json(['message' => 'محصول یافت نشد'], 404);
         }
 
+        // کالای ناموجود پیشنهاد نمی‌شود، حتی اگر هم‌دسته باشد
         $related = Product::published()
             ->with(['category', 'brand', 'variants', 'tags'])
             ->where('category_id', $product->category_id)
+            ->where('stock', '>', 0)
             ->whereKeyNot($product->id)
             ->limit(8)
             ->get();

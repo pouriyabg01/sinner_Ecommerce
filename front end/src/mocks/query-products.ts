@@ -18,7 +18,8 @@ export function filterProducts(all: Product[], q: ProductQuery): Product[] {
   if (q.brands?.length) list = list.filter((p) => q.brands!.includes(p.brandSlug))
   if (q.minPrice != null) list = list.filter((p) => p.price >= q.minPrice!)
   if (q.maxPrice != null) list = list.filter((p) => p.price <= q.maxPrice!)
-  if (q.inStockOnly) list = list.filter((p) => p.stock > 0)
+  // ناموجودها فهرست نمی‌شوند، مگر جایی که صریحاً خواسته شده باشد (سبد خرید، نقشه‌ی سایت)
+  if (!q.includeOutOfStock) list = list.filter((p) => p.stock > 0)
   if (q.hasDiscount) list = list.filter((p) => p.compareAtPrice && p.compareAtPrice > p.price)
   if (q.minRating != null) list = list.filter((p) => p.rating >= q.minRating!)
   if (q.tags?.length) list = list.filter((p) => q.tags!.some((t) => p.tags.includes(t)))
@@ -152,7 +153,7 @@ export function parseProductQuery(url: URL): ProductQuery {
     brands: list('brands'),
     minPrice: num('minPrice'),
     maxPrice: num('maxPrice'),
-    inStockOnly: p.get('inStockOnly') === 'true',
+    includeOutOfStock: p.get('includeOutOfStock') === 'true',
     hasDiscount: p.get('hasDiscount') === 'true',
     minRating: num('minRating'),
     tags: list('tags'),

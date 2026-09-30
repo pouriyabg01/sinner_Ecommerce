@@ -23,7 +23,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .forEach((c) => pages.push({ url: `${SITE_URL}/products?category=${c.slug}`, lastModified: now, changeFrequency: 'daily', priority: 0.8 }))
 
   for (let page = 1, total = 1; page <= total && page <= 50; page++) {
-    const result = await serverFetch<Page>(`/products?perPage=100&page=${page}`, 3600)
+    // ناموجودها هم می‌مانند: صفحه‌شان باز است و نباید با تمام‌شدن موجودی از نقشه بیفتد
+    const result = await serverFetch<Page>(`/products?perPage=100&page=${page}&includeOutOfStock=true`, 3600)
     if (!result) break
     total = result.totalPages
     result.items.forEach((p) =>

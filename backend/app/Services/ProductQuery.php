@@ -49,7 +49,12 @@ class ProductQuery
             'brands' => $list('brands'),
             'minPrice' => $r->query('minPrice') !== null ? (int) $r->query('minPrice') : null,
             'maxPrice' => $r->query('maxPrice') !== null ? (int) $r->query('maxPrice') : null,
-            'inStockOnly' => $r->query('inStockOnly') === 'true',
+            /*
+             * کالای ناموجود در فروشگاه فهرست نمی‌شود. استثنا فقط جایی است که
+             * کالا را خودِ کاربر پیش‌تر انتخاب کرده (سبد خرید) یا آدرسش باید
+             * در نقشه‌ی سایت بماند؛ آنجا این پرچم صریحاً فرستاده می‌شود.
+             */
+            'includeOutOfStock' => $r->query('includeOutOfStock') === 'true',
             'hasDiscount' => $r->query('hasDiscount') === 'true',
             'minRating' => $r->query('minRating') !== null ? (float) $r->query('minRating') : null,
             'tags' => $list('tags'),
@@ -94,7 +99,7 @@ class ProductQuery
             $query->where('price', '<=', $f['maxPrice']);
         }
 
-        if ($f['inStockOnly']) {
+        if (! $f['includeOutOfStock']) {
             $query->where('stock', '>', 0);
         }
 

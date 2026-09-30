@@ -74,7 +74,6 @@ export function useProductFilters() {
     (query.tags?.length ?? 0) +
     (query.minPrice != null ? 1 : 0) +
     (query.maxPrice != null ? 1 : 0) +
-    (query.inStockOnly ? 1 : 0) +
     (query.hasDiscount ? 1 : 0) +
     (query.minRating != null ? 1 : 0) +
     Object.values(query.specs ?? {}).reduce((sum, values) => sum + values.length, 0)
