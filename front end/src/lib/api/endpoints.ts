@@ -114,16 +114,6 @@ export const authApi = {
     apiFetch<{ ok: true; alreadyVerified?: boolean }>('/auth/email/resend', { method: 'POST' }),
 }
 
-/** آپلود فایل؛ با لایه‌ی mock کار نمی‌کند و آنجا مسیر data URL می‌ماند */
-export const uploadApi = {
-  image: async (file: File) => {
-    const form = new FormData()
-    form.append('file', file)
-
-    return apiFetch<{ url: string; path: string }>('/uploads', { method: 'POST', body: form })
-  },
-}
-
 /* --------------------------------- catalog --------------------------------- */
 export const catalogApi = {
   list: (query: ProductQuery = {}) =>

@@ -1,41 +1,28 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import Image from 'next/image'
-import { ImageIcon, ImagePlus, Upload, X } from 'lucide-react'
+import { ImageIcon, ImagePlus, X } from 'lucide-react'
 import type { MediaAdvice } from '@/types/media'
 import { MediaPicker } from '@/components/admin/media-library'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { toast } from '@/components/ui/toast'
 import { checkField, imageSourceSchema } from '@/lib/validation'
-import { MAX_UPLOAD_BYTES, uploadImage } from '@/lib/file'
 import { toFaDigits } from '@/lib/format'
-import { cn } from '@/lib/utils'
 
-/** فایل انتخابی را اعتبارسنجی و به data URL تبدیل می‌کند؛ null یعنی قابل استفاده نبود */
-async function toImageSource(file: File): Promise<string | null> {
-  if (!file.type.startsWith('image/')) {
-    toast.error(`فایل «${file.name}» تصویر نیست.`)
-    return null
-  }
-  if (file.size > MAX_UPLOAD_BYTES) {
-    toast.error(`حجم «${file.name}» بیشتر از ۲ مگابایت است.`)
-    return null
-  }
-  try {
-    return await uploadImage(file)
-  } catch (error) {
-    toast.error(`آپلود «${file.name}» ناموفق بود: ${(error as Error).message}`)
-    return null
-  }
-}
+/*
+ * آپلود فقط از کتابخانه انجام می‌شود.
+ *
+ * آپلود مستقیم در همین کادر فایل را به گالری اضافه نمی‌کرد، پس تصویر جایی
+ * فهرست نمی‌شد و دوباره قابل استفاده نبود. حالا هر تصویر اول به کتابخانه
+ * می‌رود و از آنجا انتخاب می‌شود.
+ */
 
 /**
  * اندازه‌ی پیشنهادیِ همین‌جا، کنار عنوان فیلد.
  *
- * پیش از این فقط داخل پنجره‌ی کتابخانه نوشته می‌شد، یعنی کسی که فایل را
- * مستقیم آپلود می‌کرد هیچ‌وقت نمی‌دیدش و تصویر با نسبت اشتباه بالا می‌رفت.
+ * پنجره‌ی کتابخانه هم همین عدد را نشان می‌دهد، ولی کسی که تصویر را از قبل
+ * انتخاب‌شده برمی‌دارد پنجره را باز نمی‌کند و بی‌آن، اندازه را هیچ‌جا نمی‌دید.
  */
 export function SizeHint({ advice }: { advice?: MediaAdvice }) {
   if (!advice) return null
@@ -58,7 +45,7 @@ export function ImageField({
   value,
   onChange,
   label = 'تصاویر',
-  hint = 'اولین تصویر به‌عنوان کاور کالا استفاده می‌شود. از کتابخانه انتخاب کنید، فایل آپلود کنید یا لینک بدهید.',
+  hint = 'اولین تصویر به‌عنوان کاور کالا استفاده می‌شود. از کتابخانه انتخاب کنید یا لینک بدهید.',
   advice = { width: 1200, height: 1200, note: 'مربع بهتر است؛ کارت‌های کالا تصویر را مربع می‌برند.' },
 }: {
   value: string[]
@@ -70,7 +57,6 @@ export function ImageField({
   const [url, setUrl] = useState('')
   const [urlError, setUrlError] = useState<string>()
   const [picking, setPicking] = useState(false)
-  const fileRef = useRef<HTMLInputElement>(null)
 
   const addUrl = () => {
     const src = url.trim()
@@ -90,20 +76,6 @@ export function ImageField({
     onChange([...value, src])
     setUrl('')
     setUrlError(undefined)
-  }
-
-  const addFiles = async (files: FileList | null) => {
-    if (!files?.length) return
-    const added: string[] = []
-
-    for (const file of Array.from(files)) {
-      const src = await toImageSource(file)
-      if (src) added.push(src)
-    }
-
-    if (added.length) onChange([...value, ...added])
-    // بدون این، انتخاب دوباره‌ی همان فایل رویداد change نمی‌دهد
-    if (fileRef.current) fileRef.current.value = ''
   }
 
   const removeAt = (index: number) => onChange(value.filter((_, i) => i !== index))
@@ -187,10 +159,6 @@ export function ImageField({
           <ImageIcon className="size-4" />
           کتابخانه
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={() => fileRef.current?.click()}>
-          <Upload className="size-4" />
-          آپلود سریع
-        </Button>
       </div>
 
       <MediaPicker
@@ -200,15 +168,6 @@ export function ImageField({
         onClose={() => setPicking(false)}
         // تکراری‌ها کنار گذاشته می‌شوند، وگرنه یک تصویر دو بار در گالری کالا می‌نشست
         onPick={(picked) => onChange([...value, ...picked.filter((src) => !value.includes(src))])}
-      />
-
-      <input
-        ref={fileRef}
-        type="file"
-        accept="image/*"
-        multiple
-        className="hidden"
-        onChange={(e) => addFiles(e.target.files)}
       />
 
       {urlError ? (
@@ -224,15 +183,15 @@ export function ImageField({
 
 
 /**
- * انتخاب یک تصویر واحد (مثل لوگوی برند): آپلود فایل، کشیدن‌ورها کردن، یا
- * وارد کردن مسیر/لینک. فایل آپلودشده data URL می‌شود، پس به‌جای رشته‌ی
- * چندکیلوبایتی داخل input، یک نشانگر «فایل آپلودشده» نمایش داده می‌شود.
+ * انتخاب یک تصویر واحد (مثل لوگوی برند): از کتابخانه، یا با نوشتن مسیر/لینک.
+ * مقدارهای قدیمیِ data URL هم پشتیبانی می‌شوند: به‌جای رشته‌ی چندکیلوبایتی
+ * داخل input، یک نشانگر «فایل آپلودشده» نمایش داده می‌شود.
  */
 export function SingleImageField({
   value,
   onChange,
   label = 'تصویر',
-  hint = 'از کتابخانه انتخاب کنید، فایل را اینجا رها کنید، یا مسیر/لینک تصویر را بنویسید. حداکثر ۲ مگابایت.',
+  hint = 'از کتابخانه انتخاب کنید یا مسیر/لینک تصویر را بنویسید.',
   error,
   placeholder = '/img/… یا https://…',
   advice,
@@ -245,19 +204,8 @@ export function SingleImageField({
   placeholder?: string
   advice?: MediaAdvice
 }) {
-  const fileRef = useRef<HTMLInputElement>(null)
-  const [dragging, setDragging] = useState(false)
   const [picking, setPicking] = useState(false)
   const uploaded = value.startsWith('data:')
-
-  const pick = async (files: FileList | null) => {
-    const file = files?.[0]
-    // بدون این، انتخاب دوباره‌ی همان فایل رویداد change نمی‌دهد
-    if (fileRef.current) fileRef.current.value = ''
-    if (!file) return
-    const src = await toImageSource(file)
-    if (src) onChange(src)
-  }
 
   return (
     <div className="space-y-2">
@@ -270,21 +218,8 @@ export function SingleImageField({
         <button
           type="button"
           aria-label={value ? 'تغییر تصویر' : 'انتخاب تصویر'}
-          onClick={() => fileRef.current?.click()}
-          onDragOver={(e) => {
-            e.preventDefault()
-            setDragging(true)
-          }}
-          onDragLeave={() => setDragging(false)}
-          onDrop={(e) => {
-            e.preventDefault()
-            setDragging(false)
-            void pick(e.dataTransfer.files)
-          }}
-          className={cn(
-            'grid h-20 w-32 shrink-0 place-items-center overflow-hidden rounded-xl border border-dashed bg-surface-2 transition-colors',
-            dragging ? 'border-brand-500 bg-brand-500/10' : 'border-border hover:border-brand-500',
-          )}
+          onClick={() => setPicking(true)}
+          className="grid h-20 w-32 shrink-0 place-items-center overflow-hidden rounded-xl border border-dashed border-border bg-surface-2 transition-colors hover:border-brand-500"
         >
           {value && !error ? (
             <Image
@@ -296,7 +231,7 @@ export function SingleImageField({
               unoptimized
             />
           ) : (
-            <ImagePlus className={cn('size-5', dragging ? 'text-brand-500' : 'text-muted')} />
+            <ImagePlus className="size-5 text-muted" />
           )}
         </button>
 
@@ -304,11 +239,7 @@ export function SingleImageField({
           <div className="flex flex-wrap gap-2">
             <Button type="button" variant="soft" size="sm" onClick={() => setPicking(true)}>
               <ImageIcon className="size-4" />
-              کتابخانه
-            </Button>
-            <Button type="button" variant="ghost" size="sm" onClick={() => fileRef.current?.click()}>
-              <Upload className="size-4" />
-              {value ? 'تغییر' : 'آپلود'}
+              {value ? 'تغییر تصویر' : 'انتخاب از کتابخانه'}
             </Button>
             {value && (
               <Button
@@ -326,7 +257,7 @@ export function SingleImageField({
 
           {uploaded ? (
             <p className="rounded-xl border border-border bg-surface-2 px-3 py-2 text-[12px] text-muted">
-              فایل آپلودشده — برای جایگزینی، دوباره آپلود کنید
+              فایل آپلودشده — برای جایگزینی، از کتابخانه انتخاب کنید
             </p>
           ) : (
             <Input
@@ -340,8 +271,6 @@ export function SingleImageField({
           )}
         </div>
       </div>
-
-      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => void pick(e.target.files)} />
 
       <MediaPicker
         open={picking}
