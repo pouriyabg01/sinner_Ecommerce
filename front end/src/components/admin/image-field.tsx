@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/toast'
 import { checkField, imageSourceSchema } from '@/lib/validation'
 import { MAX_UPLOAD_BYTES, uploadImage } from '@/lib/file'
+import { toFaDigits } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 /** فایل انتخابی را اعتبارسنجی و به data URL تبدیل می‌کند؛ null یعنی قابل استفاده نبود */
@@ -28,6 +29,25 @@ async function toImageSource(file: File): Promise<string | null> {
     toast.error(`آپلود «${file.name}» ناموفق بود: ${(error as Error).message}`)
     return null
   }
+}
+
+/**
+ * اندازه‌ی پیشنهادیِ همین‌جا، کنار عنوان فیلد.
+ *
+ * پیش از این فقط داخل پنجره‌ی کتابخانه نوشته می‌شد، یعنی کسی که فایل را
+ * مستقیم آپلود می‌کرد هیچ‌وقت نمی‌دیدش و تصویر با نسبت اشتباه بالا می‌رفت.
+ */
+export function SizeHint({ advice }: { advice?: MediaAdvice }) {
+  if (!advice) return null
+
+  return (
+    <span
+      title={advice.note}
+      className="num shrink-0 rounded-lg bg-surface-2 px-2 py-1 text-[11px] font-medium text-muted"
+    >
+      اندازه‌ی پیشنهادی: {toFaDigits(advice.width)} × {toFaDigits(advice.height)} پیکسل
+    </span>
+  )
 }
 
 /** وقتی محصولی هیچ تصویری ندارد، به‌جای خطای next/image این نشان داده می‌شود */
@@ -96,7 +116,10 @@ export function ImageField({
 
   return (
     <div className="space-y-2">
-      <span className="block text-[13px] font-medium">{label}</span>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <span className="text-[13px] font-medium">{label}</span>
+        <SizeHint advice={advice} />
+      </div>
 
       {value.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-border p-5 text-center text-xs text-muted">
@@ -238,7 +261,10 @@ export function SingleImageField({
 
   return (
     <div className="space-y-2">
-      <span className="block text-[13px] font-medium">{label}</span>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <span className="text-[13px] font-medium">{label}</span>
+        <SizeHint advice={advice} />
+      </div>
 
       <div className="flex items-start gap-3">
         <button
